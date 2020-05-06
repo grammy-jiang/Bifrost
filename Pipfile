@@ -26,6 +26,7 @@ pytest-watch = "*"
 pytest-xdist = "*"
 radon = "*"
 tox = "*"
+versioneer = "*"
 yapf = "*"
 
 [packages]
