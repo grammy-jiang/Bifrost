@@ -1,2 +1,3 @@
-# Bifrost
-Asynchronous Proxy to Bypass GFW
+# Bifröst
+
+An Asynchronous Proxy to Bypass GFW
