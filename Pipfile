@@ -9,6 +9,7 @@ black = "*"
 flake8 = "*"
 ipython = "*"
 isort = "*"
+mitmproxy = "*"
 mypy = "*"
 pylint = "*"
 pytest = "*"
@@ -30,6 +31,7 @@ versioneer = "*"
 yapf = "*"
 
 [packages]
+uvloop = "*"
 
 [requires]
 python_version = "3.8"
