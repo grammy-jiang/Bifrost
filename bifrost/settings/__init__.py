@@ -1,6 +1,6 @@
 import logging
-from collections import MutableMapping, namedtuple
-from typing import Dict
+from collections import Mapping, MutableMapping, namedtuple
+from typing import Any, Dict
 
 # The pair of priority and priority_value
 PRIORITIES: Dict[str, int] = {
@@ -26,23 +26,47 @@ class BaseSettings(MutableMapping):
 
         """
 
-    def __getitem__(self, k):
+    def update(self, m: Mapping, **kwargs) -> None:
         """
 
+        :param m:
+        :type m: Mapping
+        :param kwargs:
+        :type kwargs:
+        :return
+        :rtype: None
+        """
+        pass
+
+    # ---- abstract methods of MutableMapping ---------------------------------
+
+    def __getitem__(self, k: str) -> Any:
+        """
+
+        :param k:
+        :type k: str
         :return:
+        :rtype: Any
         """
 
-    def __setitem__(self, k, v):
+    def __setitem__(self, k: str, v: Any) -> None:
         """
 
-        :param item:
+        :param k:
+        :type k: str
+        :param v:
+        :type v: Any
         :return:
+        :rtype: None
         """
 
-    def __delitem__(self, v):
+    def __delitem__(self, k: str) -> None:
         """
 
+        :param k:
+        :type k: str
         :return:
+        :rtype: None
         """
 
     def __iter__(self):
@@ -51,14 +75,16 @@ class BaseSettings(MutableMapping):
         :return:
         """
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
 
         :return:
+        :rtype: int
         """
 
-    def __contains__(self, o):
+    def __contains__(self, k: str) -> bool:
         """
 
         :return:
+        :rtype: bool
         """
