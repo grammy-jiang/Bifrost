@@ -21,10 +21,15 @@ class BaseSettings(MutableMapping):
 
     """
 
-    def __init__(self):
+    def __init__(self, settings: Mapping = None, priority: str = "project"):
         """
 
+        :param settings:
+        :type settings: Mapping
+        :param priority:
+        :type priority: str
         """
+        self._data: Dict[str, Setting] = {}
 
     def update(self, m: Mapping, **kwargs) -> None:
         """
