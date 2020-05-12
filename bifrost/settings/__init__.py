@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 # The pair of priority and priority_value
@@ -8,3 +9,5 @@ PRIORITIES: Dict[str, int] = {
     "env": 30,
     "cmd": 40,
 }
+
+logger = logging.getLogger(__name__)  # pylint: disable = invalid-name
