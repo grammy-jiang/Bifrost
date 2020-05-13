@@ -1,6 +1,18 @@
+"""
+Define Settings class
+"""
+from __future__ import annotations
+
 import logging
-from collections import Mapping, MutableMapping, namedtuple
-from typing import Any, Dict
+from collections import namedtuple
+from collections.abc import Mapping, MutableMapping
+from contextlib import contextmanager
+from typing import Any, Dict, Generator
+
+from bifrost.exceptions.settings import (
+    SettingsFrozenException,
+    SettingsLowPriorityException,
+)
 
 # The pair of priority and priority_value
 PRIORITIES: Dict[str, int] = {
@@ -18,8 +30,23 @@ Setting = namedtuple("Setting", ["priority", "priority_value", "value"])
 
 class BaseSettings(MutableMapping):
     """
-
+    The base class of Settings
     """
+
+    class FrozenCheck:  # pylint: disable = too-few-public-methods
+        """
+        A decorator for Settings frozen status check
+        """
+
+        def __call__(self, method):
+            def frozen_check(settings: BaseSettings, *args, **kwargs):
+                if settings.is_frozen():
+                    raise SettingsFrozenException
+                return method(settings, *args, **kwargs)
+
+            return frozen_check
+
+    frozen_check = FrozenCheck()
 
     def __init__(self, settings: Mapping = None, priority: str = "project"):
         """
@@ -30,10 +57,43 @@ class BaseSettings(MutableMapping):
         :type priority: str
         """
         self._data: Dict[str, Setting] = {}
+        self._frozen: bool = False
+        self._priority = priority
+        if settings:
+            self.update(settings)
 
-    def update(self, m: Mapping, **kwargs) -> None:
+        self._frozen = True
+
+    def is_frozen(self) -> bool:
         """
+        check this settings class frozen or not
+        :return:
+        """
+        return self._frozen
 
+    @contextmanager
+    def unfreeze(  # pylint: disable = bad-continuation
+        self, priority: str = "project"
+    ) -> Generator[BaseSettings, None, None]:
+        """
+        A context manager to unfreeze this instance and keep the previous frozen
+        status
+        """
+        _priority: str
+        _priority, self._priority = self._priority, priority
+        status: bool
+        status, self._frozen = self._frozen, False
+        try:
+            yield self
+        finally:
+            self._priority = _priority
+            self._frozen = status
+
+    @frozen_check
+    def update(self, m: Mapping = None, **kwargs) -> None:
+        # def update(self, m: Mapping, **kwargs) -> None:
+        """
+        Update this instance with the given values
         :param m:
         :type m: Mapping
         :param kwargs:
@@ -41,7 +101,13 @@ class BaseSettings(MutableMapping):
         :return
         :rtype: None
         """
-        pass
+        if m:
+            for key, value in m.items():
+                self[key] = value
+
+        if kwargs:
+            for key, value in kwargs.items():
+                self[key] = value
 
     # ---- abstract methods of MutableMapping ---------------------------------
 
@@ -53,7 +119,9 @@ class BaseSettings(MutableMapping):
         :return:
         :rtype: Any
         """
+        return self._data[k].value
 
+    @frozen_check
     def __setitem__(self, k: str, v: Any) -> None:
         """
 
@@ -64,7 +132,17 @@ class BaseSettings(MutableMapping):
         :return:
         :rtype: None
         """
+        setting: Setting = Setting(
+            priority=self._priority, priority_value=PRIORITIES[self._priority], value=v
+        )
+        if k in self:
+            _v = self._data[k]
+            if PRIORITIES[self._priority] < _v.priority_value:
+                raise SettingsLowPriorityException
 
+        self._data[k] = setting
+
+    @frozen_check
     def __delitem__(self, k: str) -> None:
         """
 
@@ -73,12 +151,14 @@ class BaseSettings(MutableMapping):
         :return:
         :rtype: None
         """
+        del self._data[k]
 
     def __iter__(self):
         """
 
         :return:
         """
+        return iter(self._data)
 
     def __len__(self) -> int:
         """
@@ -86,10 +166,12 @@ class BaseSettings(MutableMapping):
         :return:
         :rtype: int
         """
+        return len(self._data)
 
-    def __contains__(self, k: str) -> bool:
+    def __contains__(self, k: object) -> bool:
         """
 
         :return:
         :rtype: bool
         """
+        return k in self._data
