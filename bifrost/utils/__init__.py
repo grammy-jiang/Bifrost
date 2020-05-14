@@ -12,7 +12,7 @@ def get_settings():
 
 
 def configure_logging(logger: Logger, settings: Settings):
-    # create logger
+    # set logger level
     logger.setLevel(settings["LOG_LEVEL"])
 
     # create console handler and set level
