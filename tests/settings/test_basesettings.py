@@ -103,12 +103,6 @@ class BaseSettingsTest(TestCase):
             },
         )
 
-        with self.assertRaises(SettingsFrozenException):
-            self.settings.update({"e": 6})
-
-        with self.assertRaises(SettingsFrozenException):
-            self.settings.update(e=6)
-
     def test_getitem(self):
         """
         test the method of getitem

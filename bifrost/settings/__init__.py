@@ -7,7 +7,9 @@ import logging
 from collections import namedtuple
 from collections.abc import Mapping, MutableMapping
 from contextlib import contextmanager
-from typing import Any, Dict, Generator
+from importlib import import_module
+from types import ModuleType
+from typing import Any, Dict, Generator, Union
 
 from bifrost.exceptions.settings import (
     SettingsFrozenException,
@@ -89,7 +91,6 @@ class BaseSettings(MutableMapping):
             self._priority = _priority
             self._frozen = status
 
-    @frozen_check
     def update(self, m: Mapping = None, **kwargs) -> None:
         # def update(self, m: Mapping, **kwargs) -> None:
         """
@@ -175,3 +176,19 @@ class BaseSettings(MutableMapping):
         :rtype: bool
         """
         return k in self._data
+
+
+class Settings(BaseSettings):
+    def update_from_module(self, module: Union[str, ModuleType]) -> None:
+        """
+        update settings from a module
+        :param module:
+        :type module:
+        :return:
+        """
+        if isinstance(module, str):
+            module = import_module(module)
+
+        for key in dir(module):
+            if key.isupper():
+                self[key] = getattr(module, key)
