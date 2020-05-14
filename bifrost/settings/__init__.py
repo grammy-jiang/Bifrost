@@ -91,8 +91,9 @@ class BaseSettings(MutableMapping):
             self._priority = _priority
             self._frozen = status
 
-    def update(self, m: Mapping = None, **kwargs) -> None:
-        # def update(self, m: Mapping, **kwargs) -> None:
+    def update(  # pylint: disable = arguments-differ
+        self, m: Mapping = None, **kwargs  # pylint: disable = bad-continuation
+    ) -> None:
         """
         Update this instance with the given values
         :param m:
@@ -178,7 +179,11 @@ class BaseSettings(MutableMapping):
         return k in self._data
 
 
-class Settings(BaseSettings):
+class Settings(BaseSettings):  # pylint: disable = too-many-ancestors
+    """
+    Settings class
+    """
+
     def update_from_module(self, module: Union[str, ModuleType]) -> None:
         """
         update settings from a module
