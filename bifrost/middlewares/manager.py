@@ -3,10 +3,13 @@ Middleware Manager
 """
 from __future__ import annotations
 
+import logging
 from typing import Type
 
 from bifrost.service import Service
 from bifrost.settings import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class MiddlewareManager:
