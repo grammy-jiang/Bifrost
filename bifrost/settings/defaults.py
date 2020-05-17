@@ -9,9 +9,12 @@ LOG_LEVEL = logging.DEBUG
 LOG_FORMATTER_FMT = "%(asctime)-15s [%(name)s] %(levelname)-8s: %(message)s"
 LOG_FORMATTER_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
-# ==== Service ================================================================
+# ==== CORE MODULES ===========================================================
 
 SERVICE = "bifrost.service.bifrost.BifrostService"
+
+MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
+EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
 
 # ==== MODE ===================================================================
 
