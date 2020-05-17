@@ -1,6 +1,12 @@
 """
 Extension Manager
 """
+from __future__ import annotations
+
+from typing import Type
+
+from bifrost.service import Service
+from bifrost.settings import Settings
 
 
 class ExtensionManager:
@@ -8,4 +14,24 @@ class ExtensionManager:
     Extension Manager
     """
 
-    pass
+    def __init__(self, service: Type[Service], settings: Settings):
+        """
+
+        :param service:
+        :type service: Type[Service]
+        :param settings:
+        :type settings: Settings
+        """
+
+    @classmethod
+    def from_settings(cls, service: Type[Service]) -> ExtensionManager:
+        """
+
+        :param service:
+        :type service: Type[Service]
+        :return:
+        :rtype: ExtensionManager
+        """
+        settings: Settings = getattr(service, "settings")
+        obj = cls(service, settings)
+        return obj
