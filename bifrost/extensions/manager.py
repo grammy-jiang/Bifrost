@@ -24,7 +24,7 @@ class ExtensionManager:
         """
 
     @classmethod
-    def from_settings(cls, service: Type[Service]) -> ExtensionManager:
+    def from_service(cls, service: Type[Service]) -> ExtensionManager:
         """
 
         :param service:
