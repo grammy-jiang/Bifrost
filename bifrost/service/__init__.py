@@ -31,6 +31,11 @@ class Service(ABC):
             settings["EXTENSION_MANAGER"]
         ).from_service(self)
 
+    @classmethod
+    def from_settings(cls, settings: Settings):
+        obj = cls(settings)
+        return obj
+
     @abstractmethod
     def start(self):
         """
