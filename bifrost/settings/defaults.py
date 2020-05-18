@@ -4,6 +4,7 @@ Default settings
 import logging
 
 # ==== LOG CONFIGURATION ======================================================
+from typing import Dict
 
 LOG_LEVEL = logging.DEBUG
 LOG_FORMATTER_FMT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
@@ -20,3 +21,7 @@ EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
 
 # the role that bifrost will play; it could be server or client
 ROLE = "server"
+
+MIDDLEWARES: Dict[str, int] = {}
+
+EXTENSIONS: Dict[str, int] = {}
