@@ -4,6 +4,7 @@ Default settings
 import logging
 
 # ==== LOG CONFIGURATION ======================================================
+
 from typing import Dict
 
 LOG_LEVEL = logging.DEBUG
@@ -16,6 +17,8 @@ SERVICE = "bifrost.service.bifrost.BifrostService"
 
 MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
 EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
+
+LOOP = "asyncio"
 
 # ==== MODE ===================================================================
 
