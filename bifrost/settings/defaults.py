@@ -2,10 +2,9 @@
 Default settings
 """
 import logging
+from typing import Dict
 
 # ==== LOG CONFIGURATION ======================================================
-
-from typing import Dict
 
 LOG_LEVEL = logging.DEBUG
 LOG_FORMATTER_FMT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
@@ -28,3 +27,23 @@ ROLE = "server"
 MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {}
+
+# ==== MODE: CLIENT ===========================================================
+
+CLIENT_PROTOCOLS = [
+    {
+        "protocol": "bifrost.protocols.socks5.Socks5Protocol",
+        "host": "127.0.0.1",
+        "port": 1080,
+    },
+    # {
+    #     "protocol": "bifrost.protocols.http.HttpProtocol",
+    #     "host": "127.0.0.1",
+    #     "port": 80,
+    # },
+    # {
+    #     "protocol": "bifrost.protocols.https.HttpsProtocol",
+    #     "host": "127.0.0.1",
+    #     "port": 443,
+    # },
+]
