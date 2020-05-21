@@ -9,12 +9,12 @@ from typing import Type
 
 from bifrost.service import Service
 from bifrost.settings import Settings
-from bifrost.utils.misc import load_object
+from bifrost.utils.manager import Manager
 
 logger = logging.getLogger(__name__)
 
 
-class ExtensionManager:
+class ExtensionManager(Manager):
     """
     Extension Manager
     """
@@ -27,27 +27,7 @@ class ExtensionManager:
         :param settings:
         :type settings: Settings
         """
-        self.service = service
-        self.settings = settings
+        super(ExtensionManager, self).__init__(service, settings)
 
-        self.cls_extensions = dict(
-            sorted(self.settings["EXTENSIONS"].items(), key=lambda items: items[1])
-        )
-        self.obj_extensions = [
-            load_object(cls).from_service(self.service)
-            for cls in self.cls_extensions.keys()
-        ]
-        logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_extensions))
-
-    @classmethod
-    def from_service(cls, service: Type[Service]) -> ExtensionManager:
-        """
-
-        :param service:
-        :type service: Type[Service]
-        :return:
-        :rtype: ExtensionManager
-        """
-        settings: Settings = getattr(service, "settings")
-        obj = cls(service, settings)
-        return obj
+        self._register_components("EXTENSIONS")
+        logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_components))

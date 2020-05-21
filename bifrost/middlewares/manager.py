@@ -9,12 +9,12 @@ from typing import Type
 
 from bifrost.service import Service
 from bifrost.settings import Settings
-from bifrost.utils.misc import load_object
+from bifrost.utils.manager import Manager
 
 logger = logging.getLogger(__name__)
 
 
-class MiddlewareManager:
+class MiddlewareManager(Manager):
     """
     Middleware Manager
     """
@@ -27,27 +27,7 @@ class MiddlewareManager:
         :param settings:
         :type settings: Settings
         """
-        self.service = service
-        self.settings = settings
+        super(MiddlewareManager, self).__init__(service, settings)
 
-        self.cls_middlewares = dict(
-            sorted(self.settings["MIDDLEWARES"].items(), key=lambda items: items[1])
-        )
-        self.middlewares = [
-            load_object(cls).from_service(self.service)
-            for cls in self.cls_middlewares.keys()
-        ]
-        logger.info("Enabled middlewares: \n%s", pprint.pformat(self.cls_middlewares))
-
-    @classmethod
-    def from_service(cls, service: Type[Service]) -> MiddlewareManager:
-        """
-
-        :param service:
-        :type service: Type[Service]
-        :return:
-        :rtype: MiddlewareManager
-        """
-        settings: Settings = getattr(service, "settings")
-        obj = cls(service, settings)
-        return obj
+        self._register_components("MIDDLEWARES")
+        logger.info("Enabled middlewares: \n%s", pprint.pformat(self.cls_components))
