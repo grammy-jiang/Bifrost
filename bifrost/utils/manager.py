@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import Dict, List, Optional, Type
 
 from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.utils.misc import load_object
 
 
 class Manager:
@@ -18,6 +19,9 @@ class Manager:
         self.service = service
         self.settings = settings
 
+        self.cls_components: Optional[Dict[str, int]] = None
+        self.components: Optional[List] = None
+
     @classmethod
     def from_service(cls, service: Type[Service]) -> Manager:
         """
@@ -30,3 +34,18 @@ class Manager:
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings)
         return obj
+
+    def _register_components(self, key: str) -> None:
+        """
+
+        :param key: the setting name in Settings
+        :return:
+        :rtype: None
+        """
+        self.cls_components = dict(
+            sorted(self.settings[key].items(), key=lambda items: items[1])
+        )
+        self.components = [
+            load_object(cls).from_service(self.service)
+            for cls in self.cls_components.keys()
+        ]
