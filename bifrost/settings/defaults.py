@@ -2,7 +2,7 @@
 Default settings
 """
 import logging
-from typing import Dict
+from typing import Dict, Union
 
 # ==== LOG CONFIGURATION ======================================================
 
@@ -48,11 +48,10 @@ CLIENT_PROTOCOLS = [
     # },
 ]
 
-CHANNELS = [
-    {
-        "NAME": "socks5",
+CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
+    "socks5": {
         "INTERFACE_PROTOCOL": "bifrost.protocols.socks5.Socks5Protocol",
         "INTERFACE_ADDRESS": "127.0.0.1",
         "INTERFACE_PORT": 1080,
     },
-]
+}
