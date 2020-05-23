@@ -1,16 +1,18 @@
 """
 Service module
 """
-import logging
-from asyncio.events import AbstractEventLoop
-from typing import TYPE_CHECKING, Type
+from __future__ import annotations
 
+import logging
+import pprint
+from asyncio.events import AbstractEventLoop
+from typing import Dict, Type, Union
+
+from bifrost.channels.channel import Channel
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
+from bifrost.utils.manager import Manager
 from bifrost.utils.misc import load_object
-
-if TYPE_CHECKING:
-    from bifrost.utils.manager import Manager
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +28,7 @@ class Service:
         :param settings:
         :type settings: Settings
         """
-        self.settings = settings
+        self.settings: Settings = settings
         self.role: str = settings["ROLE"]
         logger.info("This service is running in role: %s", self.role.upper())
 
@@ -43,10 +45,33 @@ class Service:
             settings["EXTENSION_MANAGER"]
         ).from_service(self)
 
+        self.channels: Dict[str, Type[Channel]] = self._get_channels()
+
     @classmethod
     def from_settings(cls, settings: Settings):
         obj = cls(settings)
         return obj
+
+    def _get_channels(self) -> Dict[str, Type[Channel]]:
+        """
+
+        :return:
+        :rtype: Dict[str, Type[Channel]]
+        """
+        channels: Dict[str, Type[Channel]] = {}
+        repr_channels: Dict = {}
+
+        name: str
+        channel: Dict[str, Union[str, int]]
+        for name, channel in self.settings["CHANNELS"].items():
+            channels[name]: Type[Channel] = Channel.from_service(
+                self, name=name, **channel
+            )
+            repr_channels[name] = channel
+
+        logger.info("Enable channels:\n%s", pprint.pformat(repr_channels))
+
+        return channels
 
     def start(self):
         """
