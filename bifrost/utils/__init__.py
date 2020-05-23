@@ -1,5 +1,4 @@
 import logging
-from logging import Logger
 
 from bifrost.settings import Settings, defaults
 
@@ -11,21 +10,15 @@ def get_settings():
     return settings
 
 
-def configure_logging(logger: Logger, settings: Settings):
-    # set logger level
-    logger.setLevel(settings["LOG_LEVEL"])
-
-    # create console handler and set level
+def configure_logging(settings: Settings):
+    # Get a console handler and configure it
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(settings["LOG_LEVEL"])
 
-    # create formatter
     formatter = logging.Formatter(
         fmt=settings["LOG_FORMATTER_FMT"], datefmt=settings["LOG_FORMATTER_DATEFMT"],
     )
-
-    # add formatter to console_handler
     console_handler.setFormatter(formatter)
+    console_handler.setLevel(settings["LOG_LEVEL"])
 
-    # add console_handler to logger
-    logger.addHandler(console_handler)
+    # add this console handler into logging
+    logging.root.addHandler(console_handler)
