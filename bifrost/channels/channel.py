@@ -40,3 +40,18 @@ class Channel:
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings, **kwargs)
         return obj
+
+    def _get_interface_protocol(self) -> Type["Protocol"]:
+        if self.role != "client":
+            raise NotImplementedError
+
+        return self.cls_interface_protocol.from_service(self)
+
+    def register(self):
+        if self.role == "client":
+            server = self.loop.create_server(
+                self._get_interface_protocol,
+                self.interface_address,
+                self.interface_port,
+            )
+            self.loop.run_until_complete(server)
