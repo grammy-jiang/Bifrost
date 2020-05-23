@@ -1,3 +1,4 @@
+import logging
 from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Type
 
@@ -7,6 +8,8 @@ from bifrost.utils.misc import load_object
 if TYPE_CHECKING:
     from bifrost.service import Service
     from bifrost.protocols import Protocol
+
+logger = logging.getLogger(__name__)
 
 
 class Channel:
@@ -34,6 +37,12 @@ class Channel:
             )
             self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
             self.interface_port: int = kwargs["INTERFACE_PORT"]
+            logger.info(
+                "Protocol \"%s\" is going to listen on the interface: %s:%s",
+                self.interface_protocol,
+                self.interface_address,
+                self.interface_port,
+            )
 
     @classmethod
     def from_service(cls, service: Type["Service"], **kwargs):
