@@ -1,33 +1,35 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Type
 
-from bifrost.service import Service
 from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
 
+if TYPE_CHECKING:
+    from bifrost.service import Service
+
 
 class Manager:
-    def __init__(self, service: Type[Service], settings: Settings):
+    def __init__(self, service: Type["Service"], settings: Settings):
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Type["Service"]
         :param settings:
         :type settings: Settings
         """
-        self.service = service
-        self.settings = settings
+        self.service: Type["Service"] = service
+        self.settings: Settings = settings
 
         self.cls_components: Optional[Dict[str, int]] = None
         self.components: Optional[List] = None
 
     @classmethod
-    def from_service(cls, service: Type[Service]) -> Manager:
+    def from_service(cls, service: Type["Service"]) -> Manager:
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Type["Service"]
         :return:
         :rtype: Manager
         """
