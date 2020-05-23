@@ -46,6 +46,7 @@ class Service:
         ).from_service(self)
 
         self.channels: Dict[str, Type[Channel]] = self._get_channels()
+        self._register_channels()
 
     @classmethod
     def from_settings(cls, settings: Settings):
@@ -72,6 +73,11 @@ class Service:
         logger.info("Enable channels:\n%s", pprint.pformat(repr_channels))
 
         return channels
+
+    def _register_channels(self) -> None:
+        channel: Type[Channel]
+        for channel in self.channels.values():
+            channel.register()
 
     def start(self):
         """
