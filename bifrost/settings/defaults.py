@@ -47,3 +47,12 @@ CLIENT_PROTOCOLS = [
     #     "port": 443,
     # },
 ]
+
+CHANNELS = [
+    {
+        "NAME": "socks5",
+        "INTERFACE_PROTOCOL": "bifrost.protocols.socks5.Socks5Protocol",
+        "INTERFACE_ADDRESS": "127.0.0.1",
+        "INTERFACE_PORT": 1080,
+    },
+]
