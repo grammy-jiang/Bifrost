@@ -37,12 +37,6 @@ class Channel:
             )
             self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
             self.interface_port: int = kwargs["INTERFACE_PORT"]
-            logger.info(
-                "Protocol \"%s\" is going to listen on the interface: %s:%s",
-                self.interface_protocol,
-                self.interface_address,
-                self.interface_port,
-            )
 
     @classmethod
     def from_service(cls, service: Type["Service"], **kwargs):
@@ -64,3 +58,9 @@ class Channel:
                 self.interface_port,
             )
             self.loop.run_until_complete(server)
+            logger.info(
+                'Protocol "%s" is going to listen on the interface: %s:%s',
+                self.interface_protocol,
+                self.interface_address,
+                self.interface_port,
+            )
