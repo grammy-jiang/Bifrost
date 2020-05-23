@@ -8,34 +8,37 @@ from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
 from typing import Optional, Type
 
+from bifrost.channels.channel import Channel
 from bifrost.service import Service
 from bifrost.settings import Settings
 
 
 class Protocol(_Protocol):
-    def __init__(self, service: Type[Service], settings: Settings, *args, **kwargs):
+    def __init__(self, channel: Type[Channel], *args, **kwargs):
         """
 
-        :param service:
-        :type service: Type[Service]
-        :param settings:
-        :type settings: Settings
+        :param channel:
+        :type channel: Type[Channel]
+        :param args:
+        :param kwargs:
         """
         super(Protocol, self).__init__(*args, **kwargs)
-        self.service = service
-        self.settings = settings
+        self.channel: Type[Channel] = channel
+        self.name: str = channel.name
+
+        self.service: Type[Service] = channel.service
+        self.settings: Settings = channel.settings
 
         self.transport: Optional[Type[BaseTransport]] = None
 
     @classmethod
-    def from_service(cls, service: Type[Service], *args, **kwargs) -> Protocol:
+    def from_channel(cls, channel: Type[Channel], *args, **kwargs) -> Protocol:
         """
 
-        :param service:
-        :type service: Type[Service]
+        :param channel:
+        :type channel: Type[Channel]
         :return:
         :rtype: Protocol
         """
-        settings = getattr(service, "settings")
-        obj = cls(service, settings, *args, **kwargs)
+        obj = cls(channel, *args, **kwargs)
         return obj
