@@ -22,31 +22,13 @@ LOOP = "asyncio"
 # ==== MODE ===================================================================
 
 # the role that bifrost will play; it could be server or client
-ROLE = "server"
+ROLE = "client"
 
 MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {}
 
 # ==== MODE: CLIENT ===========================================================
-
-CLIENT_PROTOCOLS = [
-    {
-        "protocol": "bifrost.protocols.socks5.Socks5Protocol",
-        "host": "127.0.0.1",
-        "port": 1080,
-    },
-    # {
-    #     "protocol": "bifrost.protocols.http.HttpProtocol",
-    #     "host": "127.0.0.1",
-    #     "port": 80,
-    # },
-    # {
-    #     "protocol": "bifrost.protocols.https.HttpsProtocol",
-    #     "host": "127.0.0.1",
-    #     "port": 443,
-    # },
-]
 
 CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
     "socks5": {
