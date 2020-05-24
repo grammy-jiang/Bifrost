@@ -4,6 +4,7 @@ Service module
 from __future__ import annotations
 
 import logging
+import platform
 import pprint
 from asyncio.events import AbstractEventLoop
 from typing import Dict, Type, Union
@@ -28,6 +29,8 @@ class Service:
         :param settings:
         :type settings: Settings
         """
+        self._get_runtime_info()
+
         self.settings: Settings = settings
         self.role: str = settings["ROLE"]
         logger.info("This service is running in role: %s", self.role.upper())
@@ -52,6 +55,32 @@ class Service:
     def from_settings(cls, settings: Settings):
         obj = cls(settings)
         return obj
+
+    def _get_runtime_info(self):
+        logger.info(
+            "Platform: %(platform)s", {"platform": pprint.pformat(platform.platform())}
+        )
+        logger.info(
+            "Platform details:\n%s",
+            pprint.pformat(
+                {
+                    "architecture": platform.architecture(),
+                    "machine": platform.machine(),
+                    "node": platform.node(),
+                    "processor": platform.processor(),
+                    "python_build": platform.python_build(),
+                    "python_compiler": platform.python_compiler(),
+                    "python_branch": platform.python_branch(),
+                    "python_implementation": platform.python_implementation(),
+                    "python_revision": platform.python_revision(),
+                    "python_version": platform.python_version(),
+                    "release": platform.release(),
+                    "system": platform.system(),
+                    "version": platform.version(),
+                }
+            ),
+        )
+        logger.info("Versions:\n%s", pprint.pformat({"Python": platform.python_version()}))
 
     def _get_channels(self) -> Dict[str, Type[Channel]]:
         """
