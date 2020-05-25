@@ -1,6 +1,7 @@
 import logging
+from asyncio.base_events import Server
 from asyncio.events import AbstractEventLoop
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Optional, Type
 
 from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
@@ -38,6 +39,8 @@ class Channel:
             self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
             self.interface_port: int = kwargs["INTERFACE_PORT"]
 
+            self.server: Optional[Server] = None
+
     @classmethod
     def from_service(cls, service: Type["Service"], **kwargs):
         settings: Settings = getattr(service, "settings")
@@ -52,12 +55,12 @@ class Channel:
 
     def register(self):
         if self.role == "client":
-            server = self.loop.create_server(
+            self.server: Server = self.loop.create_server(
                 self._get_interface_protocol,
                 self.interface_address,
                 self.interface_port,
             )
-            self.loop.run_until_complete(server)
+            self.loop.run_until_complete(self.server)
             logger.info(
                 'Protocol "%s" is going to listen on the interface: %s:%s',
                 self.interface_protocol,
