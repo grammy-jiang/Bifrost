@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import platform
 import pprint
+import ssl
 from asyncio.events import AbstractEventLoop
 from typing import Dict, Type, Union
 
@@ -64,6 +65,7 @@ class Service:
             "Platform details:\n%s",
             pprint.pformat(
                 {
+                    "OpenSSL": ssl.OPENSSL_VERSION,
                     "architecture": platform.architecture(),
                     "machine": platform.machine(),
                     "node": platform.node(),
@@ -80,7 +82,9 @@ class Service:
                 }
             ),
         )
-        logger.info("Versions:\n%s", pprint.pformat({"Python": platform.python_version()}))
+        logger.info(
+            "Versions:\n%s", pprint.pformat({"Python": platform.python_version(),})
+        )
 
     def _get_channels(self) -> Dict[str, Type[Channel]]:
         """
