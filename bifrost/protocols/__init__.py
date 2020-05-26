@@ -42,3 +42,9 @@ class Protocol(_Protocol):
         """
         obj = cls(channel, *args, **kwargs)
         return obj
+
+
+class ClientProtocol(Protocol):
+    @staticmethod
+    def get_hostname_port(channel: Channel, hostname: str, port: int):
+        raise NotImplementedError
