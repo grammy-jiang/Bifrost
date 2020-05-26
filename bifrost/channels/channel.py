@@ -31,6 +31,13 @@ class Channel:
 
         self.name: str = kwargs["name"]
 
+        self.cryptographic_protocol = kwargs["CRYPTOGRAPHIC_PROTOCOL"]
+        # The cryptographic address and port could be None if you want to use
+        # Bifrost to directly connect to the target address, instead of going
+        # through a server role node
+        self.cryptographic_address: Optional[str] = kwargs.get("CRYPTOGRAPHIC_ADDRESS")
+        self.cryptographic_port: Optional[int] = kwargs.get("CRYPTOGRAPHIC_PORT")
+
         if self.role == "client":
             self.interface_protocol: str = kwargs["INTERFACE_PROTOCOL"]
             self.cls_interface_protocol: Type[Protocol] = load_object(
