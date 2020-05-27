@@ -11,6 +11,7 @@ from typing import Optional, Type
 from bifrost.channels.channel import Channel
 from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.signals.manager import SignalManager
 
 
 class Protocol(_Protocol):
@@ -24,6 +25,7 @@ class Protocol(_Protocol):
         """
         super(Protocol, self).__init__(*args, **kwargs)
         self.channel: Type[Channel] = channel
+        self.signal_manager: SignalManager = self.channel.signal_manager
         self.name: str = channel.name
 
         self.service: Type[Service] = channel.service
