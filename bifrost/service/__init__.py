@@ -12,6 +12,7 @@ from typing import Dict, Type, Union
 
 from bifrost.channels.channel import Channel
 from bifrost.settings import Settings
+from bifrost.signals.manager import SignalManager
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.manager import Manager
 from bifrost.utils.misc import load_object
@@ -40,6 +41,10 @@ class Service:
         logger.info(
             "In this service the loop is adopted from: %s", settings["LOOP"].upper()
         )
+
+        self.signal_manager: SignalManager = load_object(
+            settings["SIGNAL_MANAGER"]
+        ).from_service(self)
 
         self.extension_manager: Type[Manager] = load_object(
             settings["MIDDLEWARE_MANAGER"]
