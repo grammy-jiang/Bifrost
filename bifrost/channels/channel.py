@@ -4,6 +4,7 @@ from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Optional, Type
 
 from bifrost.settings import Settings
+from bifrost.signals.manager import SignalManager
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ class Channel:
         :param kwargs:
         """
         self.service: Service = service
+        self.signal_manager: SignalManager = self.service.signal_manager
         self.loop: Type[AbstractEventLoop] = service.loop
 
         self.settings: Settings = settings
