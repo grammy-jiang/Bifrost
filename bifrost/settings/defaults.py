@@ -21,6 +21,10 @@ EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
 
 LOOP = "asyncio"
 
+# ==== Extensions =============================================================
+
+LOGSTATS_INTERVAL = 60
+
 # ==== MODE ===================================================================
 
 # the role that bifrost will play; it could be server or client
@@ -28,7 +32,9 @@ ROLE = "client"
 
 MIDDLEWARES: Dict[str, int] = {}
 
-EXTENSIONS: Dict[str, int] = {}
+EXTENSIONS: Dict[str, int] = {
+    "bifrost.extensions.logstats.LogStats": 0
+}
 
 # ==== MODE: CLIENT ===========================================================
 
