@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+from typing import Type
+
 from bifrost.service import Service
 from bifrost.settings import Settings
 
 
 class BaseExtension:
-    def __init__(self, service: Service, settings: Settings):
-        self.service: Service = service
+    def __init__(self, service: Type[Service], settings: Settings):
+        self.service: Type[Service] = service
         self.settings: Settings = settings
 
     @classmethod
-    def from_service(cls, service: Service) -> BaseExtension:
+    def from_service(cls, service: Type[Service]) -> BaseExtension:
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings)
         return obj
