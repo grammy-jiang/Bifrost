@@ -17,8 +17,8 @@ class BaseExtension:
         obj = cls(service, settings)
         return obj
 
-    def loop_started(self):
+    def loop_started(self, sender):
         raise NotImplementedError
 
-    def loop_stopped(self):
+    def loop_stopped(self, sender):
         raise NotImplementedError
