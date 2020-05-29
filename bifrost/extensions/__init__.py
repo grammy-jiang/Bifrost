@@ -9,6 +9,9 @@ from bifrost.settings import Settings
 
 
 class BaseExtension:
+    """
+    The base extension class
+    """
     def __init__(self, service: Type[Service], settings: Settings):
         """
 
