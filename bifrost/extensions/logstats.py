@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import pprint
 from asyncio.events import TimerHandle
 from collections import defaultdict
+from datetime import datetime
 from typing import Any, Dict, Optional, Type
 
 from bifrost import signals
@@ -64,17 +66,27 @@ class LogStats(BaseExtension):
         self.log(self.loop)
 
     def loop_stopped(self, sender: Any):
+        end_time = datetime.now()
         try:
             self.task.cancel()
         finally:
             logger.info(
-                "Data sent: %s, received: %s",
-                "[{:,.3f}] {}".format(
-                    *convert_unit(self.stats["sent_bytes"]),
+                "Service details:\n%s",
+                pprint.pformat(
+                    {
+                        "data sent": "{:,.3f} {}".format(
+                            *convert_unit(self.stats["sent_bytes"]),
+                        ),
+                        "data received": "{:,.3f} {}".format(
+                            *convert_unit(self.stats["received_bytes"]),
+                        ),
+                        "time start": self.service.start_time.strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
+                        "time end": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "time running": str(end_time - self.service.start_time),
+                    }
                 ),
-                "[{:,.3f}] {}".format(
-                    *convert_unit(self.stats["received_bytes"]),
-                )
             )
 
     def data_sent(self, sender: Any, data: bytes):
