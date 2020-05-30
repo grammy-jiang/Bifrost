@@ -34,8 +34,8 @@ class LogStats(BaseExtension):
 
         self.task: Optional[TimerHandle] = None
 
-        self.sent_bytes: int = 0
-        self.received_bytes: int = 0
+        self.data_sent: int = 0
+        self.data_received: int = 0
 
     @classmethod
     def from_service(cls, service: Type[Service]) -> LogStats:
@@ -60,9 +60,6 @@ class LogStats(BaseExtension):
         :return:
         :rtype: None
         """
-        self.stats["sent_bytes"] = 0
-        self.stats["received_bytes"] = 0
-
         self.log(self.loop)
 
     def loop_stopped(self, sender: Any):
@@ -90,32 +87,32 @@ class LogStats(BaseExtension):
             )
 
     def data_sent(self, sender: Any, data: bytes):
-        self.stats["sent_bytes"] += len(data)
+        self.stats["data_sent"] += len(data)
 
     def data_received(self, sender, data: bytes):
-        self.stats["received_bytes"] += len(data)
+        self.stats["data_received"] += len(data)
 
     def log(self, loop):
         inbound_rate = int(
-            (self.stats["received_bytes"] - self.received_bytes) / self.interval * 8
+            (self.stats["data_received"] - self.data_received) / self.interval * 8
         )
         outbound_rate = int(
-            (self.stats["sent_bytes"] - self.sent_bytes) / self.interval * 8
+            (self.stats["data_sent"] - self.data_sent) / self.interval * 8
         )
 
         logger.info(
             "Data sent: %s, received: %s",
             "[{:,.3f}] {} (at [{:,.3f}] {})".format(
-                *convert_unit(self.stats["sent_bytes"]),
+                *convert_unit(self.stats["data_sent"]),
                 *convert_unit(outbound_rate, rate=True),
             ),
             "[{:,.3f}] {} (at [{:,.3f}] {})".format(
-                *convert_unit(self.stats["received_bytes"]),
+                *convert_unit(self.stats["data_received"]),
                 *convert_unit(inbound_rate, rate=True),
             ),
         )
 
-        self.sent_bytes = self.stats["sent_bytes"]
-        self.received_bytes = self.stats["received_bytes"]
+        self.data_sent = self.stats["data_sent"]
+        self.data_received = self.stats["data_received"]
 
         self.task: TimerHandle = loop.call_later(self.interval, self.log, loop)
