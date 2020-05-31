@@ -3,17 +3,19 @@ Service module
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import platform
 import pprint
 import ssl
 from asyncio.events import AbstractEventLoop
 from datetime import datetime
+from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import Dict, Type, Union
 
 from bifrost.channels.channel import Channel
 from bifrost.settings import Settings
-from bifrost.signals import loop_started
+from bifrost.signals import loop_started, loop_stopped
 from bifrost.signals.manager import SignalManager
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.manager import Manager
@@ -129,7 +131,27 @@ class Service:
         :return:
         :rtype: None
         """
-        pass
+        signals = (SIGHUP, SIGQUIT, SIGTERM, SIGINT)
+
+        for signal in signals:
+            self.loop.add_signal_handler(
+                signal,
+                lambda s=signal: asyncio.create_task(self._stop(s)),
+            )
+
+    async def _stop(self, signal=None):
+        self.signal_manager.send(loop_stopped, sender=self)
+
+        await asyncio.sleep(1)
+
+        tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+
+        for task in tasks:
+            task.cancel()
+
+        await asyncio.gather(*tasks)
+
+        self.loop.stop()
 
     def start(self) -> None:
         """
