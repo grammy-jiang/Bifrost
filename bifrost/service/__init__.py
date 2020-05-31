@@ -8,10 +8,12 @@ import platform
 import pprint
 import ssl
 from asyncio.events import AbstractEventLoop
+from datetime import datetime
 from typing import Dict, Type, Union
 
 from bifrost.channels.channel import Channel
 from bifrost.settings import Settings
+from bifrost.signals import loop_started
 from bifrost.signals.manager import SignalManager
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.manager import Manager
@@ -32,6 +34,8 @@ class Service:
         :type settings: Settings
         """
         self._get_runtime_info()
+
+        self.start_time: datetime = datetime.now()
 
         self.settings: Settings = settings
         self.role: str = settings["ROLE"]
@@ -56,6 +60,8 @@ class Service:
 
         self.channels: Dict[str, Type[Channel]] = self._get_channels()
         self._register_channels()
+
+        self._configure_loop()
 
     @classmethod
     def from_settings(cls, settings: Settings):
@@ -117,9 +123,25 @@ class Service:
         for channel in self.channels.values():
             channel.register()
 
-    def start(self):
+    def _configure_loop(self) -> None:
+        """
+
+        :return:
+        :rtype: None
+        """
+        pass
+
+    def start(self) -> None:
         """
         Start this service
         :return:
         """
-        self.loop.run_forever()
+        self.signal_manager.send(loop_started, sender=self)
+
+        try:
+            self.loop.run_forever()
+        except Exception as exc:
+            logger.exception(exc)
+        finally:
+            self.loop.close()
+            logger.info("Bifrost service is shutdown successfully.")
