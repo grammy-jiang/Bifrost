@@ -140,6 +140,10 @@ class Service:
             )
 
     async def _stop(self, signal=None):
+        channel: Channel
+        for channel in self.channels.values():
+            channel.stop()
+
         self.signal_manager.send(loop_stopped, sender=self)
 
         await asyncio.sleep(1)
