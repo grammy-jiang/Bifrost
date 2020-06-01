@@ -70,3 +70,9 @@ class Channel:
                 self.interface_address,
                 self.interface_port,
             )
+
+    def stop(self):
+        try:
+            self.server.close()
+        except Exception as exc:
+            logger.exception(exc)
