@@ -4,6 +4,7 @@ from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Optional, Type
 
 from bifrost.settings import Settings
+from bifrost.signals import loop_started, loop_stopped
 from bifrost.signals.manager import SignalManager
 from bifrost.utils.misc import load_object
 
@@ -54,25 +55,29 @@ class Channel:
     def from_service(cls, service: Type["Service"], **kwargs):
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings, **kwargs)
+
+        service.signal_manager.connect(obj.start, loop_started)
+        service.signal_manager.connect(obj.stop, loop_stopped)
         return obj
 
-    def register(self):
+    async def start(self, sender):
         if self.role == "client":
-            self.server: Server = self.loop.create_server(
+            self.server: Server = await self.loop.create_server(
                 lambda: self.cls_interface_protocol.from_channel(self),
                 self.interface_address,
                 self.interface_port,
             )
-            self.loop.run_until_complete(self.server)
             logger.info(
-                'Protocol "%s" is going to listen on the interface: %s:%s',
+                "Protocol [%s] is listening on the interface: %s:%s",
                 self.interface_protocol,
                 self.interface_address,
                 self.interface_port,
             )
 
-    def stop(self):
+    async def stop(self, sender):
         try:
             self.server.close()
         except Exception as exc:
             logger.exception(exc)
+        else:
+            await self.server.wait_closed()
