@@ -61,7 +61,6 @@ class Service:
         ).from_service(self)
 
         self.channels: Dict[str, Type[Channel]] = self._get_channels()
-        self._register_channels()
 
         self._configure_loop()
 
@@ -120,11 +119,6 @@ class Service:
 
         return channels
 
-    def _register_channels(self) -> None:
-        channel: Type[Channel]
-        for channel in self.channels.values():
-            channel.register()
-
     def _configure_loop(self) -> None:
         """
 
@@ -140,10 +134,6 @@ class Service:
             )
 
     async def _stop(self, signal=None):
-        channel: Channel
-        for channel in self.channels.values():
-            channel.stop()
-
         self.signal_manager.send(loop_stopped, sender=self)
 
         await asyncio.sleep(1)
