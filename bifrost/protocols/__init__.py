@@ -25,7 +25,7 @@ class Protocol(_Protocol):
         """
         super(Protocol, self).__init__(*args, **kwargs)
         self.channel: Type[Channel] = channel
-        self.signal_manager: SignalManager = self.channel.signal_manager
+        self.signal_manager: SignalManager = channel.signal_manager
         self.name: str = channel.name
 
         self.service: Type[Service] = channel.service
