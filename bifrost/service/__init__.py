@@ -5,20 +5,20 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import platform
 import pprint
-import ssl
 from asyncio.events import AbstractEventLoop
 from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
-from typing import Dict, Type, Union
+from typing import Dict
 
 from bifrost.channels.channel import Channel
+from bifrost.extensions.manager import ExtensionManager
+from bifrost.middlewares.manager import MiddlewareManager
 from bifrost.settings import Settings
 from bifrost.signals import loop_started, loop_stopped
 from bifrost.signals.manager import SignalManager
+from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
-from bifrost.utils.manager import Manager
 from bifrost.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -35,13 +35,14 @@ class Service:
         :param settings:
         :type settings: Settings
         """
-        self._get_runtime_info()
+        get_runtime_info()
 
         self.start_time: datetime = datetime.now()
 
         self.settings: Settings = settings
 
-        self.loop: Type[AbstractEventLoop] = get_event_loop(settings)
+        # initial loop at the very beginning
+        self.loop: AbstractEventLoop = get_event_loop(settings)
         logger.info(
             "In this service the loop is adopted from: %s", settings["LOOP"].upper()
         )
@@ -50,71 +51,44 @@ class Service:
             settings["CLS_SIGNAL_MANAGER"]
         ).from_service(self)
 
-        self.extension_manager: Type[Manager] = load_object(
+        self.extension_manager: ExtensionManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
         ).from_service(self)
 
-        self.middleware_manager: Type[Manager] = load_object(
+        self.middleware_manager: MiddlewareManager = load_object(
             settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
-        self.channels: Dict[str, Type[Channel]] = self._get_channels()
+        self.channels: Dict[str, Channel] = self._get_channels()
 
         self._configure_loop()
 
     @classmethod
-    def from_settings(cls, settings: Settings):
+    def from_settings(cls, settings: Settings) -> Service:
+        """
+        Initialize a Service instance by settings
+        :param settings:
+        :type settings: Settings
+        :return:
+        :rtype: Service
+        """
         obj = cls(settings)
         return obj
 
-    def _get_runtime_info(self):
-        logger.info(
-            "Platform: %(platform)s", {"platform": pprint.pformat(platform.platform())}
-        )
-        logger.info(
-            "Platform details:\n%s",
-            pprint.pformat(
-                {
-                    "OpenSSL": ssl.OPENSSL_VERSION,
-                    "architecture": platform.architecture(),
-                    "machine": platform.machine(),
-                    "node": platform.node(),
-                    "processor": platform.processor(),
-                    "python_build": platform.python_build(),
-                    "python_compiler": platform.python_compiler(),
-                    "python_branch": platform.python_branch(),
-                    "python_implementation": platform.python_implementation(),
-                    "python_revision": platform.python_revision(),
-                    "python_version": platform.python_version(),
-                    "release": platform.release(),
-                    "system": platform.system(),
-                    "version": platform.version(),
-                }
-            ),
-        )
-        logger.info(
-            "Versions:\n%s", pprint.pformat({"Python": platform.python_version(),})
-        )
-
-    def _get_channels(self) -> Dict[str, Type[Channel]]:
+    def _get_channels(self) -> Dict[str, Channel]:
         """
 
         :return:
-        :rtype: Dict[str, Type[Channel]]
+        :rtype: Dict[str, Channel]
         """
-        channels: Dict[str, Type[Channel]] = {}
-        repr_channels: Dict = {}
+        channels: Dict[str, Channel] = {}
 
-        name: str
-        channel: Dict[str, Union[str, int]]
-        cls_channel = load_object(self.settings["CLS_CHANNEL"])
+        cls_channel: Channel = load_object(self.settings["CLS_CHANNEL"])
+
         for name, channel in self.settings["CHANNELS"].items():
-            channels[name]: Type[Channel] = cls_channel.from_service(
-                self, name=name, **channel
-            )
-            repr_channels[name] = channel
+            channels[name] = cls_channel.from_service(self, name=name, **channel)
 
-        logger.info("Enable channels:\n%s", pprint.pformat(repr_channels))
+        logger.info("Enable channels:\n%s", pprint.pformat(self.settings["CHANNELS"]))
 
         return channels
 
@@ -131,7 +105,7 @@ class Service:
                 signal, lambda s=signal: asyncio.create_task(self._stop(s)),
             )
 
-    async def _stop(self, signal=None):
+    async def _stop(self, signal=None):  # pylint: disable=unused-argument
         self.signal_manager.send(loop_stopped, sender=self)
 
         await asyncio.sleep(1)
@@ -152,10 +126,6 @@ class Service:
         """
         self.signal_manager.send(loop_started, sender=self)
 
-        try:
-            self.loop.run_forever()
-        except Exception as exc:
-            logger.exception(exc)
-        finally:
-            self.loop.close()
-            logger.info("Bifrost service is shutdown successfully.")
+        self.loop.run_forever()
+        self.loop.close()
+        logger.info("Bifrost service is shutdown successfully.")
