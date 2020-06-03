@@ -2,18 +2,18 @@
 Create a singleton object for asyncio loop
 """
 from asyncio.events import AbstractEventLoop
-from typing import Optional, Type
+from typing import Optional
 
 from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
 
 # Never import __LOOP directly, use the following method get_event_loop instead
-__LOOP: Optional[Type[AbstractEventLoop]] = None
+__LOOP: Optional[AbstractEventLoop] = None
 
 
 def get_event_loop(  # pylint: disable=bad-continuation
     settings: Settings, func: str = "new_event_loop", **kwargs
-) -> Type[AbstractEventLoop]:
+) -> AbstractEventLoop:
     """
     Return a singleton object for asyncio loop
     :param settings:
@@ -22,7 +22,7 @@ def get_event_loop(  # pylint: disable=bad-continuation
     :type func: str
     :param kwargs:
     :return:
-    :rtype: Type[AbstractEventLoop]
+    :rtype: AbstractEventLoop
     """
 
     global __LOOP  # pylint: disable=global-statement
