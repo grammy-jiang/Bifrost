@@ -107,10 +107,11 @@ class Service:
 
         name: str
         channel: Dict[str, Union[str, int]]
+        cls_channel = load_object(self.settings["CLS_CHANNEL"])
         for name, channel in self.settings["CHANNELS"].items():
-            channels[name]: Type[Channel] = load_object(
-                self.settings["CLS_CHANNEL"]
-            ).from_service(self, name=name, **channel)
+            channels[name]: Type[Channel] = cls_channel.from_service(
+                self, name=name, **channel
+            )
             repr_channels[name] = channel
 
         logger.info("Enable channels:\n%s", pprint.pformat(repr_channels))
