@@ -155,4 +155,4 @@ class LogStats(BaseExtension):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        self.task = self.loop.call_later(self.interval, self.log, self.loop)
+        self.task = self._loop.call_later(self.interval, self.log, self._loop)

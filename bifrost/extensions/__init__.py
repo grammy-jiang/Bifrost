@@ -28,7 +28,7 @@ class BaseExtension:
         :type settings: Settings
         """
         self.service: Service = service
-        self.loop: AbstractEventLoop = get_event_loop(settings)
+        self._loop: AbstractEventLoop = get_event_loop(settings)
         self.settings: Settings = settings
 
     @classmethod
