@@ -12,7 +12,7 @@ LOG_FORMATTER_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 # ==== CORE MODULES ===========================================================
 
-CLS_SERVICE = "bifrost.service.bifrost.BifrostService"
+CLS_SERVICE = "bifrost.service.bifrost.Bifrost"
 
 CLS_SIGNAL_MANAGER = "bifrost.signals.manager.SignalManager"
 

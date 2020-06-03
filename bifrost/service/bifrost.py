@@ -1,6 +1,6 @@
 from bifrost.service import Service
 
 
-class BifrostService(Service):
+class Bifrost(Service):
     def __init__(self, settings):
-        super(BifrostService, self).__init__(settings)
+        super(Bifrost, self).__init__(settings)
