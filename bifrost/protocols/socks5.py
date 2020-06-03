@@ -87,7 +87,7 @@ class Client(ClientProtocol):
         self.server_transport.close()
 
     @staticmethod
-    def get_hostname_port(
+    def get_hostname_port(  # pylint: disable=bad-continuation
         channel: Channel, hostname: str, port: int
     ) -> Tuple[str, int]:
         """
@@ -169,23 +169,23 @@ class Socks5Protocol(Protocol):
     # Flow control callbacks can be called by transports to pause or resume
     # writing performed by the protocol.
 
-    def pause_writing(self) -> None:
-        """
-        Called when the transport’s buffer goes over the high watermark.
+    # def pause_writing(self) -> None:
+    #     """
+    #     Called when the transport’s buffer goes over the high watermark.
+    #
+    #     :return:
+    #     :rtype: None
+    #     """
+    #     super(Socks5Protocol, self).pause_writing()
 
-        :return:
-        :rtype: None
-        """
-        super(Socks5Protocol, self).pause_writing()
-
-    def resume_writing(self) -> None:
-        """
-        Called when the transport’s buffer drains below the low watermark.
-
-        :return:
-        :rtype: None
-        """
-        super(Socks5Protocol, self).resume_writing()
+    # def resume_writing(self) -> None:
+    #     """
+    #     Called when the transport’s buffer drains below the low watermark.
+    #
+    #     :return:
+    #     :rtype: None
+    #     """
+    #     super(Socks5Protocol, self).resume_writing()
 
     # ==== Streaming Protocols ================================================
 
@@ -260,20 +260,28 @@ class Socks5Protocol(Protocol):
             self.signal_manager.send(data_sent, sender=self, data=data)
             self.client_transport.write(data)
 
-    def eof_received(self) -> None:
-        """
-        Called when the other end signals it won’t send any more data (for
-        example by calling transport.write_eof(), if the other end also uses
-        asyncio).
-
-        :return:
-        :rtype: None
-        """
-        super(Socks5Protocol, self).eof_received()
+    # def eof_received(self) -> None:
+    #     """
+    #     Called when the other end signals it won’t send any more data (for
+    #     example by calling transport.write_eof(), if the other end also uses
+    #     asyncio).
+    #
+    #     :return:
+    #     :rtype: None
+    #     """
+    #     super(Socks5Protocol, self).eof_received()
 
     # ==== Others =============================================================
 
     async def connect(self, hostname: bytes, port: int) -> None:
+        """
+
+        :param hostname:
+        :type hostname: bytes
+        :param port:
+        :type port: int
+        :return:
+        """
         _hostname, _port = self.channel.cls_client_protocol.get_hostname_port(
             self.channel, hostname, port
         )
