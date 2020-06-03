@@ -9,7 +9,7 @@ import pprint
 from asyncio.events import AbstractEventLoop
 from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
-from typing import Dict
+from typing import Any, Dict
 
 from bifrost.channels.channel import Channel
 from bifrost.extensions.manager import ExtensionManager
@@ -47,9 +47,16 @@ class Service:
             "In this service the loop is adopted from: %s", settings["LOOP"].upper()
         )
 
+        self._configure_loop()
+
         self.signal_manager: SignalManager = load_object(
             settings["CLS_SIGNAL_MANAGER"]
         ).from_service(self)
+
+        # Setup signals for Service, because Service can't setup Signal Manager
+        # from classmethod from_settings
+        self.signal_manager.connect(self.loop_started, loop_started)
+        self.signal_manager.connect(self.loop_stopped, loop_stopped)
 
         self.extension_manager: ExtensionManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
@@ -60,8 +67,6 @@ class Service:
         ).from_service(self)
 
         self.channels: Dict[str, Channel] = self._get_channels()
-
-        self._configure_loop()
 
     @classmethod
     def from_settings(cls, settings: Settings) -> Service:
@@ -128,7 +133,28 @@ class Service:
         """
         Start this service
         :return:
+        :rtype: None
         """
         self.loop.run_forever()
         self.loop.close()
         logger.info("Bifrost service is shutdown successfully.")
+
+    def loop_started(self, sender: Any) -> None:  # pylint: disable=unused-argument
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        logger.info("Service [%s] is running...", self.__class__.__name__)
+
+    def loop_stopped(self, sender: Any) -> None:  # pylint: disable=unused-argument
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        logger.info("Service [%s] is going to stop...", self.__class__.__name__)
