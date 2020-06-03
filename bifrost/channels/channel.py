@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from asyncio.base_events import Server
 from asyncio.events import AbstractEventLoop
@@ -34,25 +36,25 @@ class Channel:
 
         self.name: str = kwargs["name"]
 
-        self.cryptographic_protocol = kwargs["CRYPTOGRAPHIC_PROTOCOL"]
-        # The cryptographic address and port could be None if you want to use
-        # Bifrost to directly connect to the target address, instead of going
-        # through a server role node
-        self.cryptographic_address: Optional[str] = kwargs.get("CRYPTOGRAPHIC_ADDRESS")
-        self.cryptographic_port: Optional[int] = kwargs.get("CRYPTOGRAPHIC_PORT")
+        self.interface_protocol: str = kwargs["INTERFACE_PROTOCOL"]
+        self.cls_interface_protocol: Type[Protocol] = load_object(
+            self.interface_protocol
+        )
+        self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
+        self.interface_port: int = kwargs["INTERFACE_PORT"]
 
-        if self.role == "client":
-            self.interface_protocol: str = kwargs["INTERFACE_PROTOCOL"]
-            self.cls_interface_protocol: Type[Protocol] = load_object(
-                self.interface_protocol
-            )
-            self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
-            self.interface_port: int = kwargs["INTERFACE_PORT"]
-
-            self.server: Optional[Server] = None
+        self.server: Optional[Server] = None
 
     @classmethod
-    def from_service(cls, service: Type["Service"], **kwargs):
+    def from_service(cls, service: Type["Service"], **kwargs) -> Channel:
+        """
+
+        :param service:
+        :type service: Type[Service]
+        :param kwargs:
+        :return:
+        :rtype: Channel
+        """
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings, **kwargs)
 
@@ -60,21 +62,32 @@ class Channel:
         service.signal_manager.connect(obj.stop, loop_stopped)
         return obj
 
-    async def start(self, sender):
-        if self.role == "client":
-            self.server: Server = await self.loop.create_server(
-                lambda: self.cls_interface_protocol.from_channel(self),
-                self.interface_address,
-                self.interface_port,
-            )
-            logger.info(
-                "Protocol [%s] is listening on the interface: %s:%s",
-                self.interface_protocol,
-                self.interface_address,
-                self.interface_port,
-            )
+    async def start(self, sender) -> None:
+        """
 
-    async def stop(self, sender):
+        :param sender:
+        :return:
+        :rtype: None
+        """
+        self.server: Server = await self.loop.create_server(
+            lambda: self.cls_interface_protocol.from_channel(self),
+            self.interface_address,
+            self.interface_port,
+        )
+        logger.info(
+            "Protocol [%s] is listening on the interface: %s:%s",
+            self.interface_protocol,
+            self.interface_address,
+            self.interface_port,
+        )
+
+    async def stop(self, sender) -> None:
+        """
+
+        :param sender:
+        :return:
+        :rtype: None
+        """
         try:
             self.server.close()
         except Exception as exc:
