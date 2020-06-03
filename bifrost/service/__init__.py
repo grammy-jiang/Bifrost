@@ -49,15 +49,15 @@ class Service:
         )
 
         self.signal_manager: SignalManager = load_object(
-            settings["SIGNAL_MANAGER"]
+            settings["CLS_SIGNAL_MANAGER"]
         ).from_service(self)
 
         self.extension_manager: Type[Manager] = load_object(
-            settings["MIDDLEWARE_MANAGER"]
+            settings["CLS_MIDDLEWARE_MANAGER"]
         ).from_service(self)
 
         self.middleware_manager: Type[Manager] = load_object(
-            settings["EXTENSION_MANAGER"]
+            settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
         self.channels: Dict[str, Type[Channel]] = self._get_channels()

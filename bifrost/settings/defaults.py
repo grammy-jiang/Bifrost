@@ -12,12 +12,12 @@ LOG_FORMATTER_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 # ==== CORE MODULES ===========================================================
 
-SERVICE = "bifrost.service.bifrost.BifrostService"
+CLS_SERVICE = "bifrost.service.bifrost.BifrostService"
 
-SIGNAL_MANAGER = "bifrost.signals.manager.SignalManager"
+CLS_SIGNAL_MANAGER = "bifrost.signals.manager.SignalManager"
 
-MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
-EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
+CLS_MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
+CLS_EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
 
 LOOP = "asyncio"
 
