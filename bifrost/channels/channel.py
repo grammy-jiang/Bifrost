@@ -42,6 +42,13 @@ class Channel:
         self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
         self.interface_port: int = kwargs["INTERFACE_PORT"]
 
+        self.client_protocol: str = kwargs["CLIENT_PROTOCOL"]
+        self.cls_client_protocol: Type[Protocol] = load_object(self.client_protocol)
+        self.client_protocol_address: Optional[str] = kwargs.get(
+            "CLIENT_PROTOCOL_ADDRESS"
+        )
+        self.client_protocol_port: Optional[int] = kwargs.get("CLIENT_PROTOCOL_PORT")
+
         self.server: Optional[Server] = None
 
     @classmethod
