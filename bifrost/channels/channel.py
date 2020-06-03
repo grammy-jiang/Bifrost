@@ -37,7 +37,7 @@ class Channel:
         """
         self.service: Service = service
         self.signal_manager: SignalManager = self.service.signal_manager
-        self.loop: AbstractEventLoop = get_event_loop(settings)
+        self._loop: AbstractEventLoop = get_event_loop(settings)
 
         self.settings: Settings = settings
 
@@ -81,7 +81,7 @@ class Channel:
         :return:
         :rtype: None
         """
-        self.server = await self.loop.create_server(
+        self.server = await self._loop.create_server(
             lambda: self.cls_interface_protocol.from_channel(self),
             self.interface_address,
             self.interface_port,
