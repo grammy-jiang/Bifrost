@@ -7,49 +7,67 @@ from __future__ import annotations
 from asyncio.events import AbstractEventLoop
 from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
-from typing import Optional, Type
+from typing import Optional
 
 from bifrost.channels.channel import Channel
 from bifrost.service import Service
 from bifrost.settings import Settings
 from bifrost.signals.manager import SignalManager
+from bifrost.utils.loop import get_event_loop
 
 
 class Protocol(_Protocol):
-    def __init__(self, channel: Type[Channel], *args, **kwargs):
+    """
+    Base Protocol
+    """
+
+    def __init__(self, channel: Channel, settings: Settings):
         """
 
         :param channel:
-        :type channel: Type[Channel]
-        :param args:
-        :param kwargs:
+        :type channel: Channel
+        :param settings:
+        :type settings: Settings
         """
-        super(Protocol, self).__init__(*args, **kwargs)
+        super(Protocol, self).__init__()
         self.name: str = channel.name
         self.settings: Settings = channel.settings
 
-        self.service: Type[Service] = channel.service
-        self.channel: Type[Channel] = channel
-        self.loop: Type[AbstractEventLoop] = channel.loop
+        self.service: Service = channel.service
+        self.channel: Channel = channel
+        self._loop: AbstractEventLoop = get_event_loop(settings)
 
         self.signal_manager: SignalManager = channel.signal_manager
 
-        self.transport: Optional[Type[BaseTransport]] = None
+        self.transport: Optional[BaseTransport] = None
 
     @classmethod
-    def from_channel(cls, channel: Type[Channel], *args, **kwargs) -> Protocol:
+    def from_channel(cls, channel: Channel) -> Protocol:
         """
 
         :param channel:
-        :type channel: Type[Channel]
+        :type channel: Channel
         :return:
         :rtype: Protocol
         """
-        obj = cls(channel, *args, **kwargs)
+        settings = channel.settings
+        obj = cls(channel, settings)
         return obj
 
 
 class ClientProtocol(Protocol):
+    """
+    Base Client Protocol
+    """
+
     @staticmethod
     def get_hostname_port(channel: Channel, hostname: str, port: int):
+        """
+        A classmethod to get hostname and port to connect with this client
+        protocol
+        :param channel:
+        :param hostname:
+        :param port:
+        :return:
+        """
         raise NotImplementedError
