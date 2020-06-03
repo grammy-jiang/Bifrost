@@ -108,9 +108,9 @@ class Service:
         name: str
         channel: Dict[str, Union[str, int]]
         for name, channel in self.settings["CHANNELS"].items():
-            channels[name]: Type[Channel] = Channel.from_service(
-                self, name=name, **channel
-            )
+            channels[name]: Type[Channel] = load_object(
+                self.settings["CLS_CHANNEL"]
+            ).from_service(self, name=name, **channel)
             repr_channels[name] = channel
 
         logger.info("Enable channels:\n%s", pprint.pformat(repr_channels))
@@ -127,8 +127,7 @@ class Service:
 
         for signal in signals:
             self.loop.add_signal_handler(
-                signal,
-                lambda s=signal: asyncio.create_task(self._stop(s)),
+                signal, lambda s=signal: asyncio.create_task(self._stop(s)),
             )
 
     async def _stop(self, signal=None):

@@ -16,8 +16,10 @@ CLS_SERVICE = "bifrost.service.bifrost.BifrostService"
 
 CLS_SIGNAL_MANAGER = "bifrost.signals.manager.SignalManager"
 
-CLS_MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
 CLS_EXTENSION_MANAGER = "bifrost.extensions.manager.ExtensionManager"
+CLS_MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
+
+CLS_CHANNEL = "bifrost.channels.channel.Channel"
 
 LOOP = "asyncio"
 
