@@ -1,3 +1,6 @@
+"""
+LogStats
+"""
 from __future__ import annotations
 
 import logging
@@ -5,7 +8,7 @@ import pprint
 from asyncio.events import TimerHandle
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional
 
 from bifrost import signals
 from bifrost.extensions import BaseExtension
@@ -19,11 +22,11 @@ logger = logging.getLogger(__name__)
 class LogStats(BaseExtension):
     """Log basic stats periodically"""
 
-    def __init__(self, service: Type[Service], settings: Settings):
+    def __init__(self, service: Service, settings: Settings):
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :param settings:
         :type settings: Settings
         """
@@ -38,14 +41,14 @@ class LogStats(BaseExtension):
         self._data_received: int = 0
 
     @classmethod
-    def from_service(cls, service: Type[Service]) -> LogStats:
+    def from_service(cls, service: Service) -> LogStats:
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :return:
         """
-        obj = super(LogStats, cls).from_service(service)
+        obj: LogStats = super(LogStats, cls).from_service(service)
 
         service.signal_manager.connect(obj.data_sent, signal=signals.data_sent)
         service.signal_manager.connect(obj.data_received, signal=signals.data_received)
@@ -63,10 +66,17 @@ class LogStats(BaseExtension):
         self.stats["data/sent"] = 0
         self.stats["data/received"] = 0
 
-        self.log(self.loop)
+        self.log()
 
-    def loop_stopped(self, sender: Any):
-        end_time = datetime.now()
+    def loop_stopped(self, sender: Any) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        end_time: datetime = datetime.now()
         try:
             self.task.cancel()
         finally:
@@ -89,13 +99,40 @@ class LogStats(BaseExtension):
                 ),
             )
 
-    def data_sent(self, sender: Any, data: bytes):
+    def data_sent(  # pylint: disable=unused-argument, bad-continuation
+        self, sender: Any, data: bytes
+    ) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
         self.stats["data/sent"] += len(data)
 
-    def data_received(self, sender, data: bytes):
+    def data_received(  # pylint: disable=unused-argument, bad-continuation
+        self, sender: Any, data: bytes
+    ) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
         self.stats["data/received"] += len(data)
 
-    def log(self, loop):
+    def log(self) -> None:
+        """
+
+        :param loop:
+        :return:
+        """
         inbound_rate = int(
             (self.stats["data/received"] - self._data_received) / self.interval * 8
         )
@@ -118,4 +155,4 @@ class LogStats(BaseExtension):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        self.task: TimerHandle = loop.call_later(self.interval, self.log, loop)
+        self.task = self.loop.call_later(self.interval, self.log, self.loop)
