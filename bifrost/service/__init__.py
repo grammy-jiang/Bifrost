@@ -94,10 +94,15 @@ class Service:
 
     def _configure_loop(self) -> None:
         """
-
+        Add loop start signal call at the beginning of the loop, and also the
+        quit signal call when signals received
         :return:
         :rtype: None
         """
+        self.loop.call_soon_threadsafe(
+            lambda: self.signal_manager.send(loop_started, sender=self)
+        )
+
         signals = (SIGHUP, SIGQUIT, SIGTERM, SIGINT)
 
         for signal in signals:
@@ -124,8 +129,6 @@ class Service:
         Start this service
         :return:
         """
-        self.signal_manager.send(loop_started, sender=self)
-
         self.loop.run_forever()
         self.loop.close()
         logger.info("Bifrost service is shutdown successfully.")
