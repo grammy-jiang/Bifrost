@@ -4,6 +4,7 @@ https://docs.python.org/3/library/asyncio-protocol.html
 """
 from __future__ import annotations
 
+from asyncio.events import AbstractEventLoop
 from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
 from typing import Optional, Type
@@ -24,12 +25,14 @@ class Protocol(_Protocol):
         :param kwargs:
         """
         super(Protocol, self).__init__(*args, **kwargs)
-        self.channel: Type[Channel] = channel
-        self.signal_manager: SignalManager = channel.signal_manager
         self.name: str = channel.name
+        self.settings: Settings = channel.settings
 
         self.service: Type[Service] = channel.service
-        self.settings: Settings = channel.settings
+        self.channel: Type[Channel] = channel
+        self.loop: Type[AbstractEventLoop] = channel.loop
+
+        self.signal_manager: SignalManager = channel.signal_manager
 
         self.transport: Optional[Type[BaseTransport]] = None
 
