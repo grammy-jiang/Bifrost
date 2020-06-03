@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import logging
 import pprint
-from typing import Type
+from typing import TYPE_CHECKING
 
-from bifrost.service import Service
 from bifrost.settings import Settings
 from bifrost.utils.manager import Manager
+
+if TYPE_CHECKING:
+    from bifrost.service import Service
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +21,11 @@ class MiddlewareManager(Manager):
     Middleware Manager
     """
 
-    def __init__(self, service: Type[Service], settings: Settings):
+    def __init__(self, service: Service, settings: Settings):
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :param settings:
         :type settings: Settings
         """
