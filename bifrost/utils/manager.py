@@ -1,8 +1,12 @@
+"""
+Base Manager Class for extensions and middlewares
+"""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bifrost.settings import Settings
+from bifrost.signals import loop_started, loop_stopped
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
@@ -10,32 +14,57 @@ if TYPE_CHECKING:
 
 
 class Manager:
-    def __init__(self, service: Type["Service"], settings: Settings):
+    """
+    Base Manager Class for extensions and middlewares
+    """
+
+    def __init__(self, service: Service, settings: Settings):
         """
 
         :param service:
-        :type service: Type["Service"]
+        :type service: Service
         :param settings:
         :type settings: Settings
         """
-        self.service: Type["Service"] = service
+        self.service: Service = service
         self.settings: Settings = settings
 
         self.cls_components: Optional[Dict[str, int]] = None
         self.components: Optional[List] = None
 
     @classmethod
-    def from_service(cls, service: Type["Service"]) -> Manager:
+    def from_service(cls, service: Service) -> Manager:
         """
 
         :param service:
-        :type service: Type["Service"]
+        :type service: Service
         :return:
         :rtype: Manager
         """
-        settings: Settings = getattr(service, "settings")
+        settings: Settings = service.settings
         obj = cls(service, settings)
+
+        service.signal_manager.connect(obj.loop_started, loop_started)
+        service.signal_manager.connect(obj.loop_stopped, loop_stopped)
         return obj
+
+    def loop_started(self, sender: Any) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+
+    def loop_stopped(self, sender: Any) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
 
     def _register_components(self, key: str) -> None:
         """
