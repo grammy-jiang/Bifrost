@@ -1,39 +1,46 @@
+"""
+Base Extension Class
+"""
 from __future__ import annotations
 
 from asyncio.events import AbstractEventLoop
-from typing import Any, Type
+from typing import TYPE_CHECKING, Any
 
 from bifrost import signals
-from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.utils.loop import get_event_loop
+
+if TYPE_CHECKING:
+    from bifrost.service import Service
 
 
 class BaseExtension:
     """
     The base extension class
     """
-    def __init__(self, service: Type[Service], settings: Settings):
+
+    def __init__(self, service: Service, settings: Settings):
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :param settings:
         :type settings: Settings
         """
-        self.service: Type[Service] = service
-        self.loop: Type[AbstractEventLoop] = service.loop
+        self.service: Service = service
+        self.loop: AbstractEventLoop = get_event_loop(settings)
         self.settings: Settings = settings
 
     @classmethod
-    def from_service(cls, service: Type[Service]) -> BaseExtension:
+    def from_service(cls, service: Service) -> BaseExtension:
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :return:
         :rtype: BaseExtension
         """
-        settings: Settings = getattr(service, "settings")
+        settings: Settings = service.settings
         obj = cls(service, settings)
 
         service.signal_manager.connect(obj.loop_started, signal=signals.loop_started)
