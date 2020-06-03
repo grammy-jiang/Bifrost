@@ -19,10 +19,11 @@ import socket
 from asyncio.transports import Transport
 from socket import gaierror
 from struct import pack, unpack
-from typing import Optional, Tuple, Type
+from typing import Optional, Tuple
 
 from bifrost.channels.channel import Channel
 from bifrost.protocols import ClientProtocol, Protocol
+from bifrost.settings import Settings
 from bifrost.signals import data_received, data_sent
 
 logger = logging.getLogger(__name__)
@@ -33,15 +34,15 @@ class Client(ClientProtocol):
     The simple client of proxy
     """
 
-    def __init__(self, channel: Type[Channel], *args, **kwargs):
+    def __init__(self, channel: Channel, settings: Settings):
         """
 
         :param channel:
-        :type channel: Type[Channel]
-        :param args:
-        :param kwargs:
+        :type channel: Channel
+        :param settings:
+        :type settings: Settings
         """
-        super(Client, self).__init__(channel, *args, **kwargs)
+        super(Client, self).__init__(channel, settings)
 
         self.transport: Optional[Transport] = None
         self.server_transport: Optional[Transport] = None
@@ -75,10 +76,11 @@ class Client(ClientProtocol):
 
         self.server_transport.write(data)
 
-    def connection_lost(self, *args) -> None:
+    def connection_lost(self, exc: Optional[Exception]) -> None:
         """
 
-        :param args:
+        :param exc:
+        :type exc: Optional[Exception]
         :return:
         :rtype: None
         """
@@ -109,15 +111,15 @@ class Socks5Protocol(Protocol):
 
     INIT, HOST, DATA = 0, 1, 2
 
-    def __init__(self, channel: Type[Channel], *args, **kwargs):
+    def __init__(self, channel: Channel, settings: Settings):
         """
 
         :param channel:
         :type channel: Type[Channel]
-        :param args:
-        :param kwargs:
+        :param settings:
+        :type settings: Settings
         """
-        super(Socks5Protocol, self).__init__(channel, *args, **kwargs)
+        super(Socks5Protocol, self).__init__(channel, settings)
 
         self.state: Optional[int] = None
         self.client_transport: Optional[Transport] = None
@@ -277,9 +279,9 @@ class Socks5Protocol(Protocol):
         )
 
         transport: Transport
-        client: Type[ClientProtocol]
+        client: ClientProtocol
         try:
-            transport, client = await self.loop.create_connection(
+            transport, client = await self._loop.create_connection(
                 lambda: self.channel.cls_client_protocol.from_channel(self.channel),
                 _hostname,
                 _port,
