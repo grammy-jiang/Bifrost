@@ -7,11 +7,12 @@ from typing import Optional, Type
 from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
 
-__loop: Optional[Type[AbstractEventLoop]] = None
+# Never import __LOOP directly, use the following method get_event_loop instead
+__LOOP: Optional[Type[AbstractEventLoop]] = None
 
 
-def get_event_loop(
-    settings: Settings, func: str = "new_event_loop", *args, **kwargs
+def get_event_loop(  # pylint: disable=bad-continuation
+    settings: Settings, func: str = "new_event_loop", **kwargs
 ) -> Type[AbstractEventLoop]:
     """
     Return a singleton object for asyncio loop
@@ -19,16 +20,15 @@ def get_event_loop(
     :type settings: Settings
     :param func:
     :type func: str
-    :param args:
     :param kwargs:
     :return:
     :rtype: Type[AbstractEventLoop]
     """
 
-    global __loop
+    global __LOOP  # pylint: disable=global-statement
 
-    if __loop is None:
+    if __LOOP is None:
         loop_path: str = ".".join([settings["LOOP"], func])
-        __loop = load_object(loop_path)(*args, **kwargs)
+        __LOOP = load_object(loop_path)(**kwargs)
 
-    return __loop
+    return __LOOP
