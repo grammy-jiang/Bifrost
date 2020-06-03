@@ -1,3 +1,6 @@
+"""
+Signal Manager (Dispatcher)
+"""
 from __future__ import annotations
 
 import asyncio
@@ -5,9 +8,10 @@ import functools
 import logging
 from asyncio.events import AbstractEventLoop
 from collections import defaultdict
-from typing import TYPE_CHECKING, Callable, Dict, Set, Type
+from typing import TYPE_CHECKING, Callable, Dict, Set
 
 from bifrost.settings import Settings
+from bifrost.utils.loop import get_event_loop
 
 if TYPE_CHECKING:
     from bifrost.service import Service
@@ -16,22 +20,35 @@ logger = logging.getLogger(__name__)
 
 
 class SignalManager:
-    def __init__(self, service, settings):
-        self.service: Type[Service] = service
+    """
+    Signal Manager
+    """
+
+    def __init__(self, service: Service, settings: Settings):
+        """
+
+        :param service:
+        :type service: Service
+        :param settings:
+        :type settings: Settings
+        """
+        self.service: Service = service
         self.settings: Settings = settings
-        self._loop: Type[AbstractEventLoop] = service.loop
+
+        self._loop: AbstractEventLoop = get_event_loop(settings)
 
         self._all: Dict[object, Set[Callable]] = defaultdict(set)
 
     @classmethod
-    def from_service(cls, service: Type[Service]) -> SignalManager:
+    def from_service(cls, service: Service) -> SignalManager:
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :return:
+        :rtype: SignalManager
         """
-        settings: Settings = getattr(service, "settings")
+        settings: Settings = service.settings
         obj = cls(service, settings)
         return obj
 
@@ -65,7 +82,7 @@ class SignalManager:
         except KeyError as exc:
             logger.exception(exc)
 
-    def send(self, signal: object, **kwargs):
+    def send(self, signal: object, **kwargs) -> None:
         """
         Send a signal, catch exceptions and log them.
 
@@ -74,6 +91,9 @@ class SignalManager:
 
         :param signal:
         :type signal: object
+        :param kwargs:
+        :return:
+        :rtype: None
         """
         receivers: Set[Callable] = self._all[signal]
 
