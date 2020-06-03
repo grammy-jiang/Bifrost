@@ -1,13 +1,17 @@
+"""
+Channel
+"""
 from __future__ import annotations
 
 import logging
 from asyncio.base_events import Server
 from asyncio.events import AbstractEventLoop
-from typing import TYPE_CHECKING, Optional, Type
+from typing import TYPE_CHECKING, Optional
 
 from bifrost.settings import Settings
 from bifrost.signals import loop_started, loop_stopped
 from bifrost.signals.manager import SignalManager
+from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
@@ -18,32 +22,34 @@ logger = logging.getLogger(__name__)
 
 
 class Channel:
-    def __init__(self, service: Type["Service"], settings: Settings, **kwargs):
+    """
+    Channel
+    """
+
+    def __init__(self, service: Service, settings: Settings, **kwargs):
         """
 
         :param service:
-        :type service: Type["Service"]
+        :type service: Service
         :param settings:
         :type settings: Settings
         :param kwargs:
         """
         self.service: Service = service
         self.signal_manager: SignalManager = self.service.signal_manager
-        self.loop: Type[AbstractEventLoop] = service.loop
+        self.loop: AbstractEventLoop = get_event_loop(settings)
 
         self.settings: Settings = settings
 
         self.name: str = kwargs["name"]
 
         self.interface_protocol: str = kwargs["INTERFACE_PROTOCOL"]
-        self.cls_interface_protocol: Type[Protocol] = load_object(
-            self.interface_protocol
-        )
+        self.cls_interface_protocol: Protocol = load_object(self.interface_protocol)
         self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
         self.interface_port: int = kwargs["INTERFACE_PORT"]
 
         self.client_protocol: str = kwargs["CLIENT_PROTOCOL"]
-        self.cls_client_protocol: Type[Protocol] = load_object(self.client_protocol)
+        self.cls_client_protocol: Protocol = load_object(self.client_protocol)
         self.client_protocol_address: Optional[str] = kwargs.get(
             "CLIENT_PROTOCOL_ADDRESS"
         )
@@ -52,11 +58,11 @@ class Channel:
         self.server: Optional[Server] = None
 
     @classmethod
-    def from_service(cls, service: Type["Service"], **kwargs) -> Channel:
+    def from_service(cls, service: Service, **kwargs) -> Channel:
         """
 
         :param service:
-        :type service: Type[Service]
+        :type service: Service
         :param kwargs:
         :return:
         :rtype: Channel
@@ -68,14 +74,14 @@ class Channel:
         service.signal_manager.connect(obj.stop, loop_stopped)
         return obj
 
-    async def start(self, sender) -> None:
+    async def start(self, sender) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:
         :return:
         :rtype: None
         """
-        self.server: Server = await self.loop.create_server(
+        self.server = await self.loop.create_server(
             lambda: self.cls_interface_protocol.from_channel(self),
             self.interface_address,
             self.interface_port,
@@ -87,16 +93,12 @@ class Channel:
             self.interface_port,
         )
 
-    async def stop(self, sender) -> None:
+    async def stop(self, sender) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:
         :return:
         :rtype: None
         """
-        try:
-            self.server.close()
-        except Exception as exc:
-            logger.exception(exc)
-        else:
-            await self.server.wait_closed()
+        self.server.close()
+        await self.server.wait_closed()
