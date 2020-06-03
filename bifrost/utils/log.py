@@ -1,3 +1,6 @@
+"""
+Logging related functions
+"""
 import logging
 import platform
 import pprint
@@ -8,7 +11,14 @@ from bifrost.settings import Settings
 logger = logging.getLogger(__name__)
 
 
-def configure_logging(settings: Settings):
+def configure_logging(settings: Settings) -> None:
+    """
+
+    :param settings:
+    :type settings: Settings
+    :return:
+    :rtype: None
+    """
     # Get a console handler and configure it
     console_handler = logging.StreamHandler()
 
