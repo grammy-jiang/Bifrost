@@ -32,7 +32,6 @@ class Channel:
         self.loop: Type[AbstractEventLoop] = service.loop
 
         self.settings: Settings = settings
-        self.role: str = settings["ROLE"]
 
         self.name: str = kwargs["name"]
 

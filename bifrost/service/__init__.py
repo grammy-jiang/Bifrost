@@ -40,8 +40,6 @@ class Service:
         self.start_time: datetime = datetime.now()
 
         self.settings: Settings = settings
-        self.role: str = settings["ROLE"]
-        logger.info("This service is running in role: %s", self.role.upper())
 
         self.loop: Type[AbstractEventLoop] = get_event_loop(settings)
         logger.info(

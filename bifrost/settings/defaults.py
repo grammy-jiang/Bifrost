@@ -27,9 +27,6 @@ LOGSTATS_INTERVAL = 60  # in seconds
 
 # ==== MODE ===================================================================
 
-# the role that bifrost will play; it could be server or client
-ROLE = "client"
-
 MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
