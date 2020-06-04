@@ -32,7 +32,8 @@ LOGSTATS_INTERVAL = 60  # in seconds
 MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
-    "bifrost.extensions.logstats.LogStats": 0
+    "bifrost.extensions.logstats.LogStats": 0,
+    "bifrost.extensions.web.Web": 0
 }
 
 # ==== MODE: CLIENT ===========================================================
