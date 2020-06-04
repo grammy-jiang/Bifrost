@@ -51,7 +51,7 @@ class Service:
 
         self.signal_manager: SignalManager = load_object(
             settings["CLS_SIGNAL_MANAGER"]
-        ).from_service(self)
+        ).from_settings(settings)
 
         # Setup signals for Service, because Service can't setup Signal Manager
         # from classmethod from_settings
