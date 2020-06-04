@@ -8,7 +8,7 @@ from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
 
 # Never import __LOOP directly, use the following method get_event_loop instead
-__LOOP: Optional[AbstractEventLoop] = None
+_LOOP: Optional[AbstractEventLoop] = None
 
 
 def get_event_loop(  # pylint: disable=bad-continuation
@@ -25,10 +25,10 @@ def get_event_loop(  # pylint: disable=bad-continuation
     :rtype: AbstractEventLoop
     """
 
-    global __LOOP  # pylint: disable=global-statement
+    global _LOOP  # pylint: disable=global-statement
 
-    if __LOOP is None:
+    if _LOOP is None:
         loop_path: str = ".".join([settings["LOOP"], func])
-        __LOOP = load_object(loop_path)(**kwargs)
+        _LOOP = load_object(loop_path)(**kwargs)
 
-    return __LOOP
+    return _LOOP
