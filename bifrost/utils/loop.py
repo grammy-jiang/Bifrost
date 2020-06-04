@@ -7,7 +7,7 @@ from typing import Optional
 from bifrost.settings import Settings
 from bifrost.utils.misc import load_object
 
-# Never import __LOOP directly, use the following method get_event_loop instead
+# Never import _LOOP directly, use the following method get_event_loop instead
 _LOOP: Optional[AbstractEventLoop] = None
 
 
