@@ -120,8 +120,8 @@ class LogStats(BaseExtension):
     def log(self) -> None:
         """
 
-        :param loop:
         :return:
+        :rtype: None
         """
         inbound_rate = int(
             (self.stats["data/received"] - self._data_received) / self.interval * 8
