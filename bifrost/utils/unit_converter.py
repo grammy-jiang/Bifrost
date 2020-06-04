@@ -27,7 +27,15 @@ UNITS_RATE: Tuple[str, str, str, str, str] = (
 )
 
 
-def convert_unit(value: int, rate: bool = False) -> Tuple[float, str]:
+def convert_unit(value: int, rate: bool = False) -> Tuple[Union[int, float], str]:
+    """
+    Convert flow or flow rate into a human readable format and unit
+    :param value:
+    :type value: int
+    :param rate:
+    :type rate: bool
+    :return:
+    """
     _value: Union[int, float] = value
     _unit: Optional[str] = None
 
