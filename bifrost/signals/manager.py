@@ -24,15 +24,12 @@ class SignalManager:
     Signal Manager
     """
 
-    def __init__(self, service: Service, settings: Settings):
+    def __init__(self, settings: Settings):
         """
 
-        :param service:
-        :type service: Service
         :param settings:
         :type settings: Settings
         """
-        self.service: Service = service
         self.settings: Settings = settings
 
         self._loop: AbstractEventLoop = get_event_loop(settings)
@@ -40,16 +37,15 @@ class SignalManager:
         self._all: Dict[object, Set[Callable]] = defaultdict(set)
 
     @classmethod
-    def from_service(cls, service: Service) -> SignalManager:
+    def from_settings(cls, settings: Settings) -> SignalManager:
         """
 
-        :param service:
-        :type service: Service
+        :param settings:
+        :type settings: Settings
         :return:
         :rtype: SignalManager
         """
-        settings: Settings = service.settings
-        obj = cls(service, settings)
+        obj = cls(settings)
         return obj
 
     def connect(self, receiver: Callable, signal: object) -> None:
