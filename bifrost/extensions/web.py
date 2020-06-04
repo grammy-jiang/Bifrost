@@ -1,3 +1,12 @@
+"""
+Web Extension with Sanic
+
+Refer:
+
+* https://sanicframework.org/
+* https://sanic.readthedocs.io/en/latest/
+* https://github.com/huge-success/sanic
+"""
 import logging
 from typing import Any
 
@@ -20,7 +29,18 @@ async def test(request: Request):
 
 
 class Web(BaseExtension):
+    """
+    Web Extension
+    """
+
     def __init__(self, service: Service, settings: Settings):
+        """
+
+        :param service:
+        :type service: Service
+        :param settings:
+        :type settings: Settings
+        """
         super(Web, self).__init__(service, settings)
 
         self.server = app.create_server(
