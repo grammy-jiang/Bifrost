@@ -35,6 +35,7 @@ def convert_unit(value: int, rate: bool = False) -> Tuple[Union[int, float], str
     :param rate:
     :type rate: bool
     :return:
+    :rtype: Tuple[Union[int, float], str]
     """
     _value: Union[int, float] = value
     _unit: Optional[str] = None
