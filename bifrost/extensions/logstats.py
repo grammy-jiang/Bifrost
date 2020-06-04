@@ -52,7 +52,7 @@ class LogStats(BaseExtension):
 
         return obj
 
-    def loop_started(self, sender: Any) -> None:
+    def service_started(self, sender: Any) -> None:
         """
 
         :param sender:
@@ -62,7 +62,7 @@ class LogStats(BaseExtension):
         """
         self.log()
 
-    def loop_stopped(self, sender: Any) -> None:
+    def service_stopped(self, sender: Any) -> None:
         """
 
         :param sender:

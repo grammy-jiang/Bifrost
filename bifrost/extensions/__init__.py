@@ -43,12 +43,12 @@ class BaseExtension:
         settings: Settings = service.settings
         obj = cls(service, settings)
 
-        service.signal_manager.connect(obj.loop_started, signal=signals.loop_started)
-        service.signal_manager.connect(obj.loop_stopped, signal=signals.loop_stopped)
+        service.signal_manager.connect(obj.service_started, signal=signals.service_started)
+        service.signal_manager.connect(obj.service_stopped, signal=signals.service_stopped)
 
         return obj
 
-    def loop_started(self, sender: Any) -> None:
+    def service_started(self, sender: Any) -> None:
         """
 
         :param sender:
@@ -58,7 +58,7 @@ class BaseExtension:
         """
         raise NotImplementedError
 
-    def loop_stopped(self, sender: Any) -> None:
+    def service_stopped(self, sender: Any) -> None:
         """
 
         :param sender:

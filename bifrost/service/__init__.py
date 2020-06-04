@@ -15,7 +15,7 @@ from bifrost.channels.channel import Channel
 from bifrost.extensions.manager import ExtensionManager
 from bifrost.middlewares.manager import MiddlewareManager
 from bifrost.settings import Settings
-from bifrost.signals import loop_started, loop_stopped
+from bifrost.signals import service_started, service_stopped
 from bifrost.signals.manager import SignalManager
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
@@ -55,8 +55,8 @@ class Service:
 
         # Setup signals for Service, because Service can't setup Signal Manager
         # from classmethod from_settings
-        self.signal_manager.connect(self.loop_started, loop_started)
-        self.signal_manager.connect(self.loop_stopped, loop_stopped)
+        self.signal_manager.connect(self.service_started, service_started)
+        self.signal_manager.connect(self.service_stopped, service_stopped)
 
         self.extension_manager: ExtensionManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
@@ -105,7 +105,7 @@ class Service:
         :rtype: None
         """
         self.loop.call_soon_threadsafe(
-            lambda: self.signal_manager.send(loop_started, sender=self)
+            lambda: self.signal_manager.send(service_started, sender=self)
         )
 
         signals = (SIGHUP, SIGQUIT, SIGTERM, SIGINT)
@@ -116,7 +116,7 @@ class Service:
             )
 
     async def _stop(self, signal=None):  # pylint: disable=unused-argument
-        self.signal_manager.send(loop_stopped, sender=self)
+        self.signal_manager.send(service_stopped, sender=self)
 
         await asyncio.sleep(1)
 
@@ -139,7 +139,7 @@ class Service:
         self.loop.close()
         logger.info("Bifrost service is shutdown successfully.")
 
-    def loop_started(self, sender: Any) -> None:  # pylint: disable=unused-argument
+    def service_started(self, sender: Any) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:
@@ -149,7 +149,7 @@ class Service:
         """
         logger.info("Service [%s] is running...", self.__class__.__name__)
 
-    def loop_stopped(self, sender: Any) -> None:  # pylint: disable=unused-argument
+    def service_stopped(self, sender: Any) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:

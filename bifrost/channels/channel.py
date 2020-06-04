@@ -9,7 +9,7 @@ from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Optional
 
 from bifrost.settings import Settings
-from bifrost.signals import loop_started, loop_stopped
+from bifrost.signals import service_started, service_stopped
 from bifrost.signals.manager import SignalManager
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
@@ -70,11 +70,11 @@ class Channel:
         settings: Settings = getattr(service, "settings")
         obj = cls(service, settings, **kwargs)
 
-        service.signal_manager.connect(obj.start, loop_started)
-        service.signal_manager.connect(obj.stop, loop_stopped)
+        service.signal_manager.connect(obj.service_start, service_started)
+        service.signal_manager.connect(obj.service_stop, service_stopped)
         return obj
 
-    async def start(self, sender) -> None:  # pylint: disable=unused-argument
+    async def service_start(self, sender) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:
@@ -93,7 +93,7 @@ class Channel:
             self.interface_port,
         )
 
-    async def stop(self, sender) -> None:  # pylint: disable=unused-argument
+    async def service_stop(self, sender) -> None:  # pylint: disable=unused-argument
         """
 
         :param sender:

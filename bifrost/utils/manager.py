@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from bifrost.settings import Settings
-from bifrost.signals import loop_started, loop_stopped
+from bifrost.signals import service_started, service_stopped
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
@@ -44,11 +44,11 @@ class Manager:
         settings: Settings = service.settings
         obj = cls(service, settings)
 
-        service.signal_manager.connect(obj.loop_started, loop_started)
-        service.signal_manager.connect(obj.loop_stopped, loop_stopped)
+        service.signal_manager.connect(obj.service_started, service_started)
+        service.signal_manager.connect(obj.service_stopped, service_stopped)
         return obj
 
-    def loop_started(self, sender: Any) -> None:
+    def service_started(self, sender: Any) -> None:
         """
 
         :param sender:
@@ -57,7 +57,7 @@ class Manager:
         :rtype: None
         """
 
-    def loop_stopped(self, sender: Any) -> None:
+    def service_stopped(self, sender: Any) -> None:
         """
 
         :param sender:

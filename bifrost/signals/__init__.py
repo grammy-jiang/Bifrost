@@ -1,8 +1,8 @@
 """
 The signals used in Bifrost
 """
-loop_started = object()
-loop_stopped = object()
+service_started = object()
+service_stopped = object()
 
 data_sent = object()
 data_received = object()
