@@ -60,9 +60,6 @@ class LogStats(BaseExtension):
         :return:
         :rtype: None
         """
-        self.stats["data/sent"] = 0
-        self.stats["data/received"] = 0
-
         self.log()
 
     def loop_stopped(self, sender: Any) -> None:
