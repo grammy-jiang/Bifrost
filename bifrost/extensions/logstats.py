@@ -5,10 +5,9 @@ from __future__ import annotations
 
 import logging
 import pprint
-from asyncio.events import TimerHandle
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from bifrost import signals
 from bifrost.extensions import BaseExtension
@@ -34,8 +33,6 @@ class LogStats(BaseExtension):
 
         self.stats: Dict[str, int] = defaultdict(int)
         self.interval: int = self.settings["LOGSTATS_INTERVAL"]
-
-        self.task: Optional[TimerHandle] = None
 
         self._data_sent: int = 0
         self._data_received: int = 0
@@ -77,27 +74,23 @@ class LogStats(BaseExtension):
         :rtype: None
         """
         end_time: datetime = datetime.now()
-        try:
-            self.task.cancel()
-        finally:
-            logger.info(
-                "Service details:\n%s",
-                pprint.pformat(
-                    {
-                        "data/sent": "{:,.3f} {}".format(
-                            *convert_unit(self.stats["data/sent"]),
-                        ),
-                        "data/received": "{:,.3f} {}".format(
-                            *convert_unit(self.stats["data/received"]),
-                        ),
-                        "time/start": self.service.start_time.strftime(
-                            "%Y-%m-%d %H:%M:%S"
-                        ),
-                        "time/end": end_time.strftime("%Y-%m-%d %H:%M:%S"),
-                        "time/running": str(end_time - self.service.start_time),
-                    }
-                ),
-            )
+
+        logger.info(
+            "Service details:\n%s",
+            pprint.pformat(
+                {
+                    "data/sent": "{:,.3f} {}".format(
+                        *convert_unit(self.stats["data/sent"]),
+                    ),
+                    "data/received": "{:,.3f} {}".format(
+                        *convert_unit(self.stats["data/received"]),
+                    ),
+                    "time/start": self.service.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "time/end": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "time/running": str(end_time - self.service.start_time),
+                }
+            ),
+        )
 
     def data_sent(  # pylint: disable=unused-argument, bad-continuation
         self, sender: Any, data: bytes
@@ -155,4 +148,4 @@ class LogStats(BaseExtension):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        self.task = self._loop.call_later(self.interval, self.log)
+        self._loop.call_later(self.interval, self.log)
