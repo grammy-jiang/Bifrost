@@ -8,13 +8,10 @@ import functools
 import logging
 from asyncio.events import AbstractEventLoop
 from collections import defaultdict
-from typing import TYPE_CHECKING, Callable, Dict, Set
+from typing import Callable, Dict, Set
 
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
 
 logger = logging.getLogger(__name__)
 
