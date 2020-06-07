@@ -6,9 +6,10 @@ from __future__ import annotations
 import asyncio
 import functools
 import logging
-from asyncio.events import AbstractEventLoop
+from asyncio.events import AbstractEventLoop, Handle
+from asyncio.tasks import Task
 from collections import defaultdict
-from typing import Callable, Dict, Set
+from typing import Callable, Dict, Set, Union
 
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
@@ -75,7 +76,7 @@ class SignalManager:
         except KeyError as exc:
             logger.exception(exc)
 
-    def send(self, signal: object, **kwargs) -> None:
+    def send(self, signal: object, **kwargs) -> Union[Handle, Task]:
         """
         Send a signal, catch exceptions and log them.
 
@@ -86,7 +87,7 @@ class SignalManager:
         :type signal: object
         :param kwargs:
         :return:
-        :rtype: None
+        :rtype: Union[Handle, Task]
         """
         receivers: Set[Callable] = self._all[signal]
 
@@ -94,6 +95,6 @@ class SignalManager:
         for receiver in receivers:
             _receiver = functools.partial(receiver, **kwargs)
             if asyncio.iscoroutinefunction(receiver):
-                self._loop.create_task(_receiver())
+                return asyncio.create_task(_receiver())
             else:
-                self._loop.call_soon_threadsafe(_receiver)
+                return self._loop.call_soon_threadsafe(_receiver)
