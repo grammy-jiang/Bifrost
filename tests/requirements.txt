@@ -1,0 +1,7 @@
+bandit
+mypy
+pylint
+pytest
+pytest-benchmark
+pytest-cov
+tox
