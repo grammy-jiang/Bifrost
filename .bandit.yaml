@@ -1,0 +1,3 @@
+exclude_dirs:
+  - versioneer.py
+  - bifrost/_version.py
