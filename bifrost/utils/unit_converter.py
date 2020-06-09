@@ -40,9 +40,15 @@ def convert_unit(value: int, rate: bool = False) -> Tuple[Union[int, float], str
 
     _units = UNITS_RATE if rate else UNITS
 
+    _value: Union[int, float] = value
+    _unit: str = _units[0]
+
     unit: str
     for unit in _units:
-        if value >= 1024:
-            value = value / 1024
+        if _value >= 1024:
+            _value = _value / 1024
         else:
-            return value, unit
+            _unit = unit
+            break
+
+    return _value, _unit
