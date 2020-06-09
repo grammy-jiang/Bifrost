@@ -32,13 +32,13 @@ class BaseExtension:
         self.settings: Settings = settings
 
     @classmethod
-    def from_service(cls, service: Service) -> BaseExtension:
+    def from_service(cls, service: Service):
         """
 
         :param service:
         :type service: Service
         :return:
-        :rtype: BaseExtension
+        :rtype:
         """
         settings: Settings = service.settings
         obj = cls(service, settings)

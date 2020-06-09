@@ -45,7 +45,7 @@ class LogStats(BaseExtension):
         :type service: Service
         :return:
         """
-        obj: LogStats = super(LogStats, cls).from_service(service)
+        obj = super(LogStats, cls).from_service(service)
 
         service.signal_manager.connect(obj.data_sent, signal=signals.data_sent)
         service.signal_manager.connect(obj.data_received, signal=signals.data_received)
