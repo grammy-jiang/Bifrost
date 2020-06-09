@@ -9,7 +9,7 @@ setup(
     description="A Great FireWall Crossing Framework",
     packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=False,
-    zip_safe=True,
+    zip_safe=False,
     python_requires=">=3.7",
     install_requires=["sanic", "uvloop"],
 )
