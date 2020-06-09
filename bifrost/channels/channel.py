@@ -55,7 +55,7 @@ class Channel:
         )
         self.client_protocol_port: Optional[int] = kwargs.get("CLIENT_PROTOCOL_PORT")
 
-        self.server: Optional[Server] = None
+        self.server: Server
 
     @classmethod
     def from_service(cls, service: Service, **kwargs) -> Channel:
