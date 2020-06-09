@@ -21,7 +21,7 @@ CLS_MIDDLEWARE_MANAGER = "bifrost.middlewares.manager.MiddlewareManager"
 
 CLS_CHANNEL = "bifrost.channels.channel.Channel"
 
-LOOP = "asyncio"
+LOOP = "uvloop"
 
 # ==== Extensions =============================================================
 
