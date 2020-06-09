@@ -5,7 +5,7 @@ Refer to:
 * https://en.wikipedia.org/wiki/Kibibyte
 * https://en.wikipedia.org/wiki/ISO/IEC_80000
 """
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 UNITS: Tuple[str, str, str, str, str, str, str, str, str] = (
     "B",
@@ -37,10 +37,11 @@ def convert_unit(value: int, rate: bool = False) -> Tuple[Union[int, float], str
     :return:
     :rtype: Tuple[Union[int, float], str]
     """
-    _value: Union[int, float] = value
-    _unit: Optional[str] = None
 
     _units = UNITS_RATE if rate else UNITS
+
+    _value: Union[int, float] = value
+    _unit: str = _units[0]
 
     unit: str
     for unit in _units:
