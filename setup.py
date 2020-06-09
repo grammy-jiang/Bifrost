@@ -10,6 +10,6 @@ setup(
     packages=find_packages(exclude=["tests", "tests.*"]),
     include_package_data=False,
     zip_safe=True,
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     install_requires=["sanic", "uvloop"],
 )
