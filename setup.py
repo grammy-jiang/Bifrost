@@ -1,3 +1,6 @@
+"""
+setup.py for packaging
+"""
 from setuptools import find_packages, setup
 
 import versioneer
