@@ -1,3 +1,8 @@
+"""
+Exceptions used in Settings
+"""
+
+
 class SettingsException(Exception):
     """
     The base exception used in this module

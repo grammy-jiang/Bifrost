@@ -1,3 +1,8 @@
+"""
+Bifrost
+
+A bridge to another world
+"""
 from ._version import get_versions
 
 __version__ = get_versions()["version"]
