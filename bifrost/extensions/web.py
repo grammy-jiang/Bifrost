@@ -10,7 +10,7 @@ Refer:
 import logging
 from typing import Any
 
-from sanic import Sanic
+from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import json
 
