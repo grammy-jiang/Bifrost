@@ -12,7 +12,7 @@ from typing import Any
 
 from sanic.app import Sanic
 from sanic.request import Request
-from sanic.response import json
+from sanic.response import HTTPResponse, json
 
 from bifrost.extensions import BaseExtension
 from bifrost.service import Service
@@ -24,7 +24,14 @@ app = Sanic("Bifrost Web")
 
 
 @app.route("/")
-async def test(request: Request):
+async def test(request: Request) -> HTTPResponse:  # pylint: disable=unused-argument
+    """
+
+    :param request:
+    :type request: Request
+    :return:
+    :rtype: HTTPResponse
+    """
     return json({"hello": "world"})
 
 
