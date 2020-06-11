@@ -1,13 +1,17 @@
 """
 Base Middleware
 """
+from __future__ import annotations
+
 from asyncio.events import AbstractEventLoop
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from bifrost import signals
-from bifrost.service import Service
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
+
+if TYPE_CHECKING:
+    from bifrost.service import Service
 
 
 class BaseMiddleware:
