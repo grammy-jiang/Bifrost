@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 class LogStats(BaseExtension):
     """Log basic stats periodically"""
 
+    name = "LogStats"
+
     def __init__(self, service: Service, settings: Settings):
         """
 
