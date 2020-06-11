@@ -19,6 +19,8 @@ class BaseExtension:
     The base extension class
     """
 
+    name = "base_extension"
+
     def __init__(self, service: Service, settings: Settings):
         """
 
@@ -43,8 +45,12 @@ class BaseExtension:
         settings: Settings = service.settings
         obj = cls(service, settings)
 
-        service.signal_manager.connect(obj.service_started, signal=signals.service_started)
-        service.signal_manager.connect(obj.service_stopped, signal=signals.service_stopped)
+        service.signal_manager.connect(
+            obj.service_started, signal=signals.service_started
+        )
+        service.signal_manager.connect(
+            obj.service_stopped, signal=signals.service_stopped
+        )
 
         return obj
 
