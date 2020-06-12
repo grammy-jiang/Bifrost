@@ -33,16 +33,26 @@ MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
     "bifrost.extensions.logstats.LogStats": 0,
-    "bifrost.extensions.web.Web": 0
+    "bifrost.extensions.web.Web": 0,
 }
 
-# ==== MODE: CLIENT ===========================================================
+# ==== CHANNELS ===============================================================
+
+"""
+-----------     =============                 =============      -----------
+| YOUR    | - > | INTERFACE |      GREAT      | CLIENT    | - >  | TARGET  |
+| MACHINE |     | CLIENT    | - > FIREWALL - >| INTERFACE |      | WEBSITE |
+-----------     =============                 =============      -----------
+               (BIFROST CLIENT)              (BIFROST SERVER)
+"""
 
 CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
-    "socks5": {
-        "INTERFACE_PROTOCOL": "bifrost.protocols.socks5.Socks5Protocol",
+    "client": {  # MODE: CLIENT
+        "INTERFACE_PROTOCOL": "bifrost.protocols.client.Server",
         "INTERFACE_ADDRESS": "127.0.0.1",
         "INTERFACE_PORT": 1080,
-        "CLIENT_PROTOCOL": "bifrost.protocols.socks5.Client",
+        "CLIENT_PROTOCOL": "bifrost.protocols.client.Client",
+        "CLIENT_PROTOCOL_ADDRESS": "127.0.0.1",
+        "CLIENT_PROTOCOL_PORT": 1081,
     },
 }
