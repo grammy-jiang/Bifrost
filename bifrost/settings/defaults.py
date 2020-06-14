@@ -48,11 +48,17 @@ EXTENSIONS: Dict[str, int] = {
 
 CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
     "client": {  # MODE: CLIENT
-        "INTERFACE_PROTOCOL": "bifrost.protocols.client.Server",
+        "INTERFACE_PROTOCOL": "bifrost.protocols.client.Interface",
         "INTERFACE_ADDRESS": "127.0.0.1",
         "INTERFACE_PORT": 1080,
         "CLIENT_PROTOCOL": "bifrost.protocols.client.Client",
         "CLIENT_PROTOCOL_ADDRESS": "127.0.0.1",
         "CLIENT_PROTOCOL_PORT": 1081,
     },
+    # "server": {  # MODE: SERVER
+    #     "INTERFACE_PROTOCOL": "bifrost.protocols.server.Interface"
+    #     "INTERFACE_ADDRESS": "127.0.0.1",
+    #     "INTERFACE_PORT": 1081,
+    #     "CLIENT_PROTOCOL": "bifrost.protocols.server.Client",
+    # }
 }

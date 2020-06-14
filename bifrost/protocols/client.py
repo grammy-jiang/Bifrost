@@ -92,7 +92,7 @@ class Client(ClientProtocol):
         return hostname, port
 
 
-class Server(Protocol):
+class Interface(Protocol):
     """
     A socks5 proxy server side
     """
@@ -105,7 +105,7 @@ class Server(Protocol):
         :param settings:
         :type settings: Settings
         """
-        super(Server, self).__init__(channel, settings)
+        super(Interface, self).__init__(channel, settings)
 
         self.client_transport: Optional[Transport] = None
 
