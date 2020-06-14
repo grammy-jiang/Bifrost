@@ -2,6 +2,12 @@
 
 An Asynchronous Proxy to Bypass GFW
 
+## Thanks
+
+* [A working SOCKS5 server based on asyncio (TCP Connect only)](https://gist.github.com/tcalmant/770511b420c1139fe1cc88c2685f2903)
+* [lenzenmi/asyncio_dispatch: Event signalling for python and asyncio](https://github.com/lenzenmi/asyncio_dispatch)
+* [Opportunistic TLS with python asyncio | Povilas Blog](http://blog.povilasb.com/posts/opportunistic-tls-with-python-asyncio/)
+
 ## Reference
 
 ### SOCKS
