@@ -32,8 +32,8 @@ class Client(ClientProtocol):
         """
         super(Client, self).__init__(channel, settings)
 
-        self.transport: Optional[Transport] = None
-        self.server_transport: Optional[Transport] = None
+        self.transport: Transport
+        self.server_transport: Transport
 
     def connection_made(self, transport: Transport) -> None:
         """
@@ -44,7 +44,6 @@ class Client(ClientProtocol):
         :rtype: None
         """
         self.transport = transport
-        self.server_transport = None
 
     def data_received(self, data: bytes) -> None:
         """
@@ -107,13 +106,7 @@ class Interface(Protocol):
         """
         super(Interface, self).__init__(channel, settings)
 
-        self.client_transport: Optional[Transport] = None
-
-    # ==== Connection Callbacks ===============================================
-
-    # Connection callbacks are called on all protocols, exactly once per a
-    # successful connection. All other protocol callbacks can only be called
-    # between those two methods.
+        self.client_transport: Transport
 
     def connection_made(self, transport: Transport) -> None:
         """
@@ -148,31 +141,6 @@ class Interface(Protocol):
         """
         self.transport.close()
 
-    # ==== Flow Control Callbacks =============================================
-
-    # Flow control callbacks can be called by transports to pause or resume
-    # writing performed by the protocol.
-
-    # def pause_writing(self) -> None:
-    #     """
-    #     Called when the transport’s buffer goes over the high watermark.
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).pause_writing()
-
-    # def resume_writing(self) -> None:
-    #     """
-    #     Called when the transport’s buffer drains below the low watermark.
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).resume_writing()
-
-    # ==== Streaming Protocols ================================================
-
     def data_received(self, data: bytes) -> None:
         """
         Called when some data is received. data is a non-empty bytes object
@@ -198,19 +166,6 @@ class Interface(Protocol):
         )
 
         asyncio.create_task(self.send_data(data))
-
-    # def eof_received(self) -> None:
-    #     """
-    #     Called when the other end signals it won’t send any more data (for
-    #     example by calling transport.write_eof(), if the other end also uses
-    #     asyncio).
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).eof_received()
-
-    # ==== Others =============================================================
 
     async def send_data(self, data: bytes) -> None:
         """
