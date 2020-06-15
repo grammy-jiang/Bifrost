@@ -7,7 +7,6 @@ from __future__ import annotations
 from asyncio.events import AbstractEventLoop
 from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
-from typing import Optional
 
 from bifrost.channels.channel import Channel
 from bifrost.service import Service
@@ -39,7 +38,7 @@ class Protocol(_Protocol):
 
         self.signal_manager: SignalManager = channel.signal_manager
 
-        self.transport: Optional[BaseTransport] = None
+        self.transport: BaseTransport
 
     @classmethod
     def from_channel(cls, channel: Channel) -> Protocol:
