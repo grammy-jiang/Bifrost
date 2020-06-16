@@ -7,8 +7,11 @@ Refer:
 * https://sanic.readthedocs.io/en/latest/
 * https://github.com/huge-success/sanic
 """
+from __future__ import annotations
+
 import logging
-from typing import Any
+from itertools import starmap
+from typing import Any, Dict
 
 from sanic.app import Sanic
 from sanic.request import Request
@@ -51,8 +54,32 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.server = app.create_server(
-            host="0.0.0.0", port=8000, return_asyncio_server=True
+            host=settings["WEB_CONFIG_ADDRESS"],
+            port=settings["WEB_CONFIG_PORT"],
+            return_asyncio_server=True,
         )
+
+    @classmethod
+    def from_service(cls, service: Service) -> Web:
+        """
+
+        :param service:
+        :return:
+        """
+        obj = super(Web, cls).from_service(service)
+
+        settings: Settings = service.settings
+
+        app_config: Dict = dict(
+            starmap(
+                lambda k, v: (k.replace("WEB_CONFIG_", ""), v),
+                filter(lambda x: x[0].startswith("WEB_CONFIG_"), settings.items()),
+            )
+        )
+
+        app.config.update(app_config)
+
+        return obj
 
     def service_started(self, sender: Any) -> None:
         """
