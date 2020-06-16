@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from itertools import starmap
-from typing import Any, Dict
+from typing import Any
 
 from sanic.app import Sanic
 from sanic.request import Request
@@ -23,25 +23,13 @@ from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
-app = Sanic("Bifrost Web")
-
-
-@app.route("/")
-async def test(request: Request) -> HTTPResponse:  # pylint: disable=unused-argument
-    """
-
-    :param request:
-    :type request: Request
-    :return:
-    :rtype: HTTPResponse
-    """
-    return json({"hello": "world"})
-
 
 class Web(BaseExtension):
     """
     Web Extension
     """
+
+    name = "Bifrost Web"
 
     def __init__(self, service: Service, settings: Settings):
         """
@@ -53,33 +41,23 @@ class Web(BaseExtension):
         """
         super(Web, self).__init__(service, settings)
 
-        self.server = app.create_server(
-            host=settings["WEB_CONFIG_ADDRESS"],
-            port=settings["WEB_CONFIG_PORT"],
-            return_asyncio_server=True,
-        )
+        self.app = Sanic(self.name)
 
-    @classmethod
-    def from_service(cls, service: Service) -> Web:
-        """
-
-        :param service:
-        :return:
-        """
-        obj = super(Web, cls).from_service(service)
-
-        settings: Settings = service.settings
-
-        app_config: Dict = dict(
+        self.app_config = dict(
             starmap(
                 lambda k, v: (k.replace("WEB_CONFIG_", ""), v),
                 filter(lambda x: x[0].startswith("WEB_CONFIG_"), settings.items()),
             )
         )
+        self.app.config.update(self.app_config)
 
-        app.config.update(app_config)
+        self.app.add_route(self.home, "/", strict_slashes=True)
 
-        return obj
+        self.server = self.app.create_server(
+            host=self.app_config["ADDRESS"],
+            port=self.app_config["PORT"],
+            return_asyncio_server=True,
+        )
 
     def service_started(self, sender: Any) -> None:
         """
@@ -90,7 +68,7 @@ class Web(BaseExtension):
         :rtype: None
         """
         self._loop.create_task(self.server)
-        logger.info("Extension [%s] is running...", self.__class__.__name__)
+        logger.info("Extension [%s] is running...", self.name)
 
     def service_stopped(self, sender: Any) -> None:
         """
@@ -100,4 +78,16 @@ class Web(BaseExtension):
         :return:
         :rtype: None
         """
-        logger.info("Extension [%s] is stopped.", self.__class__.__name__)
+        logger.info("Extension [%s] is stopped.", self.name)
+
+    async def home(
+        self, request: Request
+    ) -> HTTPResponse:  # pylint: disable=unused-argument
+        """
+
+        :param request:
+        :type request: Request
+        :return:
+        :rtype: HTTPResponse
+        """
+        return json({"hello": "world"})
