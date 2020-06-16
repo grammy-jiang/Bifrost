@@ -6,6 +6,10 @@ import platform
 import pprint
 import ssl
 
+import sanic
+import uvloop
+import websockets
+
 from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -62,4 +66,14 @@ def get_runtime_info() -> None:
             }
         ),
     )
-    logger.info("Versions:\n%s", pprint.pformat({"Python": platform.python_version()}))
+    logger.info(
+        "Versions:\n%s",
+        pprint.pformat(
+            {
+                "Python": platform.python_version(),
+                "Sanic": sanic.__version__,
+                "uvloop": uvloop.__version__,
+                "websockets": websockets.__version__,
+            }
+        ),
+    )
