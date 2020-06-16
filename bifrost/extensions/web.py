@@ -53,12 +53,6 @@ class Web(BaseExtension):
 
         self.app.add_route(self.home, "/", strict_slashes=True)
 
-        self.server = self.app.create_server(
-            host=self.app_config["ADDRESS"],
-            port=self.app_config["PORT"],
-            return_asyncio_server=True,
-        )
-
     def service_started(self, sender: Any) -> None:
         """
 
@@ -67,7 +61,12 @@ class Web(BaseExtension):
         :return:
         :rtype: None
         """
-        self._loop.create_task(self.server)
+        server = self.app.create_server(
+            host=self.app_config["ADDRESS"],
+            port=self.app_config["PORT"],
+            return_asyncio_server=True,
+        )
+        self._loop.create_task(server)
         logger.info("Extension [%s] is running...", self.name)
 
     def service_stopped(self, sender: Any) -> None:
