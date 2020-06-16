@@ -4,7 +4,7 @@ Base Extension Class
 from __future__ import annotations
 
 from asyncio.events import AbstractEventLoop
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from bifrost import signals
 from bifrost.settings import Settings
@@ -20,6 +20,7 @@ class BaseExtension:
     """
 
     name = "base_extension"
+    setting_prefix: Optional[str] = None
 
     def __init__(self, service: Service, settings: Settings):
         """
@@ -32,6 +33,11 @@ class BaseExtension:
         self.service: Service = service
         self._loop: AbstractEventLoop = get_event_loop(settings)
         self.settings: Settings = settings
+
+        self.config: Dict[str, Any] = {}
+        for key, value in settings.items():
+            if key.startswith(self.setting_prefix):
+                self.config[key.replace(self.setting_prefix, "")] = value
 
     @classmethod
     def from_service(cls, service: Service):

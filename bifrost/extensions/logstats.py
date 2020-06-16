@@ -22,6 +22,7 @@ class LogStats(BaseExtension):
     """Log basic stats periodically"""
 
     name = "LogStats"
+    setting_prefix = "LOGSTATS_"
 
     def __init__(self, service: Service, settings: Settings):
         """
@@ -34,7 +35,6 @@ class LogStats(BaseExtension):
         super(LogStats, self).__init__(service, settings)
 
         self.stats: Dict[str, int] = defaultdict(int)
-        self.interval: int = self.settings["LOGSTATS_INTERVAL"]
 
         self._data_sent: int = 0
         self._data_received: int = 0
@@ -126,10 +126,12 @@ class LogStats(BaseExtension):
         :rtype: None
         """
         inbound_rate = int(
-            (self.stats["data/received"] - self._data_received) / self.interval * 8
+            (self.stats["data/received"] - self._data_received)
+            / self.config["INTERVAL"]
+            * 8
         )
         outbound_rate = int(
-            (self.stats["data/sent"] - self._data_sent) / self.interval * 8
+            (self.stats["data/sent"] - self._data_sent) / self.config["INTERVAL"] * 8
         )
 
         logger.info(
@@ -147,4 +149,4 @@ class LogStats(BaseExtension):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        self._loop.call_later(self.interval, self.log)
+        self._loop.call_later(self.config["INTERVAL"], self.log)
