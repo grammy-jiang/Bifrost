@@ -27,8 +27,8 @@ LOOP = "uvloop"
 
 LOGSTATS_INTERVAL = 60  # in seconds
 
-WEB_CONFIG_ADDRESS = "127.0.0.1"
-WEB_CONFIG_PORT = 8000
+WEB_ADDRESS = "127.0.0.1"
+WEB_PORT = 8000
 
 # ==== MODE ===================================================================
 
