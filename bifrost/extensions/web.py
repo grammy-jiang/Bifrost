@@ -10,7 +10,6 @@ Refer:
 from __future__ import annotations
 
 import logging
-from itertools import starmap
 from typing import Any
 
 from sanic.app import Sanic
@@ -31,6 +30,8 @@ class Web(BaseExtension):
 
     name = "Bifrost Web"
 
+    setting_prefix = "WEB_"
+
     def __init__(self, service: Service, settings: Settings):
         """
 
@@ -43,13 +44,7 @@ class Web(BaseExtension):
 
         self.app = Sanic(self.name)
 
-        self.app_config = dict(
-            starmap(
-                lambda k, v: (k.replace("WEB_CONFIG_", ""), v),
-                filter(lambda x: x[0].startswith("WEB_CONFIG_"), settings.items()),
-            )
-        )
-        self.app.config.update(self.app_config)
+        self.app.config.update(self.config)
 
         self.app.add_route(self.home, "/", strict_slashes=True)
 
@@ -62,8 +57,8 @@ class Web(BaseExtension):
         :rtype: None
         """
         server = self.app.create_server(
-            host=self.app_config["ADDRESS"],
-            port=self.app_config["PORT"],
+            host=self.config["ADDRESS"],
+            port=self.config["PORT"],
             return_asyncio_server=True,
         )
         self._loop.create_task(server)
@@ -79,9 +74,9 @@ class Web(BaseExtension):
         """
         logger.info("Extension [%s] is stopped.", self.name)
 
-    async def home(
+    async def home(  # pylint: disable=bad-continuation,unused-argument
         self, request: Request
-    ) -> HTTPResponse:  # pylint: disable=unused-argument
+    ) -> HTTPResponse:
         """
 
         :param request:
