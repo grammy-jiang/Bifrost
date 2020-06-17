@@ -19,6 +19,7 @@ setup(
         "graphql-core<3",
         "sanic",
         "sanic-graphql",
+        "ujson",
         "uvloop",
         "websockets",
     ],

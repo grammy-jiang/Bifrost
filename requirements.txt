@@ -2,5 +2,6 @@ graphene<3
 graphql-core<3
 sanic
 sanic-graphql
+ujson
 uvloop
 websockets
