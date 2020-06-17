@@ -14,5 +14,12 @@ setup(
     include_package_data=False,
     zip_safe=False,
     python_requires=">=3.7",
-    install_requires=["sanic", "uvloop"],
+    install_requires=[
+        "graphene<3",
+        "graphql-core<3",
+        "sanic",
+        "sanic-graphql",
+        "uvloop",
+        "websockets",
+    ],
 )
