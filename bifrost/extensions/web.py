@@ -43,10 +43,16 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
-
         self.app.config.update(self.config)
-
         self.app.add_route(self.home, "/", strict_slashes=True)
+        self._configure_app()
+
+    def _configure_app(self):
+        """
+        configure app of Sanic
+        :return:
+        """
+        pass
 
     def service_started(self, sender: Any) -> None:
         """
