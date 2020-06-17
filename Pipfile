@@ -31,7 +31,9 @@ versioneer = "*"
 yapf = "*"
 
 [packages]
+graphql-core = "<3"
 sanic = "*"
+sanic-graphql = "*"
 uvloop = "*"
 websockets = "*"
 
