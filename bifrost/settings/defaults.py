@@ -30,6 +30,12 @@ LOGSTATS_INTERVAL = 60  # in seconds
 WEB_ADDRESS = "127.0.0.1"
 WEB_PORT = 8000
 
+WEB_GRAPHQL_SCHEMA_QUERY = "bifrost.extensions.web.Query"
+# WEB_GRAPHQL_SCHEMA_MUTATION = "bifrost.extensions.web.Mutation"
+# WEB_GRAPHQL_SCHEMA_SUBSCRIPTION = "bifrost.extensions.web.Subscription"
+# WEB_GRAPHQL_SCHEMA_DIRECTIVES = "bifrost.extensions.web.Directives"
+# WEB_GRAPHQL_SCHEMA_TYPES = "bifrost.extensions.web.Types"
+
 # ==== MODE ===================================================================
 
 MIDDLEWARES: Dict[str, int] = {}
