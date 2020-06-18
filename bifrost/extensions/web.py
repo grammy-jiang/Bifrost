@@ -12,15 +12,44 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from graphene.types.objecttype import ObjectType
+from graphene.types.scalars import String
+from graphene.types.schema import Schema
+from graphql.execution.base import ResolveInfo
 from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import HTTPResponse, json
+from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.extensions import BaseExtension
 from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
+
+
+class Query(ObjectType):
+    """
+    Query for GraphQL Schema
+    """
+
+    hello = String()
+
+    @staticmethod
+    def resolve_hello(  # pylint: disable=bad-continuation,unused-argument
+        parent, info: ResolveInfo
+    ) -> str:
+        """
+
+        :param parent:
+        :type parent:
+        :param info:
+        :type info: ResolveInfo
+        :return:
+        :rtype: str
+        """
+        return "world"
 
 
 class Web(BaseExtension):
@@ -45,14 +74,25 @@ class Web(BaseExtension):
         self.app = Sanic(self.name)
         self.app.config.update(self.config)
         self.app.add_route(self.home, "/", strict_slashes=True)
-        self._configure_app()
+        self._app_configure_graphql()
 
-    def _configure_app(self):
+    def _app_configure_graphql(self):
         """
-        configure app of Sanic
+        configure GraphQL for the app of Sanic
         :return:
         """
-        pass
+
+        schema: Schema = Schema(
+            **{
+                k.replace("WEB_GRAPHQL_SCHEMA_", "").lower(): load_object(v)
+                for k, v in self.settings.items()
+                if k.startswith("WEB_GRAPHQL_SCHEMA_")
+            }
+        )
+
+        self.app.add_route(
+            GraphQLView.as_view(schema=schema, graphiql=True), "/graphql"
+        )
 
     def service_started(self, sender: Any) -> None:
         """
