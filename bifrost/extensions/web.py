@@ -73,6 +73,13 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
+        self._schema: Schema = Schema(
+            **{
+                k.replace("WEB_GRAPHQL_SCHEMA_", "").lower(): load_object(v)
+                for k, v in self.settings.items()
+                if k.startswith("WEB_GRAPHQL_SCHEMA_")
+            }
+        )
         self._configure_app()
 
     def _configure_app(self):
@@ -87,31 +94,15 @@ class Web(BaseExtension):
 
         # configure GraphQL
         self.app.register_listener(
-            listener=self._register_graphql, event="before_server_start"
-        )
-
-    def _register_graphql(self, app: Sanic, loop) -> None:
-        """
-
-        :param app:
-        :type app: Sanic
-        :param loop:
-        :type loop:
-        :return:
-        :rtype: None
-        """
-        schema: Schema = Schema(
-            **{
-                k.replace("WEB_GRAPHQL_SCHEMA_", "").lower(): load_object(v)
-                for k, v in self.settings.items()
-                if k.startswith("WEB_GRAPHQL_SCHEMA_")
-            }
-        )
-        self.app.add_route(
-            GraphQLView.as_view(
-                schema=schema, graphiql=True, executor=AsyncioExecutor(loop=loop)
+            listener=lambda app, loop: app.add_route(
+                GraphQLView.as_view(
+                    schema=self._schema,
+                    graphiql=True,
+                    executor=AsyncioExecutor(loop=loop),
+                ),
+                "/graphql",
             ),
-            "/graphql",
+            event="before_server_start",
         )
 
     def service_started(self, sender: Any) -> None:
