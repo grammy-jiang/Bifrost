@@ -16,6 +16,7 @@ from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import String
 from graphene.types.schema import Schema
 from graphql.execution.base import ResolveInfo
+from graphql.execution.executors.asyncio import AsyncioExecutor
 from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import HTTPResponse, json
@@ -72,16 +73,33 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
-        self.app.config.update(self.config)
-        self.app.add_route(self.home, "/", strict_slashes=True)
-        self._app_configure_graphql()
+        self._configure_app()
 
-    def _app_configure_graphql(self):
+    def _configure_app(self):
         """
         configure GraphQL for the app of Sanic
         :return:
         """
+        self.app.config.update(self.config)
 
+        # configure normal route
+        self.app.add_route(self.home, "/")
+
+        # configure GraphQL
+        self.app.register_listener(
+            listener=self._register_graphql, event="before_server_start"
+        )
+
+    def _register_graphql(self, app: Sanic, loop) -> None:
+        """
+
+        :param app:
+        :type app: Sanic
+        :param loop:
+        :type loop:
+        :return:
+        :rtype: None
+        """
         schema: Schema = Schema(
             **{
                 k.replace("WEB_GRAPHQL_SCHEMA_", "").lower(): load_object(v)
@@ -89,9 +107,11 @@ class Web(BaseExtension):
                 if k.startswith("WEB_GRAPHQL_SCHEMA_")
             }
         )
-
         self.app.add_route(
-            GraphQLView.as_view(schema=schema, graphiql=True), "/graphql"
+            GraphQLView.as_view(
+                schema=schema, graphiql=True, executor=AsyncioExecutor(loop=loop)
+            ),
+            "/graphql",
         )
 
     def service_started(self, sender: Any) -> None:
