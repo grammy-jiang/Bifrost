@@ -62,6 +62,8 @@ class Service:
             settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
+        self.stats = self.extension_manager.get_extension(name="Stats")
+
         self.middleware_manager: MiddlewareManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
         ).from_service(self)
