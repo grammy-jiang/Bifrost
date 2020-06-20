@@ -3,7 +3,7 @@ Base Manager Class for extensions and middlewares
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
@@ -29,8 +29,8 @@ class Manager:
         self.service: Service = service
         self.settings: Settings = settings
 
-        self.cls_components: Optional[Dict[str, int]] = None
-        self.components: Optional[List] = None
+        self.cls_components: Dict[str, int]
+        self.components: List
 
     @classmethod
     def from_service(cls, service: Service) -> Manager:
