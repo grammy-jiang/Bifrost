@@ -59,11 +59,11 @@ class Service:
         self.signal_manager.connect(self.service_stopped, service_stopped)
 
         self.extension_manager: ExtensionManager = load_object(
-            settings["CLS_MIDDLEWARE_MANAGER"]
+            settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
         self.middleware_manager: MiddlewareManager = load_object(
-            settings["CLS_EXTENSION_MANAGER"]
+            settings["CLS_MIDDLEWARE_MANAGER"]
         ).from_service(self)
 
         self.channels: Dict[str, Channel] = self._get_channels()
