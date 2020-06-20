@@ -33,3 +33,17 @@ class ExtensionManager(Manager):
 
         self._register_components("EXTENSIONS")
         logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_components))
+
+    def get_extension(self, name: str) -> object:
+        """
+        get an extension by its name
+        :param name:
+        :type name: str
+        :return:
+        :rtype: object
+        """
+        return next(
+            component
+            for component in self.components
+            if component.name.startswith(name)
+        )
