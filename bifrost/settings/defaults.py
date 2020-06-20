@@ -42,6 +42,7 @@ MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
     "bifrost.extensions.logstats.LogStats": 0,
+    "bifrost.extensions.stats.Stats": 0,
     "bifrost.extensions.web.Web": 0,
 }
 
