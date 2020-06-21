@@ -28,12 +28,13 @@ class Protocol(_Protocol):
         """
         super(Protocol, self).__init__()
         self.name: str = channel.name
-        self.settings: Settings = channel.settings
+        self.settings: Settings = settings
 
         self.service: Service = channel.service
         self.channel: Channel = channel
 
         self.signal_manager: SignalManager = channel.signal_manager
+        self.stats = channel.stats
 
         self.transport: BaseTransport
 
