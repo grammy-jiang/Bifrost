@@ -12,6 +12,7 @@ from bifrost.utils.loop import get_event_loop
 
 if TYPE_CHECKING:
     from bifrost.service import Service
+    from bifrost.extensions.stats import Stats
 
 
 class BaseExtension:
@@ -38,6 +39,8 @@ class BaseExtension:
         for key, value in settings.items():
             if key.startswith(self.setting_prefix):
                 self.config[key.replace(self.setting_prefix, "")] = value
+
+        self.stats: Stats
 
     @classmethod
     def from_service(cls, service: Service):
@@ -68,7 +71,7 @@ class BaseExtension:
         :return:
         :rtype: None
         """
-        raise NotImplementedError
+        self.stats = self.service.stats
 
     def service_stopped(self, sender: Any) -> None:
         """
