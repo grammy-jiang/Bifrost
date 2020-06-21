@@ -25,6 +25,7 @@ from bifrost.channels.channel import Channel
 from bifrost.protocols import ClientProtocol, Protocol
 from bifrost.settings import Settings
 from bifrost.signals import data_received, data_sent
+from bifrost.utils.loop import get_event_loop
 
 logger = logging.getLogger(__name__)
 
@@ -286,10 +287,11 @@ class Socks5Protocol(Protocol):
             self.channel, hostname, port
         )
 
+        loop = get_event_loop(self.settings)
         transport: Transport
         client: ClientProtocol
         try:
-            transport, client = await self._loop.create_connection(
+            transport, client = await loop.create_connection(
                 lambda: self.channel.cls_client_protocol.from_channel(self.channel),
                 _hostname,
                 _port,
