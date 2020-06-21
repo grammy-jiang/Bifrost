@@ -5,11 +5,9 @@ from __future__ import annotations
 
 import logging
 import pprint
-from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
-from bifrost import signals
 from bifrost.extensions import BaseExtension
 from bifrost.service import Service
 from bifrost.settings import Settings
@@ -34,8 +32,6 @@ class LogStats(BaseExtension):
         """
         super(LogStats, self).__init__(service, settings)
 
-        self.stats: Dict[str, int] = defaultdict(int)
-
         self._data_sent: int = 0
         self._data_received: int = 0
 
@@ -48,10 +44,6 @@ class LogStats(BaseExtension):
         :return:
         """
         obj = super(LogStats, cls).from_service(service)
-
-        service.signal_manager.connect(obj.data_sent, signal=signals.data_sent)
-        service.signal_manager.connect(obj.data_received, signal=signals.data_received)
-
         return obj
 
     def service_started(self, sender: Any) -> None:
@@ -62,6 +54,7 @@ class LogStats(BaseExtension):
         :return:
         :rtype: None
         """
+        super(LogStats, self).service_started(sender)
         self.log()
 
     def service_stopped(self, sender: Any) -> None:
@@ -72,52 +65,6 @@ class LogStats(BaseExtension):
         :return:
         :rtype: None
         """
-        end_time: datetime = datetime.now()
-
-        logger.info(
-            "Service details:\n%s",
-            pprint.pformat(
-                {
-                    "data/sent": "{:,.3f} {}".format(
-                        *convert_unit(self.stats["data/sent"]),
-                    ),
-                    "data/received": "{:,.3f} {}".format(
-                        *convert_unit(self.stats["data/received"]),
-                    ),
-                    "time/start": self.service.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "time/end": end_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "time/running": str(end_time - self.service.start_time),
-                }
-            ),
-        )
-
-    def data_sent(  # pylint: disable=unused-argument, bad-continuation
-        self, sender: Any, data: bytes
-    ) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.stats["data/sent"] += len(data)
-
-    def data_received(  # pylint: disable=unused-argument, bad-continuation
-        self, sender: Any, data: bytes
-    ) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.stats["data/received"] += len(data)
 
     def log(self) -> None:
         """
