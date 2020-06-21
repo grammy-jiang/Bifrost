@@ -1,14 +1,19 @@
 """
 Statistic Collector
 """
+from __future__ import annotations
+
 import logging
 import pprint
 from collections import UserDict
-from typing import Any, Optional
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Optional
 
 from bifrost.extensions import BaseExtension
-from bifrost.service import Service
 from bifrost.settings import Settings
+
+if TYPE_CHECKING:
+    from bifrost.service import Service
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +48,12 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         :param sender:
         :return:
         """
+        end_time: datetime = datetime.now()
+
+        self["time/end"] = end_time.strftime("%Y-%m-%d %H:%M:%S")
+        self["time/running"] = str(end_time - self["time/start"])
+        self["time/start"] = self["time/start"].strftime("%Y-%m-%d %H:%M:%S")
+
         logger.info("Dumping stats:\n%s", pprint.pformat(self))
 
     def increase(  # pylint: disable=bad-continuation,unused-argument
