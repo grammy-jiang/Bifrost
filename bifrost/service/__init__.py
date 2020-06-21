@@ -12,6 +12,7 @@ from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import Any, Dict
 
 from bifrost.channels.channel import Channel
+from bifrost.extensions.stats import Stats
 from bifrost.extensions.manager import ExtensionManager
 from bifrost.middlewares.manager import MiddlewareManager
 from bifrost.settings import Settings
@@ -37,8 +38,6 @@ class Service:
         """
         get_runtime_info()
 
-        self.start_time: datetime = datetime.now()
-
         self.settings: Settings = settings
 
         # initial loop at the very beginning
@@ -62,7 +61,7 @@ class Service:
             settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
-        self.stats = self.extension_manager.get_extension(name="Stats")
+        self.stats: Stats = self.extension_manager.get_extension(name="Stats")
 
         self.middleware_manager: MiddlewareManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
@@ -137,6 +136,8 @@ class Service:
         :return:
         :rtype: None
         """
+        self.stats["time/start"] = datetime.now()
+
         self.loop.run_forever()
         self.loop.close()
         logger.info("Bifrost service is shutdown successfully.")
