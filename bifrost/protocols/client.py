@@ -150,14 +150,14 @@ class Interface(Protocol):
         :return:
         :rtype: None
         """
-        self.stats.increase("data/send", len(data))
+        self.stats.increase("data/sent", len(data))
 
         client_addr: str
         client_port: int
         client_addr, client_port = self.transport.get_extra_info("peername")
 
         logger.debug(
-            "[SERVER] [DATA] [%s] [%s:%s] send: %s bytes",
+            "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
             id(self.transport),
             client_addr,
             client_port,

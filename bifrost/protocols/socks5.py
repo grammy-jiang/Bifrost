@@ -205,7 +205,7 @@ class Socks5Protocol(Protocol):
 
         if self.state == self.INIT:
             logger.debug(
-                "[SERVER] [AUTH] [%s] [%s:%s] send: %s",
+                "[SERVER] [AUTH] [%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
                 client_port,
@@ -238,7 +238,7 @@ class Socks5Protocol(Protocol):
             port = unpack("!H", data[nxt : nxt + 2])[0]
 
             logger.debug(
-                "[SERVER] [HOST] [%s] [%s:%s] [%s:%s] send: %s",
+                "[SERVER] [HOST] [%s] [%s:%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
                 client_port,
@@ -251,13 +251,13 @@ class Socks5Protocol(Protocol):
 
         elif self.state == self.DATA:
             logger.debug(
-                "[SERVER] [DATA] [%s] [%s:%s] send: %s bytes",
+                "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
                 id(self.transport),
                 client_addr,
                 client_port,
                 len(data),
             )
-            self.stats.increase("data/send", len(data))
+            self.stats.increase("data/sent", len(data))
             self.client_transport.write(data)
 
     # def eof_received(self) -> None:
