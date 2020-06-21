@@ -24,7 +24,6 @@ from typing import Optional, Tuple
 from bifrost.channels.channel import Channel
 from bifrost.protocols import ClientProtocol, Protocol
 from bifrost.settings import Settings
-from bifrost.signals import data_received, data_sent
 from bifrost.utils.loop import get_event_loop
 
 logger = logging.getLogger(__name__)
@@ -67,7 +66,7 @@ class Client(ClientProtocol):
         :return:
         :rtype: None
         """
-        self.signal_manager.send(data_received, sender=self, data=data)
+        self.stats.increase("data/received", len(data))
 
         logger.debug(
             "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
@@ -258,7 +257,7 @@ class Socks5Protocol(Protocol):
                 client_port,
                 len(data),
             )
-            self.signal_manager.send(data_sent, sender=self, data=data)
+            self.stats.increase("data/send", len(data))
             self.client_transport.write(data)
 
     # def eof_received(self) -> None:
