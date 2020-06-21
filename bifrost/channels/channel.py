@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import logging
 from asyncio.base_events import Server
-from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Optional
 
 from bifrost.settings import Settings
@@ -37,7 +36,7 @@ class Channel:
         """
         self.service: Service = service
         self.signal_manager: SignalManager = self.service.signal_manager
-        self._loop: AbstractEventLoop = get_event_loop(settings)
+        self.stats = service.stats
 
         self.settings: Settings = settings
 
@@ -81,7 +80,8 @@ class Channel:
         :return:
         :rtype: None
         """
-        self.server = await self._loop.create_server(
+        loop = get_event_loop(self.settings)
+        self.server = await loop.create_server(
             lambda: self.cls_interface_protocol.from_channel(self),
             self.interface_address,
             self.interface_port,
