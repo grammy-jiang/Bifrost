@@ -54,7 +54,11 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         self["time/running"] = str(end_time - self["time/start"])
         self["time/start"] = self["time/start"].strftime("%Y-%m-%d %H:%M:%S")
 
-        logger.info("Dumping stats:\n%s", pprint.pformat(self))
+        logger.info(
+            "Extension [%s] is stopped and stats is dumped:\n%s",
+            self.name,
+            pprint.pformat(self)
+        )
 
     def increase(  # pylint: disable=bad-continuation,unused-argument
         self, key: str, count: int = 1, start: int = 0, sender: Any = None
