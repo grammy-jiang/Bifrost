@@ -113,6 +113,7 @@ class Web(BaseExtension):
         :return:
         :rtype: None
         """
+        super(Web, self).service_started(sender)
         server = self.app.create_server(
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
