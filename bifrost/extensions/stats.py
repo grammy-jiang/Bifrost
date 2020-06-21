@@ -25,6 +25,10 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         BaseExtension.__init__(self, service, settings)
         UserDict.__init__(self, *args, **kwargs)
 
+    def __missing__(self, key):
+        self[key] = 0
+        return self[key]
+
     def service_started(self, sender: Any) -> None:
         """
 
