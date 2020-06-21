@@ -4,7 +4,6 @@ https://docs.python.org/3/library/asyncio-protocol.html
 """
 from __future__ import annotations
 
-from asyncio.events import AbstractEventLoop
 from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
 
@@ -12,7 +11,6 @@ from bifrost.channels.channel import Channel
 from bifrost.service import Service
 from bifrost.settings import Settings
 from bifrost.signals.manager import SignalManager
-from bifrost.utils.loop import get_event_loop
 
 
 class Protocol(_Protocol):
@@ -34,7 +32,6 @@ class Protocol(_Protocol):
 
         self.service: Service = channel.service
         self.channel: Channel = channel
-        self._loop: AbstractEventLoop = get_event_loop(settings)
 
         self.signal_manager: SignalManager = channel.signal_manager
 
