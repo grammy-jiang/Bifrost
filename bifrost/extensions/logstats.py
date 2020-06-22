@@ -4,8 +4,6 @@ LogStats
 from __future__ import annotations
 
 import logging
-import pprint
-from datetime import datetime
 from typing import Any
 
 from bifrost.extensions import BaseExtension
