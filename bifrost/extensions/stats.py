@@ -40,7 +40,7 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         :param sender:
         :return:
         """
-        logger.info("Start stats...")
+        logger.info("Extension [%s] is running...", self.name)
 
     def service_stopped(self, sender: Any) -> None:
         """
@@ -57,7 +57,7 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         logger.info(
             "Extension [%s] is stopped and stats is dumped:\n%s",
             self.name,
-            pprint.pformat(self)
+            pprint.pformat(self),
         )
 
     def increase(  # pylint: disable=bad-continuation,unused-argument
