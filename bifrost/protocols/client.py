@@ -53,6 +53,7 @@ class Client(ClientProtocol):
         :rtype: None
         """
         self.stats.increase("data/received", len(data))
+        self.stats.increase(f"{self.name}/data/received", len(data))
 
         logger.debug(
             "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
@@ -122,6 +123,7 @@ class Interface(Protocol):
         logger.debug(
             "[SERVER] [CONN] [%s:%s] connected", *transport.get_extra_info("peername")
         )
+        self.stats.increase(f"{self.name}/connect")
 
         self.transport = transport
 
@@ -151,6 +153,7 @@ class Interface(Protocol):
         :rtype: None
         """
         self.stats.increase("data/sent", len(data))
+        self.stats.increase(f"{self.name}/data/sent", len(data))
 
         client_addr: str
         client_port: int

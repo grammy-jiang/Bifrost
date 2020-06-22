@@ -67,6 +67,7 @@ class Client(ClientProtocol):
         :rtype: None
         """
         self.stats.increase("data/received", len(data))
+        self.stats.increase(f"{self.name}/data/received", len(data))
 
         logger.debug(
             "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
@@ -145,6 +146,7 @@ class Socks5Protocol(Protocol):
         logger.debug(
             "[SERVER] [CONN] [%s:%s] connected", *transport.get_extra_info("peername")
         )
+        self.stats.increase(f"{self.name}/connect")
 
         self.transport = transport
         self.state: int = self.INIT
@@ -199,6 +201,9 @@ class Socks5Protocol(Protocol):
         :return:
         :rtype: None
         """
+        self.stats.increase("data/sent", len(data))
+        self.stats.increase(f"{self.name}/data/sent", len(data))
+
         client_addr: str
         client_port: int
         client_addr, client_port = self.transport.get_extra_info("peername")
@@ -257,7 +262,6 @@ class Socks5Protocol(Protocol):
                 client_port,
                 len(data),
             )
-            self.stats.increase("data/sent", len(data))
             self.client_transport.write(data)
 
     # def eof_received(self) -> None:
