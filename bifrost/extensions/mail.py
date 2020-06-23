@@ -2,7 +2,11 @@
 Mail
 
 Refer to:
+* https://docs.python.org/3/library/smtplib.html
 * https://docs.python.org/3/library/email.message.html
+
+Thanks:
+* https://mailtrap.io/
 """
 from __future__ import annotations
 
