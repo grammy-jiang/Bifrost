@@ -6,3 +6,5 @@ service_stopped = object()
 
 data_sent = object()
 data_received = object()
+
+email_sent = object()
