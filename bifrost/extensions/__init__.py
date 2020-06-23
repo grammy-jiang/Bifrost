@@ -3,12 +3,10 @@ Base Extension Class
 """
 from __future__ import annotations
 
-from asyncio.events import AbstractEventLoop
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from bifrost import signals
 from bifrost.settings import Settings
-from bifrost.utils.loop import get_event_loop
 
 if TYPE_CHECKING:
     from bifrost.service import Service
@@ -32,7 +30,6 @@ class BaseExtension:
         :type settings: Settings
         """
         self.service: Service = service
-        self._loop: AbstractEventLoop = get_event_loop(settings)
         self.settings: Settings = settings
 
         self.config: Dict[str, Any] = {}
