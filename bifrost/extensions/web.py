@@ -25,6 +25,7 @@ from sanic_graphql.graphqlview import GraphQLView
 from bifrost.extensions import BaseExtension
 from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -119,7 +120,8 @@ class Web(BaseExtension):
             port=self.config["PORT"],
             return_asyncio_server=True,
         )
-        self._loop.create_task(server)
+        loop = get_event_loop(self.settings)
+        loop.create_task(server)
         logger.info("Extension [%s] is running...", self.name)
 
     def service_stopped(self, sender: Any) -> None:

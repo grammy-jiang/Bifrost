@@ -9,6 +9,7 @@ from typing import Any
 from bifrost.extensions import BaseExtension
 from bifrost.service import Service
 from bifrost.settings import Settings
+from bifrost.utils.loop import get_event_loop
 from bifrost.utils.unit_converter import convert_unit
 
 logger = logging.getLogger(__name__)
@@ -94,4 +95,5 @@ class LogStats(BaseExtension):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        self._loop.call_later(self.config["INTERVAL"], self.log)
+        loop = get_event_loop(self.settings)
+        loop.call_later(self.config["INTERVAL"], self.log)
