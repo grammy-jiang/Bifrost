@@ -8,6 +8,8 @@ An Asynchronous Proxy to Bypass GFW
 * [lenzenmi/asyncio_dispatch: Event signalling for python and asyncio](https://github.com/lenzenmi/asyncio_dispatch)
 * [Opportunistic TLS with python asyncio | Povilas Blog](http://blog.povilasb.com/posts/opportunistic-tls-with-python-asyncio/)
 
+* [Mailtrap.io — Fake smtp testing server. Dummy smtp email testing](https://mailtrap.io/)
+
 ## Reference
 
 ### SOCKS
