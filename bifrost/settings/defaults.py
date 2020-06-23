@@ -2,7 +2,7 @@
 Default settings
 """
 import logging
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 # ==== LOG CONFIGURATION ======================================================
 
@@ -27,6 +27,15 @@ LOOP = "uvloop"
 
 LOGSTATS_INTERVAL = 60  # in seconds
 
+MAIL_SERVER: Optional[str] = None
+MAIL_PORT: Optional[int] = None
+MAIL_USERNAME: Optional[str] = None
+MAIL_PASSWORD: Optional[str] = None
+MAIL_FROM: Optional[str] = None
+MAIL_TO: Optional[str] = None
+MAIL_SUBJECT: Optional[str] = None
+MAIL_CONTENT: Optional[str] = None
+
 WEB_ADDRESS = "127.0.0.1"
 WEB_PORT = 8000
 
@@ -42,6 +51,7 @@ MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
     "bifrost.extensions.logstats.LogStats": 0,
+    "bifrost.extensions.mail.Mail": 0,
     "bifrost.extensions.stats.Stats": 0,
     "bifrost.extensions.web.Web": 0,
 }
