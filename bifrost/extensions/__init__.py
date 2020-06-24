@@ -3,7 +3,7 @@ Base Extension Class
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Coroutine, Dict, Optional
 
 from bifrost import signals
 from bifrost.settings import Settings
@@ -60,7 +60,9 @@ class BaseExtension:
 
         return obj
 
-    def service_started(self, sender: Any) -> None:
+    def service_started(  # pylint: disable=bad-continuation,unused-argument
+        self, sender: Any
+    ) -> Optional[Coroutine]:
         """
 
         :param sender:
@@ -70,7 +72,7 @@ class BaseExtension:
         """
         self.stats = self.service.stats
 
-    def service_stopped(self, sender: Any) -> None:
+    def service_stopped(self, sender: Any) -> Optional[Coroutine]:
         """
 
         :param sender:
