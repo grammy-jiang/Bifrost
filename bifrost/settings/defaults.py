@@ -2,7 +2,7 @@
 Default settings
 """
 import logging
-from typing import Dict, Union, Optional
+from typing import Dict, Optional, Union
 
 # ==== LOG CONFIGURATION ======================================================
 
@@ -36,6 +36,12 @@ MAIL_TO: Optional[str] = None
 MAIL_SUBJECT: Optional[str] = None
 MAIL_CONTENT: Optional[str] = None
 
+RPC_ADDRESS = "127.0.0.1:50051"
+RPC_SERVER_CREDENTIALS_PRIVATE_KEYS: Optional[str] = None
+RPC_SERVER_CREDENTIALS_CERTIFICATES: Optional[str] = None
+RPC_SERVER_CREDENTIALS_CLIENT_AUTH: bool = False
+RPC_STOP_GRACE: Optional[float] = None
+
 WEB_ADDRESS = "127.0.0.1"
 WEB_PORT = 8000
 
@@ -52,6 +58,7 @@ MIDDLEWARES: Dict[str, int] = {}
 EXTENSIONS: Dict[str, int] = {
     "bifrost.extensions.logstats.LogStats": 0,
     "bifrost.extensions.mail.Mail": 0,
+    "bifrost.extensions.rpc.RPC": 0,
     "bifrost.extensions.stats.Stats": 0,
     "bifrost.extensions.web.Web": 0,
 }
