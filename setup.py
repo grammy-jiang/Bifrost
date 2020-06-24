@@ -17,6 +17,8 @@ setup(
     install_requires=[
         "graphene<3",
         "graphql-core<3",
+        "grpcio",
+        "grpcio-tools",
         "sanic",
         "sanic-graphql",
         "ujson",
