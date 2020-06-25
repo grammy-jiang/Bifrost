@@ -36,6 +36,11 @@ class ExtensionManager(Manager):
 
     @property
     def extensions(self) -> Dict[str, object]:
+        """
+        get all extensions in a dict
+        :return:
+        :rtype: Dict[str, object]
+        """
         return self._components
 
     def get_extension(self, name: str) -> object:
