@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import logging
 import pprint
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
-from bifrost.settings import Settings
 from bifrost.utils.manager import Manager
 
 if TYPE_CHECKING:
     from bifrost.service import Service
+    from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,10 @@ class ExtensionManager(Manager):
         self._register_components("EXTENSIONS")
         logger.info("Enabled extensions: \n%s", pprint.pformat(self._cls_components))
 
+    @property
+    def extensions(self) -> Dict[str, object]:
+        return self._components
+
     def get_extension(self, name: str) -> object:
         """
         get an extension by its name
@@ -42,4 +46,4 @@ class ExtensionManager(Manager):
         :return:
         :rtype: object
         """
-        return self._components[name]
+        return self.extensions[name]
