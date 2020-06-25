@@ -1,9 +1,10 @@
 """
 Exceptions used in Settings
 """
+from bifrost.exceptions import BifrostException
 
 
-class SettingsException(Exception):
+class SettingsException(BifrostException):
     """
     The base exception used in this module
     """
