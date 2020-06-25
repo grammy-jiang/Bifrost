@@ -56,6 +56,8 @@ class RPC(BaseExtension):
         init_grpc_aio()
         self.server = server()
 
+        # TODO: add the gRPC servicer to server
+
         address = self.config["ADDRESS"]
         # secure mode
         if private_keys := self.config.get("SERVER_CREDENTIALS_PRIVATE_KEYS"):
