@@ -30,7 +30,7 @@ class Manager:
         self.settings: Settings = settings
 
         self.cls_components: Dict[str, int]
-        self.components: List
+        self.components: Dict[str, object]
 
     @classmethod
     def from_service(cls, service: Service) -> Manager:
@@ -76,7 +76,8 @@ class Manager:
         self.cls_components = dict(
             sorted(self.settings[key].items(), key=lambda items: items[1])
         )
-        self.components = [
-            load_object(cls).from_service(self.service)
-            for cls in self.cls_components.keys()
-        ]
+
+        self.components = {
+            cls.name: cls.from_service(self.service)
+            for cls in (load_object(cls) for cls in self.cls_components.keys())
+        }

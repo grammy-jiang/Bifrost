@@ -42,8 +42,4 @@ class ExtensionManager(Manager):
         :return:
         :rtype: object
         """
-        return next(
-            component
-            for component in self.components
-            if component.name.startswith(name)
-        )
+        return self.components[name]
