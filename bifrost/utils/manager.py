@@ -3,14 +3,14 @@ Base Manager Class for extensions and middlewares
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
     from bifrost.service import Service
+    from bifrost.settings import Settings
 
 
 class Manager:
@@ -29,8 +29,8 @@ class Manager:
         self.service: Service = service
         self.settings: Settings = settings
 
-        self.cls_components: Dict[str, int]
-        self.components: Dict[str, object]
+        self._cls_components: Dict[str, int]
+        self._components: Dict[str, object]
 
     @classmethod
     def from_service(cls, service: Service) -> Manager:
@@ -73,11 +73,11 @@ class Manager:
         :return:
         :rtype: None
         """
-        self.cls_components = dict(
+        self._cls_components = dict(
             sorted(self.settings[key].items(), key=lambda items: items[1])
         )
 
-        self.components = {
+        self._components = {
             cls.name: cls.from_service(self.service)
-            for cls in (load_object(cls) for cls in self.cls_components.keys())
+            for cls in (load_object(cls) for cls in self._cls_components.keys())
         }

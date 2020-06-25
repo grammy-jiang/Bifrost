@@ -32,4 +32,4 @@ class MiddlewareManager(Manager):
         super(MiddlewareManager, self).__init__(service, settings)
 
         self._register_components("MIDDLEWARES")
-        logger.info("Enabled middlewares: \n%s", pprint.pformat(self.cls_components))
+        logger.info("Enabled middlewares: \n%s", pprint.pformat(self._cls_components))

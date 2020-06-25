@@ -32,7 +32,7 @@ class ExtensionManager(Manager):
         super(ExtensionManager, self).__init__(service, settings)
 
         self._register_components("EXTENSIONS")
-        logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_components))
+        logger.info("Enabled extensions: \n%s", pprint.pformat(self._cls_components))
 
     def get_extension(self, name: str) -> object:
         """
@@ -42,4 +42,4 @@ class ExtensionManager(Manager):
         :return:
         :rtype: object
         """
-        return self.components[name]
+        return self._components[name]
