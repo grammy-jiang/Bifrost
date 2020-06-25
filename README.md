@@ -2,6 +2,11 @@
 
 An Asynchronous Proxy to Bypass GFW
 
+## TODO:
+
+* Fulfill GraphQL in Web extension
+* Fulfill gRPC in RPC extension
+
 ## Thanks
 
 * [A working SOCKS5 server based on asyncio (TCP Connect only)](https://gist.github.com/tcalmant/770511b420c1139fe1cc88c2685f2903)
