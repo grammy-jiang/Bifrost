@@ -7,7 +7,7 @@ import logging
 import pprint
 from typing import TYPE_CHECKING, Dict
 
-from bifrost.utils.manager import Manager
+from bifrost.base.manager import Manager
 
 if TYPE_CHECKING:
     from bifrost.service import Service
