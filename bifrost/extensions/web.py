@@ -10,7 +10,7 @@ Refer:
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import String
@@ -23,10 +23,12 @@ from sanic.response import HTTPResponse, json
 from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.extensions import BaseExtension
-from bifrost.service import Service
-from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
+
+if TYPE_CHECKING:
+    from bifrost.service import Service
+    from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
