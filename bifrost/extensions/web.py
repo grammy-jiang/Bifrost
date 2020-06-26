@@ -20,10 +20,10 @@ from graphql.execution.executors.asyncio import AsyncioExecutor
 from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import HTTPResponse, json
+from sanic.server import AsyncioServer
 from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.extensions import BaseExtension
-from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
@@ -85,6 +85,8 @@ class Web(BaseExtension):
         )
         self._configure_app()
 
+        self.server: AsyncioServer
+
     def _configure_app(self):
         """
         configure GraphQL for the app of Sanic
@@ -130,13 +132,11 @@ class Web(BaseExtension):
         await self.stop()
 
     async def start(self) -> None:
-        server = self.app.create_server(
+        self.server = await self.app.create_server(
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
             return_asyncio_server=True,
         )
-        loop = get_event_loop(self.settings)
-        loop.create_task(server)
         logger.info("Extension [%s] is running...", self.name)
 
     async def stop(self) -> None:
@@ -145,6 +145,7 @@ class Web(BaseExtension):
         :return:
         :rtype: None
         """
+        self.server.close()
         logger.info("Extension [%s] is stopped.", self.name)
 
     async def home(  # pylint: disable=bad-continuation,unused-argument
