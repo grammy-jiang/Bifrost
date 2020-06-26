@@ -133,6 +133,7 @@ class Web(BaseExtension):
 
     async def start(self) -> None:
         self.server = await self.app.create_server(
+            debug=self.config["DEBUG"],
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
             return_asyncio_server=True,

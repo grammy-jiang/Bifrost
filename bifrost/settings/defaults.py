@@ -44,6 +44,7 @@ RPC_STOP_GRACE: Optional[float] = None
 
 WEB_ADDRESS = "127.0.0.1"
 WEB_PORT = 8000
+WEB_DEBUG = False
 
 WEB_GRAPHQL_SCHEMA_QUERY = "bifrost.extensions.web.Query"
 # WEB_GRAPHQL_SCHEMA_MUTATION = "bifrost.extensions.web.Mutation"
