@@ -76,13 +76,6 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
-        self._schema: Schema = Schema(
-            **{
-                k.replace("GRAPHQL_SCHEMA_", "").lower(): load_object(v)
-                for k, v in self.config.items()
-                if k.startswith("GRAPHQL_SCHEMA_")
-            }
-        )
         self._configure_app()
 
         self.server: AsyncioServer
@@ -98,12 +91,17 @@ class Web(BaseExtension):
         self.app.add_route(self.home, "/")
 
         # configure GraphQL
+        schema: Schema = Schema(
+            **{
+                k.replace("GRAPHQL_SCHEMA_", "").lower(): load_object(v)
+                for k, v in self.config.items()
+                if k.startswith("GRAPHQL_SCHEMA_")
+            }
+        )
         self.app.register_listener(
             listener=lambda app, loop: app.add_route(
                 GraphQLView.as_view(
-                    schema=self._schema,
-                    graphiql=True,
-                    executor=AsyncioExecutor(loop=loop),
+                    schema=schema, graphiql=True, executor=AsyncioExecutor(loop=loop),
                 ),
                 "/graphql",
             ),
