@@ -132,6 +132,11 @@ class Web(BaseExtension):
         await self.stop()
 
     async def start(self) -> None:
+        """
+        start this extension
+        :return:
+        :rtype: None
+        """
         self.server = await self.app.create_server(
             debug=self.config["DEBUG"],
             host=self.config["ADDRESS"],
@@ -142,7 +147,7 @@ class Web(BaseExtension):
 
     async def stop(self) -> None:
         """
-
+        stop this extension
         :return:
         :rtype: None
         """
