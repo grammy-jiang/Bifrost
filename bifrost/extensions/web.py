@@ -76,9 +76,9 @@ class Web(BaseExtension):
         self.app = Sanic(self.name)
         self._schema: Schema = Schema(
             **{
-                k.replace("WEB_GRAPHQL_SCHEMA_", "").lower(): load_object(v)
-                for k, v in self.settings.items()
-                if k.startswith("WEB_GRAPHQL_SCHEMA_")
+                k.replace("GRAPHQL_SCHEMA_", "").lower(): load_object(v)
+                for k, v in self.config.items()
+                if k.startswith("GRAPHQL_SCHEMA_")
             }
         )
         self._configure_app()
