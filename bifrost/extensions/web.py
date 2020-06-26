@@ -59,7 +59,7 @@ class Web(BaseExtension):
     Web Extension
     """
 
-    name = "Bifrost Web"
+    name = "Web"
 
     setting_prefix = "WEB_"
 
