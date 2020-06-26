@@ -1,35 +1,33 @@
 """
 Extension Manager
 """
-from __future__ import annotations
-
 import logging
 import pprint
 from typing import TYPE_CHECKING, Dict
 
-from bifrost.base.manager import Manager
+from bifrost.base import BaseManager
 
 if TYPE_CHECKING:
     from bifrost.service import Service
-    from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
 
-class ExtensionManager(Manager):
+class ExtensionManager(BaseManager):
     """
     Extension Manager
     """
 
-    def __init__(self, service: Service, settings: Settings):
+    name = "Extension Manager"
+    setting_prefix = "EXTENSION_MANAGER_"
+
+    def __init__(self, service: Service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
         :type service: Service
-        :param settings:
-        :type settings: Settings
         """
-        super(ExtensionManager, self).__init__(service, settings)
+        super(ExtensionManager, self).__init__(service, name, setting_prefix)
 
         self._register_components("EXTENSIONS")
         logger.info("Enabled extensions: \n%s", pprint.pformat(self._cls_components))

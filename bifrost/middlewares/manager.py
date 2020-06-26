@@ -1,35 +1,33 @@
 """
 Middleware Manager
 """
-from __future__ import annotations
-
 import logging
 import pprint
 from typing import TYPE_CHECKING, Dict
 
-from bifrost.base.manager import Manager
+from bifrost.base import BaseManager
 
 if TYPE_CHECKING:
     from bifrost.service import Service
-    from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
 
-class MiddlewareManager(Manager):
+class MiddlewareManager(BaseManager):
     """
     Middleware Manager
     """
 
-    def __init__(self, service: Service, settings: Settings):
+    name = "Middleware Manager"
+    setting_prefix = "MIDDLEWARE_MANAGER_"
+
+    def __init__(self, service: Service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
         :type service: Service
-        :param settings:
-        :type settings: Settings
         """
-        super(MiddlewareManager, self).__init__(service, settings)
+        super(MiddlewareManager, self).__init__(service, name, setting_prefix)
 
         self._register_components("MIDDLEWARES")
         logger.info("Enabled middlewares: \n%s", pprint.pformat(self._cls_components))
