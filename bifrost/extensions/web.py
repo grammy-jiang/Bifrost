@@ -76,16 +76,6 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
-        self._configure_app()
-
-        self.server: AsyncioServer
-
-    def _configure_app(self):
-        """
-        configure GraphQL for the app of Sanic
-        :return:
-        """
-        self.app.config.update(self.config)
 
         # configure normal route
         self.app.add_route(self.home, "/")
@@ -107,6 +97,8 @@ class Web(BaseExtension):
             ),
             event="before_server_start",
         )
+
+        self.server: AsyncioServer
 
     async def service_started(self, sender: Any) -> None:
         """
