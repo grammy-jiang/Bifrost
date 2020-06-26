@@ -1,70 +1,31 @@
 """
 Base Manager Class for extensions and middlewares
 """
-from __future__ import annotations
+from typing import Dict
 
-from typing import TYPE_CHECKING, Any, Dict
-
-from bifrost.signals import service_started, service_stopped
+from bifrost.base import BaseComponent
 from bifrost.utils.misc import load_object
 
-if TYPE_CHECKING:
-    from bifrost.service import Service
-    from bifrost.settings import Settings
 
-
-class Manager:
+class BaseManager(BaseComponent):
     """
     Base Manager Class for extensions and middlewares
     """
 
-    def __init__(self, service: Service, settings: Settings):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
-        :type service: Service
-        :param settings:
-        :type settings: Settings
+        :type service:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        self.service: Service = service
-        self.settings: Settings = settings
+        super(BaseManager, self).__init__(service, name, setting_prefix)
 
         self._cls_components: Dict[str, int]
         self._components: Dict[str, object]
-
-    @classmethod
-    def from_service(cls, service: Service) -> Manager:
-        """
-
-        :param service:
-        :type service: Service
-        :return:
-        :rtype: Manager
-        """
-        settings: Settings = service.settings
-        obj = cls(service, settings)
-
-        service.signal_manager.connect(obj.service_started, service_started)
-        service.signal_manager.connect(obj.service_stopped, service_stopped)
-        return obj
-
-    def service_started(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
-
-    def service_stopped(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
 
     def _register_components(self, key: str) -> None:
         """
