@@ -108,7 +108,7 @@ class Web(BaseExtension):
             event="before_server_start",
         )
 
-    def service_started(self, sender: Any) -> None:
+    async def service_started(self, sender: Any) -> None:
         """
 
         :param sender:
@@ -117,6 +117,19 @@ class Web(BaseExtension):
         :rtype: None
         """
         super(Web, self).service_started(sender)
+        await self.start()
+
+    async def service_stopped(self, sender: Any) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        await self.stop()
+
+    async def start(self) -> None:
         server = self.app.create_server(
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
@@ -126,11 +139,9 @@ class Web(BaseExtension):
         loop.create_task(server)
         logger.info("Extension [%s] is running...", self.name)
 
-    def service_stopped(self, sender: Any) -> None:
+    async def stop(self) -> None:
         """
 
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
