@@ -76,6 +76,7 @@ class Web(BaseExtension):
         super(Web, self).__init__(service, settings)
 
         self.app = Sanic(self.name)
+        self.app.config["SERVICE"] = self.service
 
         # configure normal route
         self.app.add_route(self.home, "/")
