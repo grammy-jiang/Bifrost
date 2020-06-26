@@ -6,7 +6,11 @@ import platform
 import pprint
 import ssl
 
+import graphene
+import graphql
+import grpc
 import sanic
+import ujson
 import uvloop
 import websockets
 
@@ -72,6 +76,10 @@ def get_runtime_info() -> None:
             {
                 "Python": platform.python_version(),
                 "Sanic": sanic.__version__,
+                "graphene": graphene.__version__,
+                "graphql-core": graphql.__version__,
+                "grpcio": grpc.__version__,
+                "ujson": ujson.__version__,
                 "uvloop": uvloop.__version__,
                 "websockets": websockets.__version__,
             }
