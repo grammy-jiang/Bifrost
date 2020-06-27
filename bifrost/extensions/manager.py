@@ -3,12 +3,9 @@ Extension Manager
 """
 import logging
 import pprint
-from typing import TYPE_CHECKING, Dict
+from typing import Dict
 
 from bifrost.base import BaseManager
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
 
 logger = logging.getLogger(__name__)
 
@@ -18,24 +15,37 @@ class ExtensionManager(BaseManager):
     Extension Manager
     """
 
-    name = "Extension Manager"
+    manage = "EXTENSIONS"
+    name = "ExtensionManager"
     setting_prefix = "EXTENSION_MANAGER_"
 
-    def __init__(self, service: Service, name: str = None, setting_prefix: str = None):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
-        :type service: Service
+        :type service:
+        :param name:
+        :type name:
+        :param setting_prefix:
+        :type setting_prefix:
         """
         super(ExtensionManager, self).__init__(service, name, setting_prefix)
 
-        self._register_components("EXTENSIONS")
-        logger.info("Enabled extensions: \n%s", pprint.pformat(self._cls_components))
+        logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_extensions))
+
+    @property
+    def cls_extensions(self) -> Dict[str, int]:
+        """
+        Get all extensions with the priority in a dict
+        :return:
+        :rtype: Dict[str, int]
+        """
+        return self._cls_components
 
     @property
     def extensions(self) -> Dict[str, object]:
         """
-        get all extensions in a dict
+        Get all extensions by names in a dict
         :return:
         :rtype: Dict[str, object]
         """
@@ -43,7 +53,7 @@ class ExtensionManager(BaseManager):
 
     def get_extension(self, name: str) -> object:
         """
-        get an extension by its name
+        Get an extension by its name
         :param name:
         :type name: str
         :return:

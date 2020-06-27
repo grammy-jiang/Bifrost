@@ -12,6 +12,8 @@ class BaseManager(BaseComponent):
     Base Manager Class for extensions and middlewares
     """
 
+    manage: str = None  # type: ignore
+
     def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
@@ -24,21 +26,11 @@ class BaseManager(BaseComponent):
         """
         super(BaseManager, self).__init__(service, name, setting_prefix)
 
-        self._cls_components: Dict[str, int]
-        self._components: Dict[str, object]
-
-    def _register_components(self, key: str) -> None:
-        """
-
-        :param key: the setting name in Settings
-        :return:
-        :rtype: None
-        """
-        self._cls_components = dict(
-            sorted(self.settings[key].items(), key=lambda items: items[1])
+        self._cls_components: Dict[str, int] = dict(
+            sorted(self.settings[self.manage].items(), key=lambda items: items[1])
         )
 
-        self._components = {
+        self._components: Dict[str, object] = {
             cls.name: cls.from_service(self.service)
             for cls in (load_object(cls) for cls in self._cls_components.keys())
         }
