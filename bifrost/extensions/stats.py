@@ -40,7 +40,9 @@ class Stats(BaseComponent, UserDict, LoggerMixin):  # pylint: disable=too-many-a
         """
 
         :param sender:
+        :type sender: Any
         :return:
+        :rtype: None
         """
         end_time: datetime = datetime.now()
 
