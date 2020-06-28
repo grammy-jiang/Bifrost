@@ -14,7 +14,7 @@ LOG_FORMATTER_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
 CLS_SERVICE = "bifrost.service.bifrost.Bifrost"
 
-CLS_SIGNAL_MANAGER = "bifrost.signals.manager.SignalManager"
+CLS_SIGNAL_MANAGER = "bifrost.signals.SignalManager"
 
 CLS_EXTENSION_MANAGER = "bifrost.extensions.ExtensionManager"
 CLS_MIDDLEWARE_MANAGER = "bifrost.middlewares.MiddlewareManager"
