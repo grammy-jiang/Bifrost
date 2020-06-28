@@ -7,9 +7,6 @@ Refer:
 * https://sanic.readthedocs.io/en/latest/
 * https://github.com/huge-success/sanic
 """
-from __future__ import annotations
-
-import logging
 
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import String
@@ -24,8 +21,6 @@ from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.utils.misc import load_object
-
-logger = logging.getLogger(__name__)
 
 
 class Query(ObjectType):
@@ -109,7 +104,7 @@ class Web(BaseComponent, LoggerMixin):
             port=self.config["PORT"],
             return_asyncio_server=True,
         )
-        logger.info("Extension [%s] is running...", self.name)
+        self.logger.info("Extension [%s] is running...", self.name)
 
     async def stop(self) -> None:
         """
@@ -119,7 +114,7 @@ class Web(BaseComponent, LoggerMixin):
         """
         if self.server:
             self.server.close()
-            logger.info("Extension [%s] is stopped.", self.name)
+            self.logger.info("Extension [%s] is stopped.", self.name)
 
     async def home(  # pylint: disable=bad-continuation,unused-argument
         self, request: Request
