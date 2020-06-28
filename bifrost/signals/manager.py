@@ -6,15 +6,15 @@ from __future__ import annotations
 import asyncio
 import functools
 from asyncio.events import AbstractEventLoop
-from collections import defaultdict
-from typing import Callable, Dict, Set
+from collections import UserDict
+from typing import Callable, Set
 
 from bifrost.base import LoggerMixin
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
 
 
-class SignalManager(LoggerMixin):
+class SignalManager(UserDict, LoggerMixin):
     """
     Signal Manager
     """
@@ -25,11 +25,15 @@ class SignalManager(LoggerMixin):
         :param settings:
         :type settings: Settings
         """
+        super(SignalManager, self).__init__()
+
         self.settings: Settings = settings
 
         self._loop: AbstractEventLoop = get_event_loop(settings)
 
-        self._all: Dict[object, Set[Callable]] = defaultdict(set)
+    def __missing__(self, key):
+        self[key] = set()
+        return self[key]
 
     @classmethod
     def from_settings(cls, settings: Settings) -> SignalManager:
@@ -54,7 +58,7 @@ class SignalManager(LoggerMixin):
         :return:
         :rtype: None
         """
-        self._all[signal].add(receiver)
+        self[signal].add(receiver)
 
     def disconnect(self, receiver: Callable, signal: object) -> None:
         """
@@ -69,7 +73,7 @@ class SignalManager(LoggerMixin):
         :rtype: None
         """
         try:
-            self._all[signal].remove(receiver)
+            self[signal].remove(receiver)
         except KeyError as exc:
             self.logger.exception(exc)
 
@@ -86,7 +90,7 @@ class SignalManager(LoggerMixin):
         :return:
         :rtype: None
         """
-        receivers: Set[Callable] = self._all[signal]
+        receivers: Set[Callable] = self[signal]
 
         receiver: Callable
         for receiver in receivers:
