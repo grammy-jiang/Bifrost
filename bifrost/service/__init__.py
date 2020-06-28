@@ -12,8 +12,7 @@ from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import Any, Dict
 
 from bifrost.channels.channel import Channel
-from bifrost.extensions.manager import ExtensionManager
-from bifrost.extensions.stats import Stats
+from bifrost.extensions import ExtensionManager, Stats
 from bifrost.middlewares.manager import MiddlewareManager
 from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
