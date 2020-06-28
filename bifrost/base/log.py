@@ -10,10 +10,11 @@ class LoggerMixin:  # pylint: disable=too-few-public-methods
     """
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """
         Logger
         :return:
+        :rtype: Logger
         """
         name = ".".join([self.__module__, self.__class__.__name__])
         return logging.getLogger(name)
