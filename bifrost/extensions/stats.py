@@ -1,8 +1,6 @@
 """
 Statistic Collector
 """
-from __future__ import annotations
-
 import pprint
 from collections import UserDict
 from datetime import datetime
@@ -51,9 +49,7 @@ class Stats(BaseComponent, UserDict, LoggerMixin):  # pylint: disable=too-many-a
         self["time/start"] = self["time/start"].strftime("%Y-%m-%d %H:%M:%S")
 
         self.logger.info(
-            "Extension [%s] is stopped and stats is dumped:\n%s",
-            self.name,
-            pprint.pformat(self),
+            "Stats is dumped:\n%s", pprint.pformat(self),
         )
 
     def increase(  # pylint: disable=bad-continuation,unused-argument
