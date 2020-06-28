@@ -3,46 +3,40 @@ Statistic Collector
 """
 from __future__ import annotations
 
-import logging
 import pprint
 from collections import UserDict
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any
 
-from bifrost.extensions import BaseExtension
-from bifrost.settings import Settings
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
-
-logger = logging.getLogger(__name__)
+from bifrost.base import BaseComponent, LoggerMixin
 
 
-class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
+class Stats(BaseComponent, UserDict, LoggerMixin):  # pylint: disable=too-many-ancestors
     """
     Stats Extension
     """
 
     name: str = "Stats"
-    setting_prefix: Optional[str] = "STATS_"
+    setting_prefix: str = "STATS_"
 
-    def __init__(self, service: Service, settings: Settings, *args, **kwargs):
-        BaseExtension.__init__(self, service, settings)
-        UserDict.__init__(self, *args, **kwargs)
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
+        """
+
+        :param service:
+        :type service:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
+        """
+        BaseComponent.__init__(self, service, name, setting_prefix)
+        UserDict.__init__(self)
 
     def __missing__(self, key):
         self[key] = 0
         return self[key]
 
-    def service_started(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :return:
-        """
-        logger.info("Extension [%s] is running...", self.name)
-
-    def service_stopped(self, sender: Any) -> None:
+    async def service_stopped(self, sender: Any) -> None:
         """
 
         :param sender:
@@ -54,7 +48,7 @@ class Stats(BaseExtension, UserDict):  # pylint: disable=too-many-ancestors
         self["time/running"] = str(end_time - self["time/start"])
         self["time/start"] = self["time/start"].strftime("%Y-%m-%d %H:%M:%S")
 
-        logger.info(
+        self.logger.info(
             "Extension [%s] is stopped and stats is dumped:\n%s",
             self.name,
             pprint.pformat(self),
