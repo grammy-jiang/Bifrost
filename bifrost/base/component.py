@@ -57,7 +57,10 @@ class BaseComponent:
 
         signal_manager = service.signal_manager
 
-        from bifrost.signals import service_started, service_stopped
+        from bifrost.signals import (  # pylint: disable=import-outside-toplevel
+            service_started,
+            service_stopped,
+        )
 
         signal_manager.connect(obj.service_started, service_started)
         signal_manager.connect(obj.service_stopped, service_stopped)
