@@ -7,22 +7,15 @@ Refer to:
 """
 from __future__ import annotations
 
-import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Optional
 
 from grpc import ServerCredentials, ssl_server_credentials
-from grpc.experimental.aio import Server, init_grpc_aio, server
+from grpc.experimental.aio import init_grpc_aio, server
 
-from bifrost.extensions import BaseExtension
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
-    from bifrost.settings import Settings
-
-logger = logging.getLogger(__name__)
+from bifrost.base import BaseComponent, LoggerMixin
 
 
-class RPC(BaseExtension):
+class RPC(BaseComponent, LoggerMixin):
     """
     RPC
     """
@@ -30,29 +23,17 @@ class RPC(BaseExtension):
     name = "RPC"
     setting_prefix = "RPC_"
 
-    def __init__(self, service: Service, settings: Settings):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
+        super(RPC, self).__init__(service, name, setting_prefix)
+
+        self.server = None
+
+    async def start(self) -> None:
         """
 
-        :param service:
-        :type service: Service
-        :param settings:
-        :type settings: Settings
-        """
-        super(RPC, self).__init__(service, settings)
-        self.server: Server
-
-    async def service_started(  # pylint: disable=bad-continuation,invalid-overridden-method
-        self, sender: Any
-    ) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
-        super(RPC, self).service_started(sender)
-
         init_grpc_aio()
         self.server = server()
 
@@ -77,8 +58,8 @@ class RPC(BaseExtension):
                 keys, certs, client_auth
             )
 
-            port = self.server.add_secure_port(address, credentials)
-            logger.info(
+            port = self.server.add_secure_port(address, credentials)  # type: ignore
+            self.logger.info(
                 "Extension [%s] is running with certificate [%s] on port [%s]...",
                 self.name,
                 port,
@@ -86,20 +67,19 @@ class RPC(BaseExtension):
             )
         # insecure mode
         else:
-            port = self.server.add_insecure_port(address)
-            logger.info("Extension [%s] is running on port [%s]...", self.name, port)
+            port = self.server.add_insecure_port(address)  # type: ignore
+            self.logger.info(
+                "Extension [%s] is running on port [%s]...", self.name, port
+            )
 
-        await self.server.start()
+        await self.server.start()  # type: ignore
 
-    async def service_stopped(  # pylint: disable=bad-continuation,invalid-overridden-method
-        self, sender: Any
-    ) -> None:
+    async def stop(self) -> None:
         """
 
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
-        await self.server.stop(grace=self.config["STOP_GRACE"])
-        logger.info("Extension [%s] is stopped.", self.name)
+        if self.server:
+            await self.server.stop(grace=self.config["STOP_GRACE"])
+            self.logger.info("Extension [%s] is stopped.", self.name)
