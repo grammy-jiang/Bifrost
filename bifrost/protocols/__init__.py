@@ -6,11 +6,13 @@ from __future__ import annotations
 
 from asyncio.protocols import Protocol as _Protocol
 from asyncio.transports import BaseTransport
+from typing import TYPE_CHECKING
 
-from bifrost.channels.channel import Channel
-from bifrost.service import Service
-from bifrost.settings import Settings
-from bifrost.signals.manager import SignalManager
+if TYPE_CHECKING:
+    from bifrost.channels.channel import Channel
+    from bifrost.service import Service
+    from bifrost.settings import Settings
+    from bifrost.signals.manager import SignalManager
 
 
 class Protocol(_Protocol):
