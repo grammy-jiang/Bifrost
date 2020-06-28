@@ -10,15 +10,12 @@ Thanks:
 """
 from __future__ import annotations
 
-import logging
 import smtplib
 from email.message import EmailMessage
 from typing import Any
 
 from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.signals import email_sent
-
-logger = logging.getLogger(__name__)
 
 
 class Mail(BaseComponent, LoggerMixin):
@@ -36,7 +33,7 @@ class Mail(BaseComponent, LoggerMixin):
         :rtype: None
         """
         self.service.signal_manager.connect(self.send_email, email_sent)
-        logger.info("Extension [%s] is running...", self.name)
+        self.logger.info("Extension [%s] is running...", self.name)
 
     async def stop(self) -> None:
         """
@@ -45,7 +42,7 @@ class Mail(BaseComponent, LoggerMixin):
         :rtype: None
         """
         # TODO: remove signal connection
-        logger.info("Extension [%s] is stopped.", self.name)
+        self.logger.info("Extension [%s] is stopped.", self.name)
 
     def _get_message(self, **kwargs) -> EmailMessage:
         """
@@ -80,7 +77,7 @@ class Mail(BaseComponent, LoggerMixin):
         """
         message = self._get_message(**kwargs)
 
-        logger.info("Send email [%s] to [%s]", message["Subject"], message["To"])
+        self.logger.info("Send email [%s] to [%s]", message["Subject"], message["To"])
 
         server = kwargs["server"] if "server" in kwargs else self.config["SERVER"]
         port = kwargs["port"] if "port" in kwargs else self.config["PORT"]
