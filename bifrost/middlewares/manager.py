@@ -38,6 +38,7 @@ class MiddlewareManager(BaseManager):
         """
         Get all middlewares with priority in a dict
         :return:
+        :rtype: Dict[str, int]
         """
         return self._cls_components
 
