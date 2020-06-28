@@ -1,13 +1,11 @@
 """
 LogStats
 """
-import logging
+from asyncio.events import TimerHandle
 
 from bifrost.base import BaseComponent, LoggerMixin, StatsMixin
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.unit_converter import convert_unit
-
-logger = logging.getLogger(__name__)
 
 
 class LogStats(BaseComponent, StatsMixin, LoggerMixin):
@@ -33,6 +31,8 @@ class LogStats(BaseComponent, StatsMixin, LoggerMixin):
         self._data_sent: int = 0
         self._data_received: int = 0
 
+        self.timer_handle: TimerHandle = None  # type: ignore
+
     async def start(self) -> None:
         """
 
@@ -40,6 +40,15 @@ class LogStats(BaseComponent, StatsMixin, LoggerMixin):
         :rtype: None
         """
         self.log()
+
+    async def stop(self) -> None:
+        """
+
+        :return:
+        :rtype: None
+        """
+        if self.timer_handle:
+            self.timer_handle.cancel()
 
     def log(self) -> None:
         """
@@ -56,7 +65,7 @@ class LogStats(BaseComponent, StatsMixin, LoggerMixin):
             (self.stats["data/sent"] - self._data_sent) / self.config["INTERVAL"] * 8
         )
 
-        logger.info(
+        self.logger.info(
             "Data sent: %s, received: %s",
             "[{:,.3f}] {} (at [{:,.3f}] {})".format(
                 *convert_unit(self.stats["data/sent"]),
@@ -72,4 +81,4 @@ class LogStats(BaseComponent, StatsMixin, LoggerMixin):
         self._data_received = self.stats["data/received"]
 
         loop = get_event_loop(self.settings)
-        loop.call_later(self.config["INTERVAL"], self.log)
+        self.timer_handle = loop.call_later(self.config["INTERVAL"], self.log)
