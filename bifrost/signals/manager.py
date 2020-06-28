@@ -12,37 +12,54 @@ from bifrost.base import LoggerMixin
 from bifrost.utils.loop import get_event_loop
 
 
-class SignalManager(UserDict, LoggerMixin):
+class SignalManager(UserDict, LoggerMixin):  # pylint: disable=too-many-ancestors
     """
     Signal Manager
     """
 
-    def __init__(self, settings):
+    name: str = "SignalManager"
+    setting_prefix: str = "SIGNAL_MANAGER_"
+
+    def __init__(self, settings, name: str = None, setting_prefix: str = None):
         """
 
         :param settings:
         :type settings:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
         super(SignalManager, self).__init__()
 
         self.settings = settings
 
-        self._loop = get_event_loop(settings)
+        if name:
+            self.name = name
+
+        if setting_prefix:
+            self.setting_prefix = setting_prefix
 
     def __missing__(self, key):
         self[key] = set()
         return self[key]
 
     @classmethod
-    def from_settings(cls, settings) -> SignalManager:
+    def from_settings(  # pylint: disable=bad-continuation
+        cls, settings, name: str = None, setting_prefix: str = None
+    ) -> SignalManager:
         """
 
         :param settings:
         :type settings:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         :return:
         :rtype: SignalManager
         """
-        obj = cls(settings)
+        obj = cls(settings, name, setting_prefix)
         return obj
 
     def connect(self, receiver: Callable, signal: object) -> None:
@@ -88,12 +105,14 @@ class SignalManager(UserDict, LoggerMixin):
         :return:
         :rtype: None
         """
+        loop = get_event_loop(self.settings)
+
         receivers: Set[Callable] = self[signal]
 
         receiver: Callable
         for receiver in receivers:
             _receiver = functools.partial(receiver, **kwargs)
             if asyncio.iscoroutinefunction(receiver):
-                self._loop.create_task(_receiver())
+                loop.create_task(_receiver())
             else:
-                self._loop.call_soon_threadsafe(_receiver)
+                loop.call_soon_threadsafe(_receiver)
