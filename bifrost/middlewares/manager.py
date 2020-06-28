@@ -1,16 +1,13 @@
 """
 Middleware Manager
 """
-import logging
 import pprint
 from typing import Dict
 
-from bifrost.base import BaseManager
-
-logger = logging.getLogger(__name__)
+from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin
 
 
-class MiddlewareManager(BaseManager):
+class MiddlewareManager(LoggerMixin, ManagerMixin, BaseComponent):
     """
     Middleware Manager
     """
@@ -31,7 +28,9 @@ class MiddlewareManager(BaseManager):
         """
         super(MiddlewareManager, self).__init__(service, name, setting_prefix)
 
-        logger.info("Enabled middlewares: \n%s", pprint.pformat(self._cls_components))
+        self.logger.info(
+            "Enabled middlewares: \n%s", pprint.pformat(self.cls_middlewares)
+        )
 
     @property
     def cls_middlewares(self) -> Dict[str, int]:

@@ -1,16 +1,13 @@
 """
 Extension Manager
 """
-import logging
 import pprint
 from typing import Dict
 
-from bifrost.base import BaseManager
-
-logger = logging.getLogger(__name__)
+from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin
 
 
-class ExtensionManager(BaseManager):
+class ExtensionManager(LoggerMixin, ManagerMixin, BaseComponent):
     """
     Extension Manager
     """
@@ -31,7 +28,9 @@ class ExtensionManager(BaseManager):
         """
         super(ExtensionManager, self).__init__(service, name, setting_prefix)
 
-        logger.info("Enabled extensions: \n%s", pprint.pformat(self.cls_extensions))
+        self.logger.info(
+            "Enabled extensions: \n%s", pprint.pformat(self.cls_extensions)
+        )
 
     @property
     def cls_extensions(self) -> Dict[str, int]:
