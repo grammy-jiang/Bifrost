@@ -34,11 +34,9 @@ class Stats(BaseComponent, UserDict, LoggerMixin):  # pylint: disable=too-many-a
         self[key] = 0
         return self[key]
 
-    async def service_stopped(self, sender: Any) -> None:
+    async def stop(self) -> None:
         """
 
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
