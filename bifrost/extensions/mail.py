@@ -13,59 +13,38 @@ from __future__ import annotations
 import logging
 import smtplib
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from bifrost.extensions import BaseExtension
+from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.signals import email_sent
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
 
 logger = logging.getLogger(__name__)
 
 
-class Mail(BaseExtension):
+class Mail(BaseComponent, LoggerMixin):
     """
     Mail
     """
 
-    name = "Mail"
-    setting_prefix = "MAIL_"
+    name: str = "Mail"
+    setting_prefix: str = "MAIL_"
 
-    @classmethod
-    def from_service(cls, service: Service) -> Mail:
+    async def start(self) -> None:
         """
 
-        :param service:
-        :type service: Service
-        :return:
-        :rtype: Mail
-        """
-        obj = super(Mail, cls).from_service(service)
-
-        service.signal_manager.connect(obj.send, email_sent)
-
-        return obj
-
-    def service_started(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
-        super(Mail, self).service_started(sender)
+        self.service.signal_manager.connect(self.send_email, email_sent)
         logger.info("Extension [%s] is running...", self.name)
 
-    def service_stopped(self, sender: Any) -> None:
+    async def stop(self) -> None:
         """
 
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
+        # TODO: remove signal connection
         logger.info("Extension [%s] is stopped.", self.name)
 
     def _get_message(self, **kwargs) -> EmailMessage:
@@ -88,7 +67,9 @@ class Mail(BaseExtension):
 
         return message
 
-    def send(self, sender: Any = None, **kwargs) -> None:
+    def send_email(  # pylint: disable=bad-continuation,unused-argument
+        self, sender: Any = None, **kwargs
+    ) -> None:
         """
 
         :param sender:
