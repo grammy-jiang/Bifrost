@@ -3,8 +3,6 @@ Base class for components
 """
 from typing import Any, Dict
 
-from bifrost.signals import service_started, service_stopped
-
 
 class BaseComponent:
     """
@@ -58,6 +56,9 @@ class BaseComponent:
         obj = cls(service, name, setting_prefix)
 
         signal_manager = service.signal_manager
+
+        from bifrost.signals import service_started, service_stopped
+
         signal_manager.connect(obj.service_started, service_started)
         signal_manager.connect(obj.service_stopped, service_stopped)
 
