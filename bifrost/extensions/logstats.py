@@ -3,15 +3,14 @@ LogStats
 """
 import logging
 
-from bifrost.base import BaseComponent, LoggerMixin
-from bifrost.extensions import Stats
+from bifrost.base import BaseComponent, LoggerMixin, StatsMixin
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.unit_converter import convert_unit
 
 logger = logging.getLogger(__name__)
 
 
-class LogStats(BaseComponent, LoggerMixin):
+class LogStats(BaseComponent, StatsMixin, LoggerMixin):
     """
     Log basic stats periodically
     """
@@ -33,15 +32,6 @@ class LogStats(BaseComponent, LoggerMixin):
 
         self._data_sent: int = 0
         self._data_received: int = 0
-
-    @property
-    def stats(self) -> Stats:
-        """
-
-        :return:
-        :rtype: Stats
-        """
-        return self.service.stats
 
     async def start(self) -> None:
         """
