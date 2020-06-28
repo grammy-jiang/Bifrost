@@ -57,11 +57,11 @@ WEB_GRAPHQL_SCHEMA_QUERY = "bifrost.extensions.web.Query"
 MIDDLEWARES: Dict[str, int] = {}
 
 EXTENSIONS: Dict[str, int] = {
-    "bifrost.extensions.logstats.LogStats": 0,
-    "bifrost.extensions.mail.Mail": 0,
-    "bifrost.extensions.rpc.RPC": 0,
-    "bifrost.extensions.stats.Stats": 0,
-    "bifrost.extensions.web.Web": 0,
+    "bifrost.extensions.LogStats": 0,
+    "bifrost.extensions.Mail": 0,
+    "bifrost.extensions.RPC": 0,
+    "bifrost.extensions.Stats": 0,
+    "bifrost.extensions.Web": 0,
 }
 
 # ==== CHANNELS ===============================================================
