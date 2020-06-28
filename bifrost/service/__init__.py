@@ -11,7 +11,6 @@ from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
@@ -19,8 +18,9 @@ from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
     from bifrost.channels.channel import Channel
-    from bifrost.extensions import ExtensionManager, Stats
+    from bifrost.extensions import ExtensionManager
     from bifrost.middlewares.manager import MiddlewareManager
+    from bifrost.settings import Settings
     from bifrost.signals.manager import SignalManager
 
 logger = logging.getLogger(__name__)
