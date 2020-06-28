@@ -4,17 +4,18 @@ Channel
 from __future__ import annotations
 
 import logging
-from asyncio.base_events import Server
 from typing import TYPE_CHECKING, Optional
 
-from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
-from bifrost.signals.manager import SignalManager
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
+    from asyncio.base_events import Server
+
     from bifrost.service import Service
+    from bifrost.settings import Settings
+    from bifrost.signals.manager import SignalManager
     from bifrost.protocols import Protocol
 
 logger = logging.getLogger(__name__)
