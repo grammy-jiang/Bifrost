@@ -8,8 +8,6 @@ Refer to:
 Thanks:
 * https://mailtrap.io/
 """
-from __future__ import annotations
-
 import smtplib
 from email.message import EmailMessage
 from typing import Any

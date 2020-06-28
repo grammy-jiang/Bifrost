@@ -5,8 +5,6 @@ Refer to:
 * https://grpc.io/
 * https://grpc.github.io/grpc/python/index.html
 """
-from __future__ import annotations
-
 from typing import Optional
 
 from grpc import ServerCredentials, ssl_server_credentials
