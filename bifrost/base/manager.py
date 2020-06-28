@@ -3,11 +3,10 @@ Base Manager Class for extensions and middlewares
 """
 from typing import Dict
 
-from bifrost.base import BaseComponent
 from bifrost.utils.misc import load_object
 
 
-class BaseManager(BaseComponent):
+class ManagerMixin:  # pylint: disable=too-few-public-methods
     """
     Base Manager Class for extensions and middlewares
     """
@@ -24,13 +23,16 @@ class BaseManager(BaseComponent):
         :param setting_prefix:
         :type setting_prefix: str
         """
-        super(BaseManager, self).__init__(service, name, setting_prefix)
+        super().__init__(service, name, setting_prefix)  # type: ignore
 
         self._cls_components: Dict[str, int] = dict(
-            sorted(self.settings[self.manage].items(), key=lambda items: items[1])
+            sorted(
+                self.settings[self.manage].items(),  # type: ignore
+                key=lambda items: items[1],
+            )
         )
 
         self._components: Dict[str, object] = {
-            cls.name: cls.from_service(self.service)
+            cls.name: cls.from_service(self.service)  # type: ignore
             for cls in (load_object(cls) for cls in self._cls_components.keys())
         }
