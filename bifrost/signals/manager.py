@@ -5,18 +5,16 @@ from __future__ import annotations
 
 import asyncio
 import functools
-import logging
 from asyncio.events import AbstractEventLoop
 from collections import defaultdict
 from typing import Callable, Dict, Set
 
+from bifrost.base import LoggerMixin
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
 
-logger = logging.getLogger(__name__)
 
-
-class SignalManager:
+class SignalManager(LoggerMixin):
     """
     Signal Manager
     """
@@ -73,7 +71,7 @@ class SignalManager:
         try:
             self._all[signal].remove(receiver)
         except KeyError as exc:
-            logger.exception(exc)
+            self.logger.exception(exc)
 
     def send(self, signal: object, **kwargs) -> None:
         """
