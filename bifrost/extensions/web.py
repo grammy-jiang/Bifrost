@@ -10,7 +10,6 @@ Refer:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
 
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import String
@@ -23,12 +22,8 @@ from sanic.response import HTTPResponse, json
 from sanic.server import AsyncioServer
 from sanic_graphql.graphqlview import GraphQLView
 
-from bifrost.extensions import BaseExtension
+from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.utils.misc import load_object
-
-if TYPE_CHECKING:
-    from bifrost.service import Service
-    from bifrost.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -56,24 +51,25 @@ class Query(ObjectType):
         return "world"
 
 
-class Web(BaseExtension):
+class Web(BaseComponent, LoggerMixin):
     """
     Web Extension
     """
 
-    name = "Web"
+    name: str = "Web"
+    setting_prefix: str = "WEB_"
 
-    setting_prefix = "WEB_"
-
-    def __init__(self, service: Service, settings: Settings):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
-        :type service: Service
-        :param settings:
-        :type settings: Settings
+        :type service:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        super(Web, self).__init__(service, settings)
+        super(Web, self).__init__(service, name, setting_prefix)
 
         self.app = Sanic(self.name)
         self.app.config["SERVICE"] = self.service
@@ -99,28 +95,7 @@ class Web(BaseExtension):
             event="before_server_start",
         )
 
-        self.server: AsyncioServer
-
-    async def service_started(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
-        super(Web, self).service_started(sender)
-        await self.start()
-
-    async def service_stopped(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
-        await self.stop()
+        self.server: AsyncioServer = None  # type: ignore
 
     async def start(self) -> None:
         """
@@ -142,8 +117,9 @@ class Web(BaseExtension):
         :return:
         :rtype: None
         """
-        self.server.close()
-        logger.info("Extension [%s] is stopped.", self.name)
+        if self.server:
+            self.server.close()
+            logger.info("Extension [%s] is stopped.", self.name)
 
     async def home(  # pylint: disable=bad-continuation,unused-argument
         self, request: Request
