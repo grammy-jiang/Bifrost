@@ -6,11 +6,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Coroutine, Dict, Optional
 
 from bifrost import signals
+from bifrost.extensions.stats import Stats
 from bifrost.settings import Settings
 
 if TYPE_CHECKING:
     from bifrost.service import Service
-    from bifrost.extensions.stats import Stats
 
 
 class BaseExtension:

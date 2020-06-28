@@ -1,69 +1,55 @@
 """
 LogStats
 """
-from __future__ import annotations
-
 import logging
-from typing import Any
 
-from bifrost.extensions import BaseExtension
-from bifrost.service import Service
-from bifrost.settings import Settings
+from bifrost.base import BaseComponent, LoggerMixin
+from bifrost.extensions import Stats
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.unit_converter import convert_unit
 
 logger = logging.getLogger(__name__)
 
 
-class LogStats(BaseExtension):
-    """Log basic stats periodically"""
+class LogStats(BaseComponent, LoggerMixin):
+    """
+    Log basic stats periodically
+    """
 
-    name = "LogStats"
-    setting_prefix = "LOGSTATS_"
+    name: str = "LogStats"
+    setting_prefix: str = "LOGSTATS_"
 
-    def __init__(self, service: Service, settings: Settings):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
         :type service: Service
-        :param settings:
-        :type settings: Settings
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        super(LogStats, self).__init__(service, settings)
+        super(LogStats, self).__init__(service, name, setting_prefix)
 
         self._data_sent: int = 0
         self._data_received: int = 0
 
-    @classmethod
-    def from_service(cls, service: Service) -> LogStats:
+    @property
+    def stats(self) -> Stats:
         """
 
-        :param service:
-        :type service: Service
         :return:
+        :rtype: Stats
         """
-        obj = super(LogStats, cls).from_service(service)
-        return obj
+        return self.service.stats
 
-    def service_started(self, sender: Any) -> None:
+    async def start(self) -> None:
         """
 
-        :param sender:
-        :type sender: Any
         :return:
         :rtype: None
         """
-        super(LogStats, self).service_started(sender)
         self.log()
-
-    def service_stopped(self, sender: Any) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
 
     def log(self) -> None:
         """
