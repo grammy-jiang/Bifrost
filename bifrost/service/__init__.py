@@ -9,17 +9,19 @@ import pprint
 from asyncio.events import AbstractEventLoop
 from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.channels.channel import Channel
-from bifrost.extensions import ExtensionManager, Stats
-from bifrost.middlewares.manager import MiddlewareManager
 from bifrost.settings import Settings
 from bifrost.signals import service_started, service_stopped
-from bifrost.signals.manager import SignalManager
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
+
+if TYPE_CHECKING:
+    from bifrost.channels.channel import Channel
+    from bifrost.extensions import ExtensionManager, Stats
+    from bifrost.middlewares.manager import MiddlewareManager
+    from bifrost.signals.manager import SignalManager
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,7 @@ class Service:
             settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
 
-        self.stats: Stats = self.extension_manager.get_extension(name="Stats")
+        self.stats = self.extension_manager.get_extension(name="Stats")
 
         self.middleware_manager: MiddlewareManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
