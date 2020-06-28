@@ -5,12 +5,10 @@ from __future__ import annotations
 
 import asyncio
 import functools
-from asyncio.events import AbstractEventLoop
 from collections import UserDict
 from typing import Callable, Set
 
 from bifrost.base import LoggerMixin
-from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
 
 
@@ -19,28 +17,28 @@ class SignalManager(UserDict, LoggerMixin):
     Signal Manager
     """
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings):
         """
 
         :param settings:
-        :type settings: Settings
+        :type settings:
         """
         super(SignalManager, self).__init__()
 
-        self.settings: Settings = settings
+        self.settings = settings
 
-        self._loop: AbstractEventLoop = get_event_loop(settings)
+        self._loop = get_event_loop(settings)
 
     def __missing__(self, key):
         self[key] = set()
         return self[key]
 
     @classmethod
-    def from_settings(cls, settings: Settings) -> SignalManager:
+    def from_settings(cls, settings) -> SignalManager:
         """
 
         :param settings:
-        :type settings: Settings
+        :type settings:
         :return:
         :rtype: SignalManager
         """
