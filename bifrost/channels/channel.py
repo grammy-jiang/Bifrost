@@ -3,9 +3,9 @@ Channel
 """
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Optional
 
+from bifrost.base import LoggerMixin
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
@@ -18,10 +18,8 @@ if TYPE_CHECKING:
     from bifrost.signals.manager import SignalManager
     from bifrost.protocols import Protocol
 
-logger = logging.getLogger(__name__)
 
-
-class Channel:
+class Channel(LoggerMixin):
     """
     Channel
     """
@@ -87,7 +85,7 @@ class Channel:
             self.interface_address,
             self.interface_port,
         )
-        logger.info(
+        self.logger.info(
             "Protocol [%s] is listening on the interface: %s:%s",
             self.interface_protocol,
             self.interface_address,
