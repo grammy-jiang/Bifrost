@@ -3,7 +3,7 @@ Channel
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from bifrost.base import LoggerMixin
 from bifrost.signals import service_started, service_stopped
@@ -72,10 +72,33 @@ class Channel(LoggerMixin):
         service.signal_manager.connect(obj.service_stop, service_stopped)
         return obj
 
-    async def service_start(self, sender) -> None:  # pylint: disable=unused-argument
+    async def service_start(  # pylint: disable=unused-argument
+        self, sender: Any
+    ) -> None:
         """
 
         :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        await self.start()
+
+    async def service_stop(  # pylint: disable=unused-argument
+        self, sender: Any
+    ) -> None:
+        """
+
+        :param sender:
+        :type sender: Any
+        :return:
+        :rtype: None
+        """
+        await self.stop()
+
+    async def start(self) -> None:
+        """
+
         :return:
         :rtype: None
         """
@@ -92,10 +115,9 @@ class Channel(LoggerMixin):
             self.interface_port,
         )
 
-    async def service_stop(self, sender) -> None:  # pylint: disable=unused-argument
+    async def stop(self) -> None:
         """
 
-        :param sender:
         :return:
         :rtype: None
         """
