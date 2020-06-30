@@ -35,9 +35,6 @@ class Protocol(_Protocol):
         self.service: Service = channel.service
         self.channel: Channel = channel
 
-        self.signal_manager: SignalManager = channel.signal_manager
-        self.stats = channel.stats
-
         self.transport: BaseTransport
 
     @classmethod
@@ -52,6 +49,24 @@ class Protocol(_Protocol):
         settings = channel.settings
         obj = cls(channel, settings)
         return obj
+
+    @property
+    def signal_manager(self):
+        """
+
+        :return:
+        :rtype:
+        """
+        return self.service.signal_manager
+
+    @property
+    def stats(self):
+        """
+
+        :return:
+        :rtype:
+        """
+        return self.service.stats
 
 
 class ClientProtocol(Protocol):

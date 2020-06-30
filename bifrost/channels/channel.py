@@ -29,9 +29,6 @@ class Channel(BaseComponent, LoggerMixin):
 
         self.config.update(self.settings["CHANNELS"][self.name])
 
-        self.signal_manager = service.signal_manager
-        self.stats = service.stats
-
         self.interface_protocol: str = self.config["INTERFACE_PROTOCOL"]
         self.cls_interface_protocol = load_object(self.interface_protocol)
         self.interface_address: str = self.config["INTERFACE_ADDRESS"]
@@ -45,6 +42,24 @@ class Channel(BaseComponent, LoggerMixin):
         self.client_protocol_port: Optional[int] = self.config.get(
             "CLIENT_PROTOCOL_PORT"
         )
+
+    @property
+    def signal_manager(self):
+        """
+
+        :return:
+        :rtype:
+        """
+        return self.service.signal_manager
+
+    @property
+    def stats(self):
+        """
+
+        :return:
+        :rtype:
+        """
+        return self.service.stats
 
     async def start(self) -> None:
         """
@@ -62,9 +77,9 @@ class Channel(BaseComponent, LoggerMixin):
             "Channel [%s] is open; "
             "Protocol [%s] is listening on the interface: [%s:%s]",
             self.name,
-            self.interface_protocol,
-            self.interface_address,
-            self.interface_port,
+            self.config["INTERFACE_PROTOCOL"],
+            self.config["INTERFACE_ADDRESS"],
+            self.config["INTERFACE_PORT"],
         )
 
     async def stop(self) -> None:
