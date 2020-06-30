@@ -43,6 +43,8 @@ class Channel(BaseComponent, LoggerMixin):
             "CLIENT_PROTOCOL_PORT"
         )
 
+        self.server = None
+
     @property
     def signal_manager(self):
         """
@@ -88,6 +90,7 @@ class Channel(BaseComponent, LoggerMixin):
         :return:
         :rtype: None
         """
-        self.server.close()
-        await self.server.wait_closed()
-        self.logger.info("Channel [%s] is closed.", self.name)
+        if self.server:
+            self.server.close()
+            await self.server.wait_closed()
+            self.logger.info("Channel [%s] is closed.", self.name)
