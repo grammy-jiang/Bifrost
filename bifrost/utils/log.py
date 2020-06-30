@@ -9,8 +9,8 @@ import ssl
 import graphene
 import graphql
 import grpc
+import orjson
 import sanic
-import ujson
 import uvloop
 import websockets
 
@@ -79,7 +79,7 @@ def get_runtime_info() -> None:
                 "graphene": graphene.__version__,
                 "graphql-core": graphql.__version__,
                 "grpcio": grpc.__version__,
-                "ujson": ujson.__version__,
+                "orjson": orjson.__version__,  # pylint: disable=c-extension-no-member
                 "uvloop": uvloop.__version__,
                 "websockets": websockets.__version__,
             }
