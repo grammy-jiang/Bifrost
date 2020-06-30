@@ -59,7 +59,9 @@ class Channel(BaseComponent, LoggerMixin):
             self.interface_port,
         )
         self.logger.info(
-            "Protocol [%s] is listening on the interface: %s:%s",
+            "Channel [%s] is open; "
+            "Protocol [%s] is listening on the interface: [%s:%s]",
+            self.name,
             self.interface_protocol,
             self.interface_address,
             self.interface_port,
@@ -73,3 +75,4 @@ class Channel(BaseComponent, LoggerMixin):
         """
         self.server.close()
         await self.server.wait_closed()
+        self.logger.info("Channel [%s] is closed.", self.name)
