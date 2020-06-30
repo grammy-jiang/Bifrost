@@ -3,98 +3,48 @@ Channel
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Optional
 
-from bifrost.base import LoggerMixin
-from bifrost.signals import service_started, service_stopped
+from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
-if TYPE_CHECKING:
-    from asyncio.base_events import Server
 
-    from bifrost.service import Service
-    from bifrost.settings import Settings
-    from bifrost.signals.manager import SignalManager
-    from bifrost.protocols import Protocol
-
-
-class Channel(LoggerMixin):
+class Channel(BaseComponent, LoggerMixin):
     """
     Channel
     """
 
-    def __init__(self, service: Service, settings: Settings, **kwargs):
+    def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
 
         :param service:
         :type service: Service
-        :param settings:
-        :type settings: Settings
-        :param kwargs:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        self.service: Service = service
-        self.signal_manager: SignalManager = self.service.signal_manager
+        super(Channel, self).__init__(service, name, setting_prefix)
+
+        self.config.update(self.settings["CHANNELS"][self.name])
+
+        self.signal_manager = service.signal_manager
         self.stats = service.stats
 
-        self.settings: Settings = settings
+        self.interface_protocol: str = self.config["INTERFACE_PROTOCOL"]
+        self.cls_interface_protocol = load_object(self.interface_protocol)
+        self.interface_address: str = self.config["INTERFACE_ADDRESS"]
+        self.interface_port: int = self.config["INTERFACE_PORT"]
 
-        self.name: str = kwargs["name"]
-
-        self.interface_protocol: str = kwargs["INTERFACE_PROTOCOL"]
-        self.cls_interface_protocol: Protocol = load_object(self.interface_protocol)
-        self.interface_address: str = kwargs["INTERFACE_ADDRESS"]
-        self.interface_port: int = kwargs["INTERFACE_PORT"]
-
-        self.client_protocol: str = kwargs["CLIENT_PROTOCOL"]
-        self.cls_client_protocol: Protocol = load_object(self.client_protocol)
-        self.client_protocol_address: Optional[str] = kwargs.get(
+        self.client_protocol: str = self.config["CLIENT_PROTOCOL"]
+        self.cls_client_protocol = load_object(self.client_protocol)
+        self.client_protocol_address: Optional[str] = self.config.get(
             "CLIENT_PROTOCOL_ADDRESS"
         )
-        self.client_protocol_port: Optional[int] = kwargs.get("CLIENT_PROTOCOL_PORT")
-
-        self.server: Server
-
-    @classmethod
-    def from_service(cls, service: Service, **kwargs) -> Channel:
-        """
-
-        :param service:
-        :type service: Service
-        :param kwargs:
-        :return:
-        :rtype: Channel
-        """
-        settings: Settings = getattr(service, "settings")
-        obj = cls(service, settings, **kwargs)
-
-        service.signal_manager.connect(obj.service_start, service_started)
-        service.signal_manager.connect(obj.service_stop, service_stopped)
-        return obj
-
-    async def service_start(  # pylint: disable=unused-argument
-        self, sender: Any
-    ) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
-        await self.start()
-
-    async def service_stop(  # pylint: disable=unused-argument
-        self, sender: Any
-    ) -> None:
-        """
-
-        :param sender:
-        :type sender: Any
-        :return:
-        :rtype: None
-        """
-        await self.stop()
+        self.client_protocol_port: Optional[int] = self.config.get(
+            "CLIENT_PROTOCOL_PORT"
+        )
 
     async def start(self) -> None:
         """

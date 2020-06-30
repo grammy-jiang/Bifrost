@@ -91,7 +91,9 @@ class Service(LoggerMixin):
         cls_channel: Channel = load_object(self.settings["CLS_CHANNEL"])
 
         for name, channel in self.settings["CHANNELS"].items():
-            channels[name] = cls_channel.from_service(self, name=name, **channel)
+            channels[name] = cls_channel.from_service(
+                self, name=name, setting_prefix=f"CHANNEL_{name.upper()}"
+            )
 
         self.logger.info(
             "Enable channels:\n%s", pprint.pformat(self.settings["CHANNELS"])
