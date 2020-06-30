@@ -17,11 +17,11 @@ from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 if TYPE_CHECKING:
-    from bifrost.channels.channel import Channel
+    from bifrost.channels import Channel
     from bifrost.extensions import ExtensionManager
-    from bifrost.middlewares.manager import MiddlewareManager
+    from bifrost.middlewares import MiddlewareManager
     from bifrost.settings import Settings
-    from bifrost.signals.manager import SignalManager
+    from bifrost.signals import SignalManager
 
 logger = logging.getLogger(__name__)
 
