@@ -72,8 +72,8 @@ class Channel(BaseComponent, LoggerMixin):
         loop = get_event_loop(self.settings)
         self.server = await loop.create_server(
             lambda: self.cls_interface_protocol.from_channel(self),
-            self.interface_address,
-            self.interface_port,
+            self.config["INTERFACE_ADDRESS"],
+            self.config["INTERFACE_PORT"],
         )
         self.logger.info(
             "Channel [%s] is open; "
