@@ -4,13 +4,13 @@ Service module
 from __future__ import annotations
 
 import asyncio
-import logging
 import pprint
 from asyncio.events import AbstractEventLoop
 from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import TYPE_CHECKING, Any, Dict
 
+from bifrost.base import LoggerMixin
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
@@ -23,10 +23,8 @@ if TYPE_CHECKING:
     from bifrost.settings import Settings
     from bifrost.signals import SignalManager
 
-logger = logging.getLogger(__name__)
 
-
-class Service:
+class Service(LoggerMixin):
     """
     The abstract class of Service
     """
@@ -43,7 +41,7 @@ class Service:
 
         # initial loop at the very beginning
         self.loop: AbstractEventLoop = get_event_loop(settings)
-        logger.info(
+        self.logger.info(
             "In this service the loop is adopted from: %s", settings["LOOP"].upper()
         )
 
@@ -95,7 +93,9 @@ class Service:
         for name, channel in self.settings["CHANNELS"].items():
             channels[name] = cls_channel.from_service(self, name=name, **channel)
 
-        logger.info("Enable channels:\n%s", pprint.pformat(self.settings["CHANNELS"]))
+        self.logger.info(
+            "Enable channels:\n%s", pprint.pformat(self.settings["CHANNELS"])
+        )
 
         return channels
 
@@ -141,7 +141,7 @@ class Service:
 
         self.loop.run_forever()
         self.loop.close()
-        logger.info("Bifrost service is shutdown successfully.")
+        self.logger.info("Bifrost service is shutdown successfully.")
 
     def service_started(self, sender: Any) -> None:  # pylint: disable=unused-argument
         """
@@ -151,7 +151,7 @@ class Service:
         :return:
         :rtype: None
         """
-        logger.info("Service [%s] is running...", self.__class__.__name__)
+        self.logger.info("Service [%s] is running...", self.__class__.__name__)
 
     def service_stopped(self, sender: Any) -> None:  # pylint: disable=unused-argument
         """
@@ -161,4 +161,4 @@ class Service:
         :return:
         :rtype: None
         """
-        logger.info("Service [%s] is going to stop...", self.__class__.__name__)
+        self.logger.info("Service [%s] is going to stop...", self.__class__.__name__)
