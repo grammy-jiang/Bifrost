@@ -32,21 +32,6 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
     name = "Socks5"
     setting_prefix = "PROTOCOL_SOCKS5_"
 
-    def __init__(self, channel, name: str = None, setting_prefix: str = None):
-        """
-
-        :param channel:
-        :type channel:
-        :param name:
-        :type name:
-        :param setting_prefix:
-        :type setting_prefix: str
-        """
-        super(Client, self).__init__(channel, name, setting_prefix)
-
-        self.transport = None
-        self.server_transport = None
-
     def connection_made(self, transport) -> None:
         """
 
@@ -56,7 +41,6 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.transport = transport
-        self.server_transport = None
 
     def data_received(self, data: bytes) -> None:
         """
@@ -126,7 +110,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         super(Socks5Protocol, self).__init__(channel, name, setting_prefix)
 
         self.state = None
-        self.client_transport = None
 
     def connection_made(self, transport) -> None:
         """
