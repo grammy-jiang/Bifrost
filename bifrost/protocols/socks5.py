@@ -14,22 +14,20 @@ RFC 3089 - A SOCKS-based IPv6/IPv4 Gateway Mechanism
 https://datatracker.ietf.org/doc/rfc3089/
 """
 import asyncio
-import logging
 import socket
 from asyncio.transports import Transport
 from socket import gaierror
 from struct import pack, unpack
 from typing import Optional, Tuple
 
+from bifrost.base import LoggerMixin
 from bifrost.channels.channel import Channel
 from bifrost.protocols import ClientProtocol, Protocol
 from bifrost.settings import Settings
 from bifrost.utils.loop import get_event_loop
 
-logger = logging.getLogger(__name__)
 
-
-class Client(ClientProtocol):
+class Client(ClientProtocol, LoggerMixin):
     """
     The simple client of proxy
     """
@@ -69,7 +67,7 @@ class Client(ClientProtocol):
         self.stats.increase("data/received", len(data))
         self.stats.increase(f"{self.name}/data/received", len(data))
 
-        logger.debug(
+        self.logger.debug(
             "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
             *self.transport.get_extra_info("peername"),
             len(data),
@@ -105,7 +103,7 @@ class Client(ClientProtocol):
         return hostname, port
 
 
-class Socks5Protocol(Protocol):
+class Socks5Protocol(Protocol, LoggerMixin):
     """
     A socks5 proxy server side
     """
@@ -143,7 +141,7 @@ class Socks5Protocol(Protocol):
         :return:
         :rtype: None
         """
-        logger.debug(
+        self.logger.debug(
             "[SERVER] [CONN] [%s:%s] connected", *transport.get_extra_info("peername")
         )
         self.stats.increase(f"{self.name}/connect")
@@ -209,7 +207,7 @@ class Socks5Protocol(Protocol):
         client_addr, client_port = self.transport.get_extra_info("peername")
 
         if self.state == self.INIT:
-            logger.debug(
+            self.logger.debug(
                 "[SERVER] [AUTH] [%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
@@ -242,7 +240,7 @@ class Socks5Protocol(Protocol):
                 hostname, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
             port = unpack("!H", data[nxt : nxt + 2])[0]
 
-            logger.debug(
+            self.logger.debug(
                 "[SERVER] [HOST] [%s] [%s:%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
@@ -255,7 +253,7 @@ class Socks5Protocol(Protocol):
             self.state = self.DATA
 
         elif self.state == self.DATA:
-            logger.debug(
+            self.logger.debug(
                 "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
                 id(self.transport),
                 client_addr,
@@ -300,8 +298,8 @@ class Socks5Protocol(Protocol):
                 _port,
             )
         except gaierror as exc:
-            logger.error("[%s:%s] is not found.", _hostname, _port)
-            logger.exception(exc)
+            self.logger.error("[%s:%s] is not found.", _hostname, _port)
+            self.logger.exception(exc)
         else:
             client.server_transport = self.transport
             self.client_transport = transport
