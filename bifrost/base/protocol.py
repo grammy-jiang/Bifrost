@@ -17,8 +17,8 @@ class ProtocolMixin:
     Base Protocol
     """
 
-    name: str = None
-    setting_prefix: str = None
+    name: str = None  # type: ignore
+    setting_prefix: str = None  # type: ignore
 
     def __init__(self, channel, name: str = None, setting_prefix: str = None):
         """
