@@ -4,7 +4,10 @@ https://docs.python.org/3/library/asyncio-protocol.html
 """
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
+
+if TYPE_CHECKING:
+    from bifrost.settings import Settings
 
 
 class ProtocolMixin:
@@ -61,7 +64,12 @@ class ProtocolMixin:
         return obj
 
     @property
-    def settings(self):
+    def settings(self) -> Settings:
+        """
+
+        :return:
+        :rtype: Settings
+        """
         return self.channel.settings
 
     @property
