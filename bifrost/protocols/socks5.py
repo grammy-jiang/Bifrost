@@ -21,24 +21,28 @@ from struct import pack, unpack
 from typing import Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
-from bifrost.protocols import ClientProtocol
 from bifrost.utils.loop import get_event_loop
 
 
-class Client(ClientProtocol, LoggerMixin):
+class Client(ProtocolMixin, Protocol, LoggerMixin):
     """
     The simple client of proxy
     """
 
-    def __init__(self, channel, settings):
+    name = "Socks5"
+    setting_prefix = "PROTOCOL_SOCKS5_"
+
+    def __init__(self, channel, name: str = None, setting_prefix: str = None):
         """
 
         :param channel:
         :type channel:
-        :param settings:
-        :type settings:
+        :param name:
+        :type name:
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        super(Client, self).__init__(channel, settings)
+        super(Client, self).__init__(channel, name, setting_prefix)
 
         self.transport = None
         self.server_transport = None
