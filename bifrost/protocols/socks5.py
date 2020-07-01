@@ -15,15 +15,13 @@ https://datatracker.ietf.org/doc/rfc3089/
 """
 import asyncio
 import socket
-from asyncio.transports import Transport
+from asyncio.protocols import Protocol
 from socket import gaierror
 from struct import pack, unpack
 from typing import Optional, Tuple
 
-from bifrost.base import LoggerMixin
-from bifrost.channels.channel import Channel
-from bifrost.protocols import ClientProtocol, Protocol
-from bifrost.settings import Settings
+from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.protocols import ClientProtocol
 from bifrost.utils.loop import get_event_loop
 
 
@@ -32,24 +30,24 @@ class Client(ClientProtocol, LoggerMixin):
     The simple client of proxy
     """
 
-    def __init__(self, channel: Channel, settings: Settings):
+    def __init__(self, channel, settings):
         """
 
         :param channel:
-        :type channel: Channel
+        :type channel:
         :param settings:
-        :type settings: Settings
+        :type settings:
         """
         super(Client, self).__init__(channel, settings)
 
-        self.transport: Optional[Transport] = None
-        self.server_transport: Optional[Transport] = None
+        self.transport = None
+        self.server_transport = None
 
-    def connection_made(self, transport: Transport) -> None:
+    def connection_made(self, transport) -> None:
         """
 
         :param transport:
-        :type transport: Transport
+        :type transport:
         :return:
         :rtype: None
         """
@@ -86,13 +84,11 @@ class Client(ClientProtocol, LoggerMixin):
         self.server_transport.close()
 
     @staticmethod
-    def get_hostname_port(  # pylint: disable=bad-continuation
-        channel: Channel, hostname: str, port: int
-    ) -> Tuple[str, int]:
+    def get_hostname_port(channel, hostname: str, port: int) -> Tuple[str, int]:
         """
 
         :param channel:
-        :type channel: Channel
+        :type channel:
         :param hostname:
         :type hostname: str
         :param port:
@@ -103,33 +99,32 @@ class Client(ClientProtocol, LoggerMixin):
         return hostname, port
 
 
-class Socks5Protocol(Protocol, LoggerMixin):
+class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
     """
 
+    name = "Socks5"
+    setting_prefix = "PROTOCOL_SOCKS5_"
+
     INIT, HOST, DATA = 0, 1, 2
 
-    def __init__(self, channel: Channel, settings: Settings):
+    def __init__(self, channel, name: str = None, setting_prefix: str = None):
         """
 
         :param channel:
-        :type channel: Type[Channel]
-        :param settings:
-        :type settings: Settings
+        :type channel:
+        :param name:
+        :type name: str
+        :param setting_prefix:
+        :type setting_prefix: str
         """
-        super(Socks5Protocol, self).__init__(channel, settings)
+        super(Socks5Protocol, self).__init__(channel, name, setting_prefix)
 
-        self.state: Optional[int] = None
-        self.client_transport: Optional[Transport] = None
+        self.state = None
+        self.client_transport = None
 
-    # ==== Connection Callbacks ===============================================
-
-    # Connection callbacks are called on all protocols, exactly once per a
-    # successful connection. All other protocol callbacks can only be called
-    # between those two methods.
-
-    def connection_made(self, transport: Transport) -> None:
+    def connection_made(self, transport) -> None:
         """
         Called when a connection is made.
 
@@ -137,7 +132,7 @@ class Socks5Protocol(Protocol, LoggerMixin):
         protocol is responsible for storing the reference to its transport.
 
         :param transport:
-        :type transport: Transport
+        :type transport:
         :return:
         :rtype: None
         """
@@ -147,7 +142,7 @@ class Socks5Protocol(Protocol, LoggerMixin):
         self.stats.increase(f"{self.name}/connect")
 
         self.transport = transport
-        self.state: int = self.INIT
+        self.state = self.INIT
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
@@ -163,31 +158,6 @@ class Socks5Protocol(Protocol, LoggerMixin):
         :rtype: None
         """
         self.transport.close()
-
-    # ==== Flow Control Callbacks =============================================
-
-    # Flow control callbacks can be called by transports to pause or resume
-    # writing performed by the protocol.
-
-    # def pause_writing(self) -> None:
-    #     """
-    #     Called when the transport’s buffer goes over the high watermark.
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).pause_writing()
-
-    # def resume_writing(self) -> None:
-    #     """
-    #     Called when the transport’s buffer drains below the low watermark.
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).resume_writing()
-
-    # ==== Streaming Protocols ================================================
 
     def data_received(self, data: bytes) -> None:
         """
@@ -262,19 +232,6 @@ class Socks5Protocol(Protocol, LoggerMixin):
             )
             self.client_transport.write(data)
 
-    # def eof_received(self) -> None:
-    #     """
-    #     Called when the other end signals it won’t send any more data (for
-    #     example by calling transport.write_eof(), if the other end also uses
-    #     asyncio).
-    #
-    #     :return:
-    #     :rtype: None
-    #     """
-    #     super(Socks5Protocol, self).eof_received()
-
-    # ==== Others =============================================================
-
     async def connect(self, hostname: bytes, port: int) -> None:
         """
 
@@ -289,8 +246,6 @@ class Socks5Protocol(Protocol, LoggerMixin):
         )
 
         loop = get_event_loop(self.settings)
-        transport: Transport
-        client: ClientProtocol
         try:
             transport, client = await loop.create_connection(
                 lambda: self.channel.cls_client_protocol.from_channel(self.channel),
