@@ -4,19 +4,18 @@ Bifrost Client
 This is a simple client - just send the tcp package to the server
 """
 import asyncio
-import logging
 from asyncio.transports import Transport
 from socket import gaierror
 from typing import Optional, Tuple
 
+from bifrost.base import LoggerMixin
 from bifrost.channels.channel import Channel
 from bifrost.protocols import ClientProtocol, Protocol
 from bifrost.settings import Settings
+from bifrost.utils.loop import get_event_loop
 
-logger = logging.getLogger(__name__)
 
-
-class Client(ClientProtocol):
+class Client(ClientProtocol, LoggerMixin):
     """
     The simple client of proxy
     """
@@ -55,7 +54,7 @@ class Client(ClientProtocol):
         self.stats.increase("data/received", len(data))
         self.stats.increase(f"{self.name}/data/received", len(data))
 
-        logger.debug(
+        self.logger.debug(
             "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
             *self.transport.get_extra_info("peername"),
             len(data),
@@ -91,7 +90,7 @@ class Client(ClientProtocol):
         return hostname, port
 
 
-class Interface(Protocol):
+class Interface(Protocol, LoggerMixin):
     """
     A socks5 proxy server side
     """
@@ -106,7 +105,7 @@ class Interface(Protocol):
         """
         super(Interface, self).__init__(channel, settings)
 
-        self.client_transport: Transport
+        self.client_transport: Transport = None
 
     def connection_made(self, transport: Transport) -> None:
         """
@@ -120,7 +119,7 @@ class Interface(Protocol):
         :return:
         :rtype: None
         """
-        logger.debug(
+        self.logger.debug(
             "[SERVER] [CONN] [%s:%s] connected", *transport.get_extra_info("peername")
         )
         self.stats.increase(f"{self.name}/connect")
@@ -159,7 +158,7 @@ class Interface(Protocol):
         client_port: int
         client_addr, client_port = self.transport.get_extra_info("peername")
 
-        logger.debug(
+        self.logger.debug(
             "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
             id(self.transport),
             client_addr,
@@ -186,15 +185,16 @@ class Interface(Protocol):
 
             transport: Transport
             client: ClientProtocol
+            loop = get_event_loop(self.settings)
             try:
-                transport, client = await self._loop.create_connection(
+                transport, client = await loop.create_connection(
                     lambda: self.channel.cls_client_protocol.from_channel(self.channel),
                     hostname,
                     port,
                 )
             except gaierror as exc:
-                logger.error("[%s:%s] is not found.", hostname, port)
-                logger.exception(exc)
+                self.logger.error("[%s:%s] is not found.", hostname, port)
+                self.logger.exception(exc)
             else:
                 client.server_transport = self.transport
                 self.client_transport = transport
