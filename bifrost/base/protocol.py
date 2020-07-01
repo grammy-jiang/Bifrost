@@ -7,6 +7,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:
+    from asyncio.transports import Transport
+
     from bifrost.settings import Settings
 
 
@@ -91,7 +93,12 @@ class ProtocolMixin:
         return self.channel.stats
 
     @property
-    def transport(self):
+    def transport(self) -> Transport:
+        """
+
+        :return:
+        :rtype: Transport
+        """
         if self._transport:
             return self._transport
 
@@ -100,7 +107,12 @@ class ProtocolMixin:
         self._transport = value
 
     @property
-    def server_transport(self):
+    def server_transport(self) -> Transport:
+        """
+
+        :return:
+        :rtype: Transport
+        """
         if self._server_transport:
             return self._server_transport
 
@@ -109,7 +121,12 @@ class ProtocolMixin:
         self._server_transport = value
 
     @property
-    def client_transport(self):
+    def client_transport(self) -> Transport:
+        """
+
+        :return:
+        :rtype: Transport
+        """
         if self._client_transport:
             return self._client_transport
 
