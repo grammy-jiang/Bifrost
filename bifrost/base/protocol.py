@@ -26,7 +26,6 @@ class ProtocolMixin:
         :type setting_prefix: str
         """
         self.channel = channel
-        self.settings = channel.settings
 
         if name:
             self.name: str = name
@@ -44,7 +43,7 @@ class ProtocolMixin:
         self._client_transport = None
 
     @classmethod
-    def from_channel(
+    def from_channel(  # pylint: disable=bad-continuation
         cls, channel, name: str = None, setting_prefix: str = None
     ) -> ProtocolMixin:
         """
@@ -60,6 +59,10 @@ class ProtocolMixin:
         """
         obj = cls(channel, name, setting_prefix)
         return obj
+
+    @property
+    def settings(self):
+        return self.channel.settings
 
     @property
     def signal_manager(self):
