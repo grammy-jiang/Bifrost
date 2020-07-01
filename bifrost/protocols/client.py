@@ -4,29 +4,21 @@ Bifrost Client
 This is a simple client - just send the tcp package to the server
 """
 import asyncio
+from asyncio.protocols import Protocol
 from socket import gaierror
 from typing import Optional, Tuple
 
-from bifrost.base import LoggerMixin
-from bifrost.protocols import ClientProtocol, Protocol
-from bifrost.settings import Settings
+from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
 
 
-class Client(ClientProtocol, LoggerMixin):
+class Client(ProtocolMixin, Protocol, LoggerMixin):
     """
     The simple client of proxy
     """
 
-    def __init__(self, channel, settings):
-        """
-
-        :param channel:
-        :type channel:
-        :param settings:
-        :type settings:
-        """
-        super(Client, self).__init__(channel, settings)
+    name = "Client"
+    setting_prefix = "PROTOCOL_CLIENT_"
 
     def connection_made(self, transport) -> None:
         """
@@ -83,22 +75,13 @@ class Client(ClientProtocol, LoggerMixin):
         return hostname, port
 
 
-class Interface(Protocol, LoggerMixin):
+class Interface(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
     """
 
-    def __init__(self, channel, settings):
-        """
-
-        :param channel:
-        :type channel:
-        :param settings:
-        :type settings: Settings
-        """
-        super(Interface, self).__init__(channel, settings)
-
-        self.client_transport = None
+    name = "Interface"
+    setting_prefix = "PROTOCOL_INTERFACE_"
 
     def connection_made(self, transport) -> None:
         """
