@@ -39,6 +39,10 @@ class ProtocolMixin:
             if key.startswith(self.setting_prefix)
         }
 
+        self._transport = None
+        self._server_transport = None
+        self._client_transport = None
+
     @classmethod
     def from_channel(
         cls, channel, name: str = None, setting_prefix: str = None
@@ -74,3 +78,30 @@ class ProtocolMixin:
         :rtype:
         """
         return self.channel.stats
+
+    @property
+    def transport(self):
+        if self._transport:
+            return self._transport
+
+    @transport.setter
+    def transport(self, value):
+        self._transport = value
+
+    @property
+    def server_transport(self):
+        if self._server_transport:
+            return self._server_transport
+
+    @server_transport.setter
+    def server_transport(self, value):
+        self._server_transport = value
+
+    @property
+    def client_transport(self):
+        if self._client_transport:
+            return self._client_transport
+
+    @client_transport.setter
+    def client_transport(self, value):
+        self._client_transport = value
