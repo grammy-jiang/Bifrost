@@ -23,54 +23,6 @@ from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
 
 
-class Client(ProtocolMixin, Protocol, LoggerMixin):
-    """
-    The simple client of proxy
-    """
-
-    name = "Socks5"
-    setting_prefix = "PROTOCOL_SOCKS5_"
-
-    def connection_made(self, transport) -> None:
-        """
-
-        :param transport:
-        :type transport:
-        :return:
-        :rtype: None
-        """
-        self.transport = transport
-
-    def data_received(self, data: bytes) -> None:
-        """
-
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.stats.increase("data/received", len(data))
-        self.stats.increase(f"{self.name}/data/received", len(data))
-
-        self.logger.debug(
-            "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
-            *self.transport.get_extra_info("peername"),
-            len(data),
-        )
-
-        self.server_transport.write(data)
-
-    def connection_lost(self, exc: Optional[Exception]) -> None:
-        """
-
-        :param exc:
-        :type exc: Optional[Exception]
-        :return:
-        :rtype: None
-        """
-        self.server_transport.close()
-
-
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side

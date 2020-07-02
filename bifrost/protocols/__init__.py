@@ -2,86 +2,60 @@
 Transports and Protocols
 https://docs.python.org/3/library/asyncio-protocol.html
 """
-from __future__ import annotations
+from asyncio.protocols import Protocol
+from typing import Optional
 
-from asyncio.protocols import Protocol as _Protocol
-from asyncio.transports import BaseTransport
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from bifrost.channels.channel import Channel
-    from bifrost.service import Service
-    from bifrost.settings import Settings
-    from bifrost.signals.manager import SignalManager
+from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.protocols.client import Interface
+from bifrost.protocols.socks5 import Socks5Protocol
 
 
-class Protocol(_Protocol):
+class Client(ProtocolMixin, Protocol, LoggerMixin):
     """
-    Base Protocol
+    The simple client of proxy
     """
 
-    def __init__(self, channel: Channel, settings: Settings):
+    name = "Client"
+    setting_prefix = "PROTOCOL_CLIENT_"
+
+    def connection_made(self, transport) -> None:
         """
 
-        :param channel:
-        :type channel: Channel
-        :param settings:
-        :type settings: Settings
-        """
-        super(Protocol, self).__init__()
-        self.name: str = channel.name
-        self.settings: Settings = settings
-
-        self.service: Service = channel.service
-        self.channel: Channel = channel
-
-        self.transport: BaseTransport
-
-    @classmethod
-    def from_channel(cls, channel: Channel) -> Protocol:
-        """
-
-        :param channel:
-        :type channel: Channel
+        :param transport:
+        :type transport:
         :return:
-        :rtype: Protocol
+        :rtype: None
         """
-        settings = channel.settings
-        obj = cls(channel, settings)
-        return obj
+        self.transport = transport
 
-    @property
-    def signal_manager(self):
+    def data_received(self, data: bytes) -> None:
         """
 
+        :param data:
+        :type data: bytes
         :return:
-        :rtype:
+        :rtype: None
         """
-        return self.service.signal_manager
+        self.stats.increase("data/received", len(data))
+        self.stats.increase(f"{self.name}/data/received", len(data))
 
-    @property
-    def stats(self):
+        self.logger.debug(
+            "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
+            *self.transport.get_extra_info("peername"),
+            len(data),
+        )
+
+        self.server_transport.write(data)
+
+    def connection_lost(self, exc: Optional[Exception]) -> None:
         """
 
+        :param exc:
+        :type exc: Optional[Exception]
         :return:
-        :rtype:
+        :rtype: None
         """
-        return self.service.stats
+        self.server_transport.close()
 
 
-class ClientProtocol(Protocol):
-    """
-    Base Client Protocol
-    """
-
-    @staticmethod
-    def get_hostname_port(channel: Channel, hostname: str, port: int):
-        """
-        A classmethod to get hostname and port to connect with this client
-        protocol
-        :param channel:
-        :param hostname:
-        :param port:
-        :return:
-        """
-        raise NotImplementedError
+__all__ = ["Client", "Interface", "Socks5Protocol"]
