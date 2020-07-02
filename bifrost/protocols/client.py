@@ -6,7 +6,7 @@ This is a simple client - just send the tcp package to the server
 import asyncio
 from asyncio.protocols import Protocol
 from socket import gaierror
-from typing import Optional, Tuple
+from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
@@ -58,21 +58,6 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.server_transport.close()
-
-    @staticmethod
-    def get_hostname_port(channel, hostname: str, port: int) -> Tuple[str, int]:
-        """
-
-        :param channel:
-        :type channel:
-        :param hostname:
-        :type hostname: str
-        :param port:
-        :type port: int
-        :return:
-        :rtype: Tuple[str, int]
-        """
-        return hostname, port
 
 
 class Interface(ProtocolMixin, Protocol, LoggerMixin):
@@ -153,21 +138,19 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         if self.client_transport is None:
-            hostname, port = self.channel.cls_client_protocol.get_hostname_port(
-                self.channel,
-                self.channel.client_protocol_address,
-                self.channel.client_protocol_port,
-            )
-
             loop = get_event_loop(self.settings)
             try:
                 transport, client = await loop.create_connection(
                     lambda: self.channel.cls_client_protocol.from_channel(self.channel),
-                    hostname,
-                    port,
+                    self.channel.client_protocol_address,
+                    self.channel.client_protocol_port,
                 )
             except gaierror as exc:
-                self.logger.error("[%s:%s] is not found.", hostname, port)
+                self.logger.error(
+                    "[%s:%s] is not found.",
+                    self.channel.client_protocol_address,
+                    self.channel.client_protocol_port,
+                )
                 self.logger.exception(exc)
             else:
                 client.server_transport = self.transport
