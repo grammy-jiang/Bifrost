@@ -92,7 +92,7 @@ class Service(LoggerMixin):
 
         for name, channel in self.settings["CHANNELS"].items():
             channels[name] = cls_channel.from_service(
-                self, name=name, setting_prefix=f"CHANNEL_{name.upper()}"
+                self, name=name, setting_prefix=f"CHANNEL_{name.upper()}_"
             )
 
         self.logger.info(
