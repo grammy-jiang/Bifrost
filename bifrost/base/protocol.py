@@ -43,6 +43,8 @@ class ProtocolMixin:
             if key.startswith(self.setting_prefix)
         }
 
+        self.config.update(channel.config)
+
         self._transport = None
         self._server_transport = None
         self._client_transport = None
