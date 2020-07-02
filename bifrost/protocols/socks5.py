@@ -16,9 +16,8 @@ https://datatracker.ietf.org/doc/rfc3089/
 import asyncio
 import socket
 from asyncio.protocols import Protocol
-from socket import gaierror
 from struct import pack, unpack
-from typing import Optional, Tuple
+from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
@@ -70,21 +69,6 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.server_transport.close()
-
-    @staticmethod
-    def get_hostname_port(channel, hostname: str, port: int) -> Tuple[str, int]:
-        """
-
-        :param channel:
-        :type channel:
-        :param hostname:
-        :type hostname: str
-        :param port:
-        :type port: int
-        :return:
-        :rtype: Tuple[str, int]
-        """
-        return hostname, port
 
 
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
@@ -219,36 +203,28 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             )
             self.client_transport.write(data)
 
-    async def connect(self, hostname: bytes, port: int) -> None:
+    async def connect(self, hostname: str, port: int) -> None:
         """
 
         :param hostname:
-        :type hostname: bytes
+        :type hostname: str
         :param port:
         :type port: int
         :return:
         """
-        _hostname, _port = self.channel.cls_client_protocol.get_hostname_port(
-            self.channel, hostname, port
+        loop = get_event_loop(self.settings)
+        transport, client = await loop.create_connection(
+            lambda: self.channel.cls_client_protocol.from_channel(self.channel),
+            hostname,
+            port,
         )
 
-        loop = get_event_loop(self.settings)
-        try:
-            transport, client = await loop.create_connection(
-                lambda: self.channel.cls_client_protocol.from_channel(self.channel),
-                _hostname,
-                _port,
-            )
-        except gaierror as exc:
-            self.logger.error("[%s:%s] is not found.", _hostname, _port)
-            self.logger.exception(exc)
-        else:
-            client.server_transport = self.transport
-            self.client_transport = transport
+        client.server_transport = self.transport
+        self.client_transport = transport
 
-            host_ip: str
-            port: int
-            host_ip, port = transport.get_extra_info("sockname")
+        host_ip: str
+        port: int
+        host_ip, port = transport.get_extra_info("sockname")
 
-            host: int = unpack("!I", socket.inet_aton(host_ip))[0]
-            self.transport.write(pack("!BBBBIH", 0x05, 0x00, 0x00, 0x01, host, port))
+        host: int = unpack("!I", socket.inet_aton(host_ip))[0]
+        self.transport.write(pack("!BBBBIH", 0x05, 0x00, 0x00, 0x01, host, port))
