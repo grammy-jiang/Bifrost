@@ -1,8 +1,6 @@
 """
 Channel
 """
-from typing import Optional
-
 from bifrost.base import BaseComponent, LoggerMixin
 from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
@@ -26,20 +24,6 @@ class Channel(BaseComponent, LoggerMixin):
         super(Channel, self).__init__(service, name, setting_prefix)
 
         self.config.update(self.settings["CHANNELS"][self.name])
-
-        self.interface_protocol: str = self.config["INTERFACE_PROTOCOL"]
-        self.cls_interface_protocol = load_object(self.interface_protocol)
-        self.interface_address: str = self.config["INTERFACE_ADDRESS"]
-        self.interface_port: int = self.config["INTERFACE_PORT"]
-
-        self.client_protocol: str = self.config["CLIENT_PROTOCOL"]
-        self.cls_client_protocol = load_object(self.client_protocol)
-        self.client_protocol_address: Optional[str] = self.config.get(
-            "CLIENT_PROTOCOL_ADDRESS"
-        )
-        self.client_protocol_port: Optional[int] = self.config.get(
-            "CLIENT_PROTOCOL_PORT"
-        )
 
         self.server = None
 
@@ -67,12 +51,16 @@ class Channel(BaseComponent, LoggerMixin):
         :return:
         :rtype: None
         """
+        cls_interface = load_object(self.config["INTERFACE_PROTOCOL"])
+
         loop = get_event_loop(self.settings)
+
         self.server = await loop.create_server(
-            lambda: self.cls_interface_protocol.from_channel(self),
+            lambda: cls_interface.from_channel(self),
             self.config["INTERFACE_ADDRESS"],
             self.config["INTERFACE_PORT"],
         )
+
         self.logger.info(
             "Channel [%s] is open; "
             "Protocol [%s] is listening on the interface: [%s:%s]",
