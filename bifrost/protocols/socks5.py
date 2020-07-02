@@ -21,6 +21,7 @@ from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
+from bifrost.utils.misc import load_object
 
 
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
@@ -164,11 +165,12 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :type port: int
         :return:
         """
+        cls_client = load_object(self.config["CLIENT_PROTOCOL"])
+
         loop = get_event_loop(self.settings)
+
         transport, client = await loop.create_connection(
-            lambda: self.channel.cls_client_protocol.from_channel(self.channel),
-            hostname,
-            port,
+            lambda: cls_client.from_channel(self.channel), hostname, port,
         )
 
         client.server_transport = self.transport
