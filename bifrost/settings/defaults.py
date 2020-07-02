@@ -6,7 +6,7 @@ from typing import Dict, Optional, Union
 
 # ==== LOG CONFIGURATION ======================================================
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 LOG_FORMATTER_FMT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
 LOG_FORMATTER_DATEFMT = "%Y-%m-%d %H:%M:%S"
 
@@ -76,17 +76,17 @@ EXTENSIONS: Dict[str, int] = {
 
 CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
     "client": {  # MODE: CLIENT
-        "INTERFACE_PROTOCOL": "bifrost.protocols.client.Interface",
+        "INTERFACE_PROTOCOL": "bifrost.protocols.Interface",
         "INTERFACE_ADDRESS": "127.0.0.1",
         "INTERFACE_PORT": 1080,
-        "CLIENT_PROTOCOL": "bifrost.protocols.client.Client",
+        "CLIENT_PROTOCOL": "bifrost.protocols.Client",
         "CLIENT_PROTOCOL_ADDRESS": "127.0.0.1",
         "CLIENT_PROTOCOL_PORT": 1081,
     },
     # "server": {  # MODE: SERVER
-    #     "INTERFACE_PROTOCOL": "bifrost.protocols.server.Interface"
+    #     "INTERFACE_PROTOCOL": "bifrost.protocols.Socks5Protocol",
     #     "INTERFACE_ADDRESS": "127.0.0.1",
-    #     "INTERFACE_PORT": 1081,
-    #     "CLIENT_PROTOCOL": "bifrost.protocols.server.Client",
+    #     "INTERFACE_PORT": 1080,
+    #     "CLIENT_PROTOCOL": "bifrost.protocols.Client",
     # }
 }
