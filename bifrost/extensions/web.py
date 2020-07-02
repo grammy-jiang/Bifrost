@@ -16,7 +16,6 @@ from graphql.execution.executors.asyncio import AsyncioExecutor
 from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import HTTPResponse, json
-from sanic.server import AsyncioServer
 from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.base import BaseComponent, LoggerMixin
@@ -51,8 +50,8 @@ class Web(BaseComponent, LoggerMixin):
     Web Extension
     """
 
-    name: str = "Web"
-    setting_prefix: str = "WEB_"
+    name = "Web"
+    setting_prefix = "WEB_"
 
     def __init__(self, service, name: str = None, setting_prefix: str = None):
         """
@@ -73,7 +72,7 @@ class Web(BaseComponent, LoggerMixin):
         self.app.add_route(self.home, "/")
 
         # configure GraphQL
-        schema: Schema = Schema(
+        schema = Schema(
             **{
                 k.replace("GRAPHQL_SCHEMA_", "").lower(): load_object(v)
                 for k, v in self.config.items()
@@ -90,7 +89,7 @@ class Web(BaseComponent, LoggerMixin):
             event="before_server_start",
         )
 
-        self.server: AsyncioServer = None  # type: ignore
+        self.server = None  # type: ignore
 
     async def start(self) -> None:
         """
@@ -102,7 +101,6 @@ class Web(BaseComponent, LoggerMixin):
             debug=self.config["DEBUG"],
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
-            return_asyncio_server=True,
         )
         self.logger.info("Extension [%s] is running...", self.name)
 
