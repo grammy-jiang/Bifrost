@@ -9,6 +9,7 @@ from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
+from bifrost.utils.misc import load_object
 
 
 class Interface(ProtocolMixin, Protocol, LoggerMixin):
@@ -89,12 +90,16 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         if self.client_transport is None:
+            cls_client = load_object(self.config["CLIENT_PROTOCOL"])
+
             loop = get_event_loop(self.settings)
+
             transport, client = await loop.create_connection(
-                lambda: self.channel.cls_client_protocol.from_channel(self.channel),
-                self.channel.client_protocol_address,
-                self.channel.client_protocol_port,
+                lambda: cls_client.from_channel(self.channel),
+                self.config.get("CLIENT_PROTOCOL_ADDRESS"),
+                self.config.get("CLIENT_PROTOCOL_PORT"),
             )
+
             client.server_transport = self.transport
             self.client_transport = transport
 
