@@ -39,7 +39,7 @@ class Mail(BaseComponent, LoggerMixin):
         :return:
         :rtype: None
         """
-        # TODO: remove signal connection
+        self.service.signal_manager.disconnect(self.send_email, email_sent)
         self.logger.info("Extension [%s] is stopped.", self.name)
 
     def _get_message(self, **kwargs) -> EmailMessage:
