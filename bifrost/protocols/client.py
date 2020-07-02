@@ -5,7 +5,6 @@ This is a simple client - just send the tcp package to the server
 """
 import asyncio
 from asyncio.protocols import Protocol
-from socket import gaierror
 from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
@@ -139,21 +138,12 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
         """
         if self.client_transport is None:
             loop = get_event_loop(self.settings)
-            try:
-                transport, client = await loop.create_connection(
-                    lambda: self.channel.cls_client_protocol.from_channel(self.channel),
-                    self.channel.client_protocol_address,
-                    self.channel.client_protocol_port,
-                )
-            except gaierror as exc:
-                self.logger.error(
-                    "[%s:%s] is not found.",
-                    self.channel.client_protocol_address,
-                    self.channel.client_protocol_port,
-                )
-                self.logger.exception(exc)
-            else:
-                client.server_transport = self.transport
-                self.client_transport = transport
+            transport, client = await loop.create_connection(
+                lambda: self.channel.cls_client_protocol.from_channel(self.channel),
+                self.channel.client_protocol_address,
+                self.channel.client_protocol_port,
+            )
+            client.server_transport = self.transport
+            self.client_transport = transport
 
         self.client_transport.write(data)
