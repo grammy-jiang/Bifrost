@@ -59,12 +59,12 @@ class Channel(BaseComponent, LoggerMixin):
         loop = get_event_loop(self.settings)
 
         ssl_context: Optional[ssl.SSLContext]
-        if self.config["INTERFACE_SSL_CERT_FILE"]:
+        if self.config.get("INTERFACE_SSL_CERT_FILE"):
             ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH)
             ssl_context.load_cert_chain(
-                certfile=self.config["INTERFACE_SSL_CERT_FILE"],
-                keyfile=self.config["INTERFACE_SSL_KEY_FILE"],
-                password=self.config["INTERFACE_SSL_PASSWORD"],
+                certfile=self.config.get("INTERFACE_SSL_CERT_FILE"),
+                keyfile=self.config.get("INTERFACE_SSL_KEY_FILE"),
+                password=self.config.get("INTERFACE_SSL_PASSWORD"),
             )
         else:
             ssl_context = None
