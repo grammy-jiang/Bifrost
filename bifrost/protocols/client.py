@@ -96,8 +96,8 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
 
             transport, client = await loop.create_connection(
                 lambda: cls_client.from_channel(self.channel),
-                self.config.get("CLIENT_PROTOCOL_ADDRESS"),
-                self.config.get("CLIENT_PROTOCOL_PORT"),
+                self.config.get("CLIENT_ADDRESS"),
+                self.config.get("CLIENT_PORT"),
             )
 
             client.server_transport = self.transport

@@ -87,8 +87,8 @@ CHANNELS: Dict[str, Dict[str, Union[str, int]]] = {
         "INTERFACE_ADDRESS": "127.0.0.1",
         "INTERFACE_PORT": 1080,
         "CLIENT_PROTOCOL": "bifrost.protocols.Client",
-        "CLIENT_PROTOCOL_ADDRESS": "127.0.0.1",
-        "CLIENT_PROTOCOL_PORT": 1081,
+        "CLIENT_ADDRESS": "127.0.0.1",
+        "CLIENT_PORT": 1081,
     },
     # "server": {  # MODE: SERVER
     #     "INTERFACE_PROTOCOL": "bifrost.protocols.Socks5Protocol",
