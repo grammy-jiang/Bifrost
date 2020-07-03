@@ -46,9 +46,11 @@ WEB_ADDRESS = "127.0.0.1"
 WEB_PORT = 8000
 WEB_DEBUG = False
 
-WEB_SSL = False
-WEB_SSL_CERT_FILE = "example.crt"
-WEB_SSL_KEY_FILE = "example.key"
+# Refer to:
+# https://docs.python.org/3/library/ssl.html#ssl.create_default_context
+# https://docs.python.org/3/library/ssl.html#ssl.SSLContext.load_cert_chain
+WEB_SSL_CERT_FILE = None
+WEB_SSL_KEY_FILE = None
 WEB_SSL_PASSWORD = None
 
 WEB_GRAPHQL_SCHEMA_QUERY = "bifrost.extensions.web.Query"

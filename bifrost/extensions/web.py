@@ -100,7 +100,7 @@ class Web(BaseComponent, LoggerMixin):
         :rtype: None
         """
         ssl_context: Optional[ssl.SSLContext]
-        if self.config["SSL"]:
+        if self.config["SSL_CERT_FILE"]:
             ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
             ssl_context.load_cert_chain(
                 certfile=self.config["SSL_CERT_FILE"],
