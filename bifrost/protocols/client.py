@@ -4,6 +4,7 @@ Bifrost Client
 This is a simple client - just send the tcp package to the server
 """
 import asyncio
+import ssl
 from asyncio.protocols import Protocol
 from typing import Optional
 
@@ -90,14 +91,28 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         if self.client_transport is None:
+            ssl_context: Optional[ssl.SSLContext]
+            if self.config["CLIENT_SSL_CERT_FILE"]:
+                ssl_context = ssl.create_default_context(
+                    purpose=ssl.Purpose.SERVER_AUTH
+                )
+                ssl_context.load_cert_chain(
+                    certfile=self.config["CLIENT_SSL_CERT_FILE"],
+                    keyfile=self.config["CLIENT_SSL_KEY_FILE"],
+                    password=self.config["CLIENT_SSL_PASSWORD"],
+                )
+            else:
+                ssl_context = None
+
             cls_client = load_object(self.config["CLIENT_PROTOCOL"])
 
             loop = get_event_loop(self.settings)
 
             transport, client = await loop.create_connection(
-                lambda: cls_client.from_channel(self.channel),
-                self.config.get("CLIENT_ADDRESS"),
-                self.config.get("CLIENT_PORT"),
+                protocol_factory=lambda: cls_client.from_channel(self.channel),
+                host=self.config.get("CLIENT_ADDRESS"),
+                port=self.config.get("CLIENT_PORT"),
+                ssl=ssl_context,
             )
 
             client.server_transport = self.transport
