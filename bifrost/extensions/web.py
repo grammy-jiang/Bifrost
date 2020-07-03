@@ -7,6 +7,8 @@ Refer:
 * https://sanic.readthedocs.io/en/latest/
 * https://github.com/huge-success/sanic
 """
+import ssl
+from typing import Optional
 
 from graphene.types.objecttype import ObjectType
 from graphene.types.scalars import String
@@ -97,10 +99,22 @@ class Web(BaseComponent, LoggerMixin):
         :return:
         :rtype: None
         """
+        ssl_context: Optional[ssl.SSLContext]
+        if self.config["SSL"]:
+            ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
+            ssl_context.load_cert_chain(
+                certfile=self.config["SSL_CERT_FILE"],
+                keyfile=self.config["SSL_KEY_FILE"],
+                password=self.config["SSL_PASSWORD"],
+            )
+        else:
+            ssl_context = None
+
         self.server = await self.app.create_server(
             debug=self.config["DEBUG"],
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
+            ssl=ssl_context,
         )
         self.logger.info("Extension [%s] is running...", self.name)
 
