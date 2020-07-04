@@ -60,7 +60,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        if not self.config["CLIENT_SSL_CERT_FILE"]:
+        if not self.config["INTERFACE_SSL_CERT_FILE"]:
             self.logger.debug(
                 "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
             )
@@ -105,7 +105,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         client_addr: str
         client_port: int
-        client_addr, client_port = self.transport.get_extra_info("peername")
+        client_addr, client_port = self.transport.get_extra_info("peername")[:2]
 
         if self.state == self.INIT:
             self.logger.debug(
