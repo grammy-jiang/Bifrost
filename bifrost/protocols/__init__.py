@@ -26,16 +26,17 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        if not self.config["CLIENT_SSL_CERT_FILE"]:
-            self.logger.debug(
-                "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
-            )
-        else:
+        if cipher := transport.get_extra_info("cipher"):
             self.logger.debug(
                 "[CONN] [%s:%s] connected with name [%s], version [%s], secret bits [%s]",
                 *transport.get_extra_info("peername")[:2],
-                *transport.get_extra_info("cipher"),
+                *cipher,
             )
+        else:
+            self.logger.debug(
+                "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
+            )
+
         self.transport = transport
 
     def data_received(self, data: bytes) -> None:
