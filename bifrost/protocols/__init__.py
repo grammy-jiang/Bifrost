@@ -50,8 +50,8 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         self.stats.increase(f"{self.name}/data/received", len(data))
 
         self.logger.debug(
-            "[CLIENT] [DATA] [%s:%s] recv: %s bytes",
-            *self.transport.get_extra_info("peername"),
+            "[DATA] [%s:%s] recv: %s bytes",
+            *self.transport.get_extra_info("peername")[:2],
             len(data),
         )
 
