@@ -94,12 +94,8 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
             ssl_context: Optional[ssl.SSLContext]
             if self.config["CLIENT_SSL_CERT_FILE"]:
                 ssl_context = ssl.create_default_context(
-                    purpose=ssl.Purpose.SERVER_AUTH
-                )
-                ssl_context.load_cert_chain(
-                    certfile=self.config["CLIENT_SSL_CERT_FILE"],
-                    keyfile=self.config["CLIENT_SSL_KEY_FILE"],
-                    password=self.config["CLIENT_SSL_PASSWORD"],
+                    purpose=ssl.Purpose.SERVER_AUTH,
+                    cafile=self.config["CLIENT_SSL_CERT_FILE"],
                 )
             else:
                 ssl_context = None
