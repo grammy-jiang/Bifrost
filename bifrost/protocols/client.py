@@ -34,7 +34,7 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.logger.debug(
-            "[SERVER] [CONN] [%s:%s] connected", *transport.get_extra_info("peername")
+            "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
         )
         self.stats.increase(f"{self.name}/connect")
 
@@ -70,10 +70,10 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
 
         client_addr: str
         client_port: int
-        client_addr, client_port = self.transport.get_extra_info("peername")
+        client_addr, client_port = self.transport.get_extra_info("peername")[:2]
 
         self.logger.debug(
-            "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
+            "[DATA] [%s] [%s:%s] sent: %s bytes",
             id(self.transport),
             client_addr,
             client_port,
