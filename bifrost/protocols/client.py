@@ -6,6 +6,7 @@ This is a simple client - just send the tcp package to the server
 import asyncio
 import ssl
 from asyncio.protocols import Protocol
+from asyncio.transports import Transport
 from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
@@ -104,6 +105,8 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
 
             loop = get_event_loop(self.settings)
 
+            transport: Transport
+            client: Protocol
             transport, client = await loop.create_connection(
                 protocol_factory=lambda: cls_client.from_channel(self.channel),
                 host=self.config.get("CLIENT_ADDRESS"),
