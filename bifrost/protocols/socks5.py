@@ -101,7 +101,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.stats.increase("data/sent", len(data))
-        self.stats.increase(f"{self.name}/data/sent", len(data))
+        self.stats.increase(f"data/{self.name}/sent", len(data))
 
         client_addr: str
         client_port: int
