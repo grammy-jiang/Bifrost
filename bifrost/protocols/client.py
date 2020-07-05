@@ -116,10 +116,14 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
             )
 
             cert: Dict[str, Union[Tuple, int, str]]
-            if cert := transport.get_extra_info("peercert"):
+            if (cert := transport.get_extra_info("peercert")) and cert[
+                "serialNumber"
+            ] not in self.certificates:
                 self.logger.info(
                     "Enabled a certificate:\n%s", pprint.pformat(cert),
                 )
+                self.certificates.add(cert["serialNumber"])
+
             client.server_transport = self.transport
             self.client_transport = transport
 
