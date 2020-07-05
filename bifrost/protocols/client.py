@@ -4,6 +4,7 @@ Bifrost Client
 This is a simple client - just send the tcp package to the server
 """
 import asyncio
+import pprint
 import ssl
 from asyncio.protocols import Protocol
 from asyncio.transports import Transport
@@ -114,6 +115,10 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
                 ssl=ssl_context,
             )
 
+            if cert := transport.get_extra_info("peercert"):
+                self.logger.info(
+                    "Enabled a certificate:\n%s", pprint.pformat(cert),
+                )
             client.server_transport = self.transport
             self.client_transport = transport
 
