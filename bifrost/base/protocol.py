@@ -20,6 +20,8 @@ class ProtocolMixin:
     name: str = None  # type: ignore
     setting_prefix: str = None  # type: ignore
 
+    certificates = set()
+
     def __init__(self, channel, name: str = None, setting_prefix: str = None):
         """
 
