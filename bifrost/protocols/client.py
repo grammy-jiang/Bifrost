@@ -123,6 +123,7 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
                     "Enabled a certificate:\n%s", pprint.pformat(cert),
                 )
                 self.certificates.add(cert["serialNumber"])
+                self.stats.increase("certificates")
 
             client.server_transport = self.transport
             self.client_transport = transport
