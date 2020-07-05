@@ -48,7 +48,7 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.stats.increase("data/received", len(data))
-        self.stats.increase(f"{self.name}/data/received", len(data))
+        self.stats.increase(f"data/{self.name}/received", len(data))
 
         self.logger.debug(
             "[DATA] [%s:%s] recv: %s bytes",
