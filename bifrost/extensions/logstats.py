@@ -1,10 +1,9 @@
 """
 LogStats
 """
-from asyncio.events import TimerHandle
+from asyncio.events import TimerHandle, get_event_loop
 
 from bifrost.base import BaseComponent, LoggerMixin, StatsMixin
-from bifrost.utils.loop import get_event_loop
 from bifrost.utils.unit_converter import convert_unit
 
 
@@ -80,5 +79,5 @@ class LogStats(BaseComponent, StatsMixin, LoggerMixin):
         self._data_sent = self.stats["data/sent"]
         self._data_received = self.stats["data/received"]
 
-        loop = get_event_loop(self.settings)
+        loop = get_event_loop()
         self.timer_handle = loop.call_later(self.config["INTERVAL"], self.log)

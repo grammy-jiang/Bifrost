@@ -6,12 +6,12 @@ This is a simple client - just send the tcp package to the server
 import asyncio
 import pprint
 import ssl
+from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from asyncio.transports import Transport
 from typing import Dict, Optional, Tuple, Union
 
 from bifrost.base import LoggerMixin, ProtocolMixin
-from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 
@@ -104,7 +104,7 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
 
             cls_client = load_object(self.config["CLIENT_PROTOCOL"])
 
-            loop = get_event_loop(self.settings)
+            loop = get_event_loop()
 
             transport: Transport
             client: Protocol

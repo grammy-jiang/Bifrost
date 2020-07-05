@@ -2,10 +2,10 @@
 Channel
 """
 import ssl
+from asyncio.events import get_event_loop
 from typing import Optional
 
 from bifrost.base import BaseComponent, LoggerMixin
-from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 
@@ -56,7 +56,7 @@ class Channel(BaseComponent, LoggerMixin):
         """
         cls_interface = load_object(self.config["INTERFACE_PROTOCOL"])
 
-        loop = get_event_loop(self.settings)
+        loop = get_event_loop()
 
         ssl_context: Optional[ssl.SSLContext]
         if self.config.get("INTERFACE_SSL_CERT_FILE"):
