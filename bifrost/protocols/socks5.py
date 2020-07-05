@@ -109,7 +109,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         if self.state == self.INIT:
             self.logger.debug(
-                "[SERVER] [AUTH] [%s] [%s:%s] sent: %s",
+                "[AUTH] [%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
                 client_port,
@@ -142,7 +142,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             port = unpack("!H", data[nxt : nxt + 2])[0]
 
             self.logger.debug(
-                "[SERVER] [HOST] [%s] [%s:%s] [%s:%s] sent: %s",
+                "[HOST] [%s] [%s:%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
                 client_port,
@@ -155,7 +155,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         elif self.state == self.DATA:
             self.logger.debug(
-                "[SERVER] [DATA] [%s] [%s:%s] sent: %s bytes",
+                "[DATA] [%s] [%s:%s] sent: %s bytes",
                 id(self.transport),
                 client_addr,
                 client_port,
