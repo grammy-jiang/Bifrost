@@ -5,11 +5,11 @@ from __future__ import annotations
 
 import asyncio
 import functools
+from asyncio.events import get_event_loop
 from collections import UserDict
 from typing import Callable, Set
 
 from bifrost.base import LoggerMixin
-from bifrost.utils.loop import get_event_loop
 
 
 class SignalManager(UserDict, LoggerMixin):  # pylint: disable=too-many-ancestors
@@ -105,7 +105,7 @@ class SignalManager(UserDict, LoggerMixin):  # pylint: disable=too-many-ancestor
         :return:
         :rtype: None
         """
-        loop = get_event_loop(self.settings)
+        loop = get_event_loop()
 
         receivers: Set[Callable] = self[signal]
 

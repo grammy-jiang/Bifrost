@@ -15,12 +15,12 @@ https://datatracker.ietf.org/doc/rfc3089/
 """
 import asyncio
 import socket
+from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from struct import pack, unpack
 from typing import Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
-from bifrost.utils.loop import get_event_loop
 from bifrost.utils.misc import load_object
 
 
@@ -174,7 +174,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         """
         cls_client = load_object(self.config["CLIENT_PROTOCOL"])
 
-        loop = get_event_loop(self.settings)
+        loop = get_event_loop()
 
         transport, client = await loop.create_connection(
             lambda: cls_client.from_channel(self.channel), hostname, port,
