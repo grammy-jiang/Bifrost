@@ -8,7 +8,7 @@ import pprint
 import ssl
 from asyncio.protocols import Protocol
 from asyncio.transports import Transport
-from typing import Optional
+from typing import Dict, Optional, Tuple, Union
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.loop import get_event_loop
@@ -115,6 +115,7 @@ class Interface(ProtocolMixin, Protocol, LoggerMixin):
                 ssl=ssl_context,
             )
 
+            cert: Dict[str, Union[Tuple, int, str]]
             if cert := transport.get_extra_info("peercert"):
                 self.logger.info(
                     "Enabled a certificate:\n%s", pprint.pformat(cert),
