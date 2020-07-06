@@ -93,6 +93,7 @@ class Socks5Mixin(LoggerMixin):
 
     SUPPORTED_METHODS = [
         0x00,  # NO AUTHENTICATION REQUIRED
+        0x01,  # GSSAPI
         0x02,  # USERNAME/PASSWORD
     ]
     INIT, AUTH, HOST, DATA = 0, 1, 2, 3
