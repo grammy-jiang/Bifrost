@@ -34,6 +34,15 @@ class VIMSMessage(NamedTuple):
     METHODS: List[int]
 
 
+class MSMessage(NamedTuple):
+    """
+    METHOD selection message
+    """
+
+    VER: int
+    METHOD: int
+
+
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
@@ -125,9 +134,13 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 client_port,
                 repr(data),
             )
-            message = VIMSMessage(data[0], data[1], list(data[2:]))
-            assert message.VER == 0x05
-            self.transport.write(pack("!BB", 0x05, 0x00))  # no auth
+            vims_message = VIMSMessage(
+                VER=data[0], NMETHODS=data[1], METHODS=list(data[2:])
+            )
+            assert vims_message.VER == 0x05
+
+            ms_message = MSMessage(VER=0x05, METHOD=0x00)
+            self.transport.write(pack("!BB", *ms_message))  # no auth
             self.state = self.HOST
 
         elif self.state == self.HOST:
