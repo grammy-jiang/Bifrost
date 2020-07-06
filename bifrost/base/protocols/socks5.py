@@ -91,8 +91,14 @@ class Socks5Mixin(LoggerMixin):
     Socks5 Protocol Mixin
     """
 
-    INIT, HOST, DATA = 0, 1, 2
+    SUPPORTED_METHODS = [
+        0x00,  # NO AUTHENTICATION REQUIRED
+        0x02,  # USERNAME/PASSWORD
+        # 0xFF,  # NO ACCEPTABLE METHODS
+    ]
+    INIT, AUTH, HOST, DATA = 0, 1, 2, 3
     state = None
+    method = None
 
     def data_received(self, data: bytes) -> None:
         """
@@ -105,10 +111,10 @@ class Socks5Mixin(LoggerMixin):
 
         if self.state == self.INIT:
             self._process_request_init(data)
-
+        elif self.state == self.AUTH:
+            self._process_request_auth(data)
         elif self.state == self.HOST:
             self._process_request_host(data)
-
         elif self.state == self.DATA:
             self._process_request_data(data)
 
@@ -158,9 +164,29 @@ class Socks5Mixin(LoggerMixin):
         )
         assert vims_message.VER == 0x05
 
-        ms_message = MSMessage(VER=0x05, METHOD=0x00)
-        self.transport.write(pack("!BB", *ms_message))  # no auth
-        self.state = self.HOST
+        available_methods = sorted(
+            set(self.SUPPORTED_METHODS).intersection(set(vims_message.METHODS)),
+            key=lambda x: self.SUPPORTED_METHODS.index(x),
+        )
+
+        self.method = available_methods[0]
+
+        ms_message = MSMessage(VER=0x05, METHOD=self.method)
+        self.transport.write(pack("!BB", *ms_message))
+
+        if self.method == 0x00:  # NO AUTHENTICATION REQUIRED
+            self.state = self.HOST
+        else:
+            self.state = self.AUTH
+
+    def _process_request_auth(self, data: bytes) -> None:
+        """
+        NO AUTHENTICATION REQUIRED
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
 
     def _process_request_host(self, data: bytes):
         """
