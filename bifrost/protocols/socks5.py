@@ -18,10 +18,20 @@ import socket
 from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from struct import pack, unpack
-from typing import Optional
+from typing import List, NamedTuple, Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.utils.misc import load_object
+
+
+class VIMSMessage(NamedTuple):
+    """
+    Version Identifier/Method Selection Message
+    """
+
+    VER: int
+    NMETHODS: int
+    METHODS: List[int]
 
 
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
@@ -115,7 +125,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 client_port,
                 repr(data),
             )
-            assert data[0] == 0x05
+            message = VIMSMessage(data[0], data[1], list(data[2:]))
+            assert message.VER == 0x05
             self.transport.write(pack("!BB", 0x05, 0x00))  # no auth
             self.state = self.HOST
 
