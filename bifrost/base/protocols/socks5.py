@@ -4,7 +4,7 @@ Socks5 Protocol Mixin
 import socket
 from asyncio.events import get_event_loop
 from struct import pack, unpack
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Tuple
 
 from bifrost.base import LoggerMixin
 from bifrost.utils.misc import load_object
@@ -103,71 +103,14 @@ class Socks5Mixin(LoggerMixin):
         :rtype: None
         """
 
-        client_addr: str
-        client_port: int
-        client_addr, client_port = self.transport.get_extra_info("peername")[:2]
-
         if self.state == self.INIT:
-            self.logger.debug(
-                "[AUTH] [%s] [%s:%s] sent: %s",
-                id(self.transport),
-                client_addr,
-                client_port,
-                repr(data),
-            )
-            vims_message = VIMSMessage(
-                VER=data[0], NMETHODS=data[1], METHODS=list(data[2:])
-            )
-            assert vims_message.VER == 0x05
-
-            ms_message = MSMessage(VER=0x05, METHOD=0x00)
-            self.transport.write(pack("!BB", *ms_message))  # no auth
-            self.state = self.HOST
+            self._process_request_init(data)
 
         elif self.state == self.HOST:
-
-            def _get_socks5_request(data: bytes) -> SRMessage:
-                atype: int = data[3]
-                dst_addr: bytes
-                nxt: int
-                if atype == 1:  # ipv4
-                    dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
-                elif atype == 3:  # domain
-                    length = data[4]
-                    dst_addr, nxt = data[5 : 5 + length], 5 + length
-                elif atype == 4:  # ipv6
-                    dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
-                dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
-
-                return SRMessage(*data[:4], DST_ADDR=dst_addr, DST_PORT=dst_port)
-
-            socks5_request = _get_socks5_request(data)
-            assert socks5_request.VER == 0x05 and socks5_request.CMD == 0x01
-
-            self.logger.debug(
-                "[HOST] [%s] [%s:%s] [%s:%s] sent: %s",
-                id(self.transport),
-                client_addr,
-                client_port,
-                str(socks5_request.DST_ADDR, encoding="utf-8"),
-                socks5_request.DST_PORT,
-                repr(data),
-            )
-            loop = get_event_loop()
-            loop.create_task(
-                self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT)
-            )
-            self.state = self.DATA
+            self._process_request_host(data)
 
         elif self.state == self.DATA:
-            self.logger.debug(
-                "[DATA] [%s] [%s:%s] sent: %s bytes",
-                id(self.transport),
-                client_addr,
-                client_port,
-                len(data),
-            )
-            self.client_transport.write(data)
+            self._process_request_data(data)
 
     async def connect(self, hostname: bytes, port: int) -> None:
         """
@@ -199,3 +142,76 @@ class Socks5Mixin(LoggerMixin):
             VER=0x05, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
         )
         self.transport.write(pack("!BBBBIH", *reply_message))
+
+    def _process_request_init(self, data: bytes):
+        """
+
+        :param data:
+        :return:
+        """
+        self.logger.debug(
+            "[AUTH] [%s:%s] sent: %s", *self._get_client_info(), repr(data),
+        )
+        vims_message = VIMSMessage(
+            VER=data[0], NMETHODS=data[1], METHODS=list(data[2:])
+        )
+        assert vims_message.VER == 0x05
+
+        ms_message = MSMessage(VER=0x05, METHOD=0x00)
+        self.transport.write(pack("!BB", *ms_message))  # no auth
+        self.state = self.HOST
+
+    def _process_request_host(self, data: bytes):
+        """
+
+        :param data:
+        :return:
+        """
+
+        def _get_socks5_request(data: bytes) -> SRMessage:
+            atype: int = data[3]
+            dst_addr: bytes
+            nxt: int
+            if atype == 1:  # ipv4
+                dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
+            elif atype == 3:  # domain
+                length = data[4]
+                dst_addr, nxt = data[5 : 5 + length], 5 + length
+            elif atype == 4:  # ipv6
+                dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
+            dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
+
+            return SRMessage(*data[:4], DST_ADDR=dst_addr, DST_PORT=dst_port)
+
+        socks5_request = _get_socks5_request(data)
+        assert socks5_request.VER == 0x05 and socks5_request.CMD == 0x01
+
+        self.logger.debug(
+            "[HOST] [%s:%s] [%s:%s] sent: %s",
+            *self._get_client_info(),
+            str(socks5_request.DST_ADDR, encoding="utf-8"),
+            socks5_request.DST_PORT,
+            repr(data),
+        )
+        loop = get_event_loop()
+        loop.create_task(self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT))
+        self.state = self.DATA
+
+    def _process_request_data(self, data: bytes):
+        """
+
+        :param data:
+        :return:
+        """
+        self.logger.debug(
+            "[DATA] [%s:%s] sent: %s bytes", *self._get_client_info(), len(data),
+        )
+        self.client_transport.write(data)
+
+    def _get_client_info(self) -> Tuple[str, int]:
+        """
+
+        :return:
+        :rtype: Tuple[str, int]
+        """
+        return self.transport.get_extra_info("peername")[:2]
