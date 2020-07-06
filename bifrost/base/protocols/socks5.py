@@ -147,6 +147,7 @@ class Socks5Mixin(LoggerMixin):
         """
 
         :param data:
+        :type data: bytes
         :return:
         """
         self.logger.debug(
@@ -165,6 +166,7 @@ class Socks5Mixin(LoggerMixin):
         """
 
         :param data:
+        :type data: bytes
         :return:
         """
 
@@ -201,6 +203,7 @@ class Socks5Mixin(LoggerMixin):
         """
 
         :param data:
+        :type data: bytes
         :return:
         """
         self.logger.debug(
