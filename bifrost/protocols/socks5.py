@@ -84,4 +84,4 @@ class Socks5Protocol(ProtocolMixin, Socks5Mixin, Protocol, LoggerMixin):
         self.stats.increase("data/sent", len(data))
         self.stats.increase(f"data/{self.name}/sent", len(data))
 
-        self.process_request(data)
+        super(Socks5Protocol, self).data_received(data)

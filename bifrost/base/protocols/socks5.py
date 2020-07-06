@@ -94,7 +94,7 @@ class Socks5Mixin(LoggerMixin):
     INIT, HOST, DATA = 0, 1, 2
     state = None
 
-    def process_request(self, data: bytes) -> None:
+    def data_received(self, data: bytes) -> None:
         """
 
         :param data:
