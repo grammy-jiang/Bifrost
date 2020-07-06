@@ -21,6 +21,7 @@ from struct import pack, unpack
 from typing import List, NamedTuple, Optional
 
 from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.base.protocols import Socks5Mixin
 from bifrost.utils.misc import load_object
 
 
@@ -100,7 +101,7 @@ class RMessage(NamedTuple):
     BND_PORT: int
 
 
-class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
+class Socks5Protocol(ProtocolMixin, Socks5Mixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
     """
