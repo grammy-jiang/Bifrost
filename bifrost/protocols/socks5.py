@@ -214,7 +214,8 @@ class Socks5Protocol(ProtocolMixin, Socks5Mixin, Protocol, LoggerMixin):
                 socks5_request.DST_PORT,
                 repr(data),
             )
-            asyncio.create_task(
+            loop = get_event_loop()
+            loop.create_task(
                 self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT)
             )
             self.state = self.DATA
