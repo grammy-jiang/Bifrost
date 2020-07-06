@@ -68,6 +68,38 @@ class SRMessage(NamedTuple):
     DST_PORT: int
 
 
+class RMessage(NamedTuple):
+    """
+    Reply message
+    o  VER    protocol version: X'05'
+    o  REP    Reply field:
+        o  X'00' succeeded
+        o  X'01' general SOCKS server failure
+        o  X'02' connection not allowed by ruleset
+        o  X'03' Network unreachable
+        o  X'04' Host unreachable
+        o  X'05' Connection refused
+        o  X'06' TTL expired
+        o  X'07' Command not supported
+        o  X'08' Address type not supported
+        o  X'09' to X'FF' unassigned
+    o  RSV    RESERVED
+    o  ATYP   address type of following address
+        o  IP V4 address: X'01'
+        o  DOMAINNAME: X'03'
+        o  IP V6 address: X'04'
+    o  BND.ADDR     server bound address
+    o  BND.PORT     server bound port in network octet order
+    """
+
+    VER: int
+    REP: int
+    RSV: int
+    ATYP: int
+    BND_ADDR: int
+    BND_PORT: int
+
+
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
@@ -237,4 +269,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         host_ip, port = transport.get_extra_info("sockname")
 
         host: int = unpack("!I", socket.inet_aton(host_ip))[0]
-        self.transport.write(pack("!BBBBIH", 0x05, 0x00, 0x00, 0x01, host, port))
+
+        reply_message = RMessage(
+            VER=0x05, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
+        )
+        self.transport.write(pack("!BBBBIH", *reply_message))
