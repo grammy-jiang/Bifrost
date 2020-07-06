@@ -109,22 +109,6 @@ class Socks5Protocol(ProtocolMixin, Socks5Mixin, Protocol, LoggerMixin):
     name = "Socks5"
     setting_prefix = "PROTOCOL_SOCKS5_"
 
-    INIT, HOST, DATA = 0, 1, 2
-
-    def __init__(self, channel, name: str = None, setting_prefix: str = None):
-        """
-
-        :param channel:
-        :type channel:
-        :param name:
-        :type name: str
-        :param setting_prefix:
-        :type setting_prefix: str
-        """
-        super(Socks5Protocol, self).__init__(channel, name, setting_prefix)
-
-        self.state = None
-
     def connection_made(self, transport) -> None:
         """
         Called when a connection is made.
