@@ -43,6 +43,31 @@ class MSMessage(NamedTuple):
     METHOD: int
 
 
+class SRMessage(NamedTuple):
+    """
+    SOCKS request
+    o  VER  protocol version: X'05'
+    o  CMD
+        o   CONNECT X'01'
+        o   BIND X'02'
+        o   UDP ASSOCIATE X'03'
+    o  RSV  RESERVED
+    o  ATYP address type of following address
+        o   IP V4 address: X'01'
+        o   DOMAINNAME: X'03'
+        o   IP V6 address: X'04'
+    o  DST.ADDR desired destination address
+    o  DST.PORT desired destination port in network octet order
+    """
+
+    VER: int
+    CMD: int
+    RSV: int
+    ATYP: int
+    DST_ADDR: bytes
+    DST_PORT: int
+
+
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
@@ -144,37 +169,37 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             self.state = self.HOST
 
         elif self.state == self.HOST:
-            ver: int  # protocol version: X'05'
-            cmd: int  # o  CONNECT X'01'
-            # o  BIND X'02'
-            # o  UDP ASSOCIATE X'03'
-            rsv: int  # RESERVED
-            atype: int  # address type of following address
-            # o  IP V4 address: X'01'
-            # o  DOMAINNAME: X'03'
-            # o  IP V6 address: X'04'
-            ver, cmd, rsv, atype = data[:4]
-            assert ver == 0x05 and cmd == 0x01
 
-            if atype == 3:  # domain
-                length = data[4]
-                hostname, nxt = data[5 : 5 + length], 5 + length
-            elif atype == 1:  # ipv4
-                hostname, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
-            elif atype == 4:  # ipv6
-                hostname, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
-            port = unpack("!H", data[nxt : nxt + 2])[0]
+            def _get_socks5_request(data: bytes) -> SRMessage:
+                atype: int = data[3]
+                dst_addr: bytes
+                nxt: int
+                if atype == 1:  # ipv4
+                    dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
+                elif atype == 3:  # domain
+                    length = data[4]
+                    dst_addr, nxt = data[5 : 5 + length], 5 + length
+                elif atype == 4:  # ipv6
+                    dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
+                dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
+
+                return SRMessage(*data[:4], DST_ADDR=dst_addr, DST_PORT=dst_port)
+
+            socks5_request = _get_socks5_request(data)
+            assert socks5_request.VER == 0x05 and socks5_request.CMD == 0x01
 
             self.logger.debug(
                 "[HOST] [%s] [%s:%s] [%s:%s] sent: %s",
                 id(self.transport),
                 client_addr,
                 client_port,
-                str(hostname, encoding="utf-8"),
-                port,
+                str(socks5_request.DST_ADDR, encoding="utf-8"),
+                socks5_request.DST_PORT,
                 repr(data),
             )
-            asyncio.create_task(self.connect(hostname, port))
+            asyncio.create_task(
+                self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT)
+            )
             self.state = self.DATA
 
         elif self.state == self.DATA:
@@ -187,11 +212,11 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             )
             self.client_transport.write(data)
 
-    async def connect(self, hostname: str, port: int) -> None:
+    async def connect(self, hostname: bytes, port: int) -> None:
         """
 
         :param hostname:
-        :type hostname: str
+        :type hostname: bytes
         :param port:
         :type port: int
         :return:
