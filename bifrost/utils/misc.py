@@ -2,15 +2,20 @@
 Miscellaneous
 """
 from importlib import import_module
-from typing import Union
+from typing import Any, Union
 
 
-def load_object(path):
+def load_object(path: str) -> Any:
     """
     Load an object given its absolute object path, and return it.
 
     object can be the import path of a class, function, variable or an
     instance, e.g. "bifrost.service.bifrost.BifrostService"
+
+    :param path:
+    :type path: str
+    :return:
+    :rtype: Any
     """
     module, name = path.rsplit(".", 1)
     mod = import_module(module)
