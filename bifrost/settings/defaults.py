@@ -103,3 +103,9 @@ CHANNELS: Dict[str, Dict[str, Optional[Union[str, int]]]] = {
         "CLIENT_PROTOCOL": "bifrost.protocols.Client",
     }
 }
+
+PROTOCOL_SOCKS5_AUTH_METHODS = {
+    # 0x00: "bifrost.base.protocols.socks5.NoAuth",  # NO AUTHENTICATION REQUIRED
+    # 0x01: "bifrost.base.protocols.socks5.GSSAPI",  # GSSAPI
+    0x02: "bifrost.base.protocols.socks5.UsernamePassword",  # USERNAME/PASSWORD
+}
