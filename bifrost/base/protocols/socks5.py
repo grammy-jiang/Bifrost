@@ -7,7 +7,7 @@ from struct import pack, unpack
 from typing import List, NamedTuple, Tuple
 
 from bifrost.base import LoggerMixin
-from bifrost.utils.misc import load_object
+from bifrost.utils.misc import load_object, to_str
 
 
 class VIMSMessage(NamedTuple):
@@ -227,7 +227,7 @@ class Socks5Mixin(LoggerMixin):
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] sent: %s",
             *self._get_client_info(),
-            str(socks5_request.DST_ADDR, encoding="utf-8"),
+            to_str(socks5_request.DST_ADDR),
             socks5_request.DST_PORT,
             repr(data),
         )
