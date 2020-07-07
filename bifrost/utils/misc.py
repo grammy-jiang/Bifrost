@@ -1,11 +1,13 @@
 """
 Miscellaneous
 """
+from functools import lru_cache
 from importlib import import_module
 from types import ModuleType
 from typing import Any, Union
 
 
+@lru_cache
 def load_object(path: str) -> Any:
     """
     Load an object given its absolute object path, and return it.
