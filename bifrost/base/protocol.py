@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict
 
+from bifrost.exceptions.protocol import TransportNotDefinedException
+
 if TYPE_CHECKING:
     from asyncio.transports import Transport
 
@@ -103,8 +105,9 @@ class ProtocolMixin:
         :return:
         :rtype: Transport
         """
-        if self._transport:
-            return self._transport
+        if not self._transport:
+            raise TransportNotDefinedException
+        return self._transport
 
     @transport.setter
     def transport(self, value):
@@ -117,8 +120,9 @@ class ProtocolMixin:
         :return:
         :rtype: Transport
         """
-        if self._server_transport:
-            return self._server_transport
+        if not self._server_transport:
+            raise TransportNotDefinedException
+        return self._server_transport
 
     @server_transport.setter
     def server_transport(self, value):
@@ -131,8 +135,9 @@ class ProtocolMixin:
         :return:
         :rtype: Transport
         """
-        if self._client_transport:
-            return self._client_transport
+        if not self._client_transport:
+            raise TransportNotDefinedException
+        return self._client_transport
 
     @client_transport.setter
     def client_transport(self, value):
