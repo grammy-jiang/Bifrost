@@ -36,7 +36,7 @@ def to_str(text: Union[bytes, str], encoding="utf-8", errors="strict") -> str:
     """
     if isinstance(text, bytes):
         return text.decode(encoding, errors)
-    elif isinstance(text, str):
+    if isinstance(text, str):
         return text
     raise TypeError
 
@@ -59,6 +59,6 @@ def to_bytes(text: Union[bytes, str], encoding="utf-8", errors="strict") -> byte
     """
     if isinstance(text, str):
         return text.encode(encoding, errors)
-    elif isinstance(text, bytes):
+    if isinstance(text, bytes):
         return text
     raise TypeError
