@@ -5,3 +5,9 @@ class ProtocolVersionNotSupportedException(BifrostException):
     """
     The protocol version is not supported
     """
+
+
+class TransportNotDefinedException(BifrostException):
+    """
+
+    """
