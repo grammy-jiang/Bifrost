@@ -2,6 +2,7 @@
 Miscellaneous
 """
 from importlib import import_module
+from types import ModuleType
 from typing import Any, Union
 
 
@@ -17,8 +18,10 @@ def load_object(path: str) -> Any:
     :return:
     :rtype: Any
     """
+    module: str
+    name: str
     module, name = path.rsplit(".", 1)
-    mod = import_module(module)
+    mod: ModuleType = import_module(module)
 
     return getattr(mod, name)
 
