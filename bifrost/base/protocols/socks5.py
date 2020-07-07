@@ -98,7 +98,7 @@ class Socks5Mixin(LoggerMixin):
     ]
     INIT, AUTH, HOST, DATA = 0, 1, 2, 3
     state = None
-    method = None
+    auth_method = None
 
     def data_received(self, data: bytes) -> None:
         """
@@ -170,20 +170,20 @@ class Socks5Mixin(LoggerMixin):
         )
 
         if available_methods:
-            self.method = available_methods[0]
+            self.auth_method = available_methods[0]
         else:
             self.logger.debug(
                 "No acceptable methods found. The following methods are supported:\n%s",
                 self.SUPPORTED_METHODS,
             )
-            self.method = 0xFF  # NO ACCEPTABLE METHODS
+            self.auth_method = 0xFF  # NO ACCEPTABLE METHODS
 
-        ms_message = MSMessage(VER=0x05, METHOD=self.method)
+        ms_message = MSMessage(VER=0x05, METHOD=self.auth_method)
         self.transport.write(pack("!BB", *ms_message))
 
-        if self.method == 0xFF:  # NO ACCEPTABLE METHODS
+        if self.auth_method == 0xFF:  # NO ACCEPTABLE METHODS
             self.transport.close()
-        elif self.method == 0x00:  # NO AUTHENTICATION REQUIRED
+        elif self.auth_method == 0x00:  # NO AUTHENTICATION REQUIRED
             self.state = self.HOST
         else:
             self.state = self.AUTH
