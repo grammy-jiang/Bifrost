@@ -10,6 +10,7 @@ from struct import pack, unpack
 from typing import List, NamedTuple, Tuple
 
 from bifrost.base import LoggerMixin
+from bifrost.exceptions.protocol import ProtocolNotDefinedException
 from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
@@ -98,17 +99,15 @@ class NoAuth:
     transit_to = HOST
 
 
+_username_password_auth = None
+
+
 class UsernamePasswordAuth:
     value = 0x02
     transit_to = AUTH
 
-    def __init__(self, protocol):
-        """
-
-        :param protocol:
-        :type protocol:
-        """
-        self.protocol = protocol
+    def __init__(self):
+        self._protocol = None
 
     @classmethod
     def from_protocol(cls, protocol) -> UsernamePasswordAuth:
@@ -119,8 +118,33 @@ class UsernamePasswordAuth:
         :return:
         :rtype: UsernamePassword
         """
-        obj = cls(protocol)
-        return obj
+        global _username_password_auth
+
+        if not _username_password_auth:
+            _username_password_auth = cls()
+        _username_password_auth.protocol = protocol
+
+        return _username_password_auth
+
+    @property
+    def protocol(self):
+        """
+
+        :return:
+        """
+        if not self._protocol:
+            raise ProtocolNotDefinedException()
+        return self._protocol
+
+    @protocol.setter
+    def protocol(self, value) -> None:
+        """
+
+        :param value:
+        :return:
+        :rtype: None
+        """
+        self._protocol = value
 
     def auth(self, data: bytes):
         """
