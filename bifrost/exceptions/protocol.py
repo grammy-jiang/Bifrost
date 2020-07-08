@@ -7,6 +7,12 @@ class ProtocolVersionNotSupportedException(BifrostException):
     """
 
 
+class ProtocolNotDefinedException(BifrostException):
+    """
+
+    """
+
+
 class TransportNotDefinedException(BifrostException):
     """
 
