@@ -10,41 +10,11 @@ Refer:
 import ssl
 from typing import Optional
 
-from graphene.types.objecttype import ObjectType
-from graphene.types.scalars import String
-from graphene.types.schema import Schema
-from graphql.execution.base import ResolveInfo
-from graphql.execution.executors.asyncio import AsyncioExecutor
 from sanic.app import Sanic
 from sanic.request import Request
 from sanic.response import HTTPResponse, json
-from sanic_graphql.graphqlview import GraphQLView
 
 from bifrost.base import BaseComponent, LoggerMixin
-from bifrost.utils.misc import load_object
-
-
-class Query(ObjectType):
-    """
-    Query for GraphQL Schema
-    """
-
-    hello = String()
-
-    @staticmethod
-    def resolve_hello(  # pylint: disable=bad-continuation,unused-argument
-        parent, info: ResolveInfo
-    ) -> str:
-        """
-
-        :param parent:
-        :type parent:
-        :param info:
-        :type info: ResolveInfo
-        :return:
-        :rtype: str
-        """
-        return "world"
 
 
 class Web(BaseComponent, LoggerMixin):
@@ -73,24 +43,6 @@ class Web(BaseComponent, LoggerMixin):
         # configure normal route
         self.app.add_route(self.home, "/")
 
-        # configure GraphQL
-        schema = Schema(
-            **{
-                k.replace("GRAPHQL_SCHEMA_", "").lower(): load_object(v)
-                for k, v in self.config.items()
-                if k.startswith("GRAPHQL_SCHEMA_")
-            }
-        )
-        self.app.register_listener(
-            listener=lambda app, loop: app.add_route(
-                GraphQLView.as_view(
-                    schema=schema, graphiql=True, executor=AsyncioExecutor(loop=loop),
-                ),
-                "/graphql",
-            ),
-            event="before_server_start",
-        )
-
         self.server = None  # type: ignore
 
     async def start(self) -> None:
@@ -111,10 +63,11 @@ class Web(BaseComponent, LoggerMixin):
             ssl_context = None
 
         self.server = await self.app.create_server(
-            debug=self.config["DEBUG"],
             host=self.config["ADDRESS"],
             port=self.config["PORT"],
+            debug=self.config["DEBUG"],
             ssl=ssl_context,
+            return_asyncio_server=True,
         )
         self.logger.info("Extension [%s] is running...", self.name)
 
