@@ -91,11 +91,6 @@ class Socks5Mixin(LoggerMixin):
     Socks5 Protocol Mixin
     """
 
-    SUPPORTED_METHODS = [
-        0x00,  # NO AUTHENTICATION REQUIRED
-        0x01,  # GSSAPI
-        0x02,  # USERNAME/PASSWORD
-    ]
     INIT, AUTH, HOST, DATA = 0, 1, 2, 3
     state = None
     auth_method = None
@@ -165,8 +160,8 @@ class Socks5Mixin(LoggerMixin):
         assert vims_message.VER == 0x05
 
         available_methods = sorted(
-            set(self.SUPPORTED_METHODS).intersection(set(vims_message.METHODS)),
-            key=lambda x: self.SUPPORTED_METHODS.index(x),
+            set(self.config["AUTH_METHODS"]).intersection(set(vims_message.METHODS)),
+            key=lambda x: list(self.config["AUTH_METHODS"]).index(x),
         )
 
         if available_methods:
