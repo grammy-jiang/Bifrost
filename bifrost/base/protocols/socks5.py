@@ -1,6 +1,8 @@
 """
 Socks5 Protocol Mixin
 """
+from __future__ import annotations
+
 import pprint
 import socket
 from asyncio.events import get_event_loop
@@ -94,6 +96,64 @@ class RMessage(NamedTuple):
 class NoAuth:
     value = 0x00
     transit_to = HOST
+
+
+class UsernamePasswordAuth:
+    value = 0x02
+    transit_to = AUTH
+
+    def __init__(self, protocol):
+        """
+
+        :param protocol:
+        :type protocol:
+        """
+        self.protocol = protocol
+
+    @classmethod
+    def from_protocol(cls, protocol) -> UsernamePasswordAuth:
+        """
+
+        :param protocol:
+        :type protocol:
+        :return:
+        :rtype: UsernamePassword
+        """
+        obj = cls(protocol)
+        return obj
+
+    def auth(self, data: bytes):
+        """
+
+        :param data:
+        :type data:
+        :return:
+        :rtype: bool
+        """
+        VER: int = data[0]
+        ULEN: int = data[1]
+        UNAME: bytes = data[2 : 2 + ULEN]
+        PLEN: int = data[2 + ULEN]
+        PASSWD: bytes = data[2 + ULEN + 1 : 2 + ULEN + 1 + PLEN]
+
+        if self._auth(UNAME, PASSWD):
+            self.protocol.transport.write(pack("!BB", VER, 0x00))
+            self.protocol.state = HOST
+        else:
+            self.protocol.transport.write(pack("!BB", VER, 0x01))
+            self.protocol.transport.close()
+
+    def _auth(self, username: bytes, password: bytes) -> bool:
+        """
+        TODO: add authentication method
+        :param username:
+        :type username: bytes
+        :param password:
+        :type password: bytes
+        :return:
+        :rtype: bool
+        """
+        return True
 
 
 class Socks5Mixin(LoggerMixin):
@@ -205,7 +265,8 @@ class Socks5Mixin(LoggerMixin):
         :return:
         :rtype: None
         """
-        # TODO:
+        auth_method = self.cls_auth_method.from_protocol(self)
+        auth_method.auth(data)
 
     def _process_request_host(self, data: bytes):
         """
