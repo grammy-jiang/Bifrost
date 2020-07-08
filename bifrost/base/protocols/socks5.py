@@ -104,15 +104,47 @@ _username_password_auth = None
 
 class UsernamePasswordAuthConfigBackend:
     def __init__(self, auth):
+        """
+
+        :param auth:
+        """
         self.auth = auth
+        self.users = self.config["USERS"]
 
     @classmethod
-    def from_auth(cls, auth):
+    def from_auth(cls, auth) -> UsernamePasswordAuthConfigBackend:
+        """
+
+        :param auth:
+        :return:
+        """
         obj = cls(auth)
         return obj
 
-    def authenticate(self, username, password):
-        return True
+    @property
+    def config(self):
+        """
+
+        :return:
+        """
+        return self.auth.config
+
+    def authenticate(self, username: bytes, password: bytes) -> bool:
+        """
+
+        :param username:
+        :type username: bytes
+        :param password:
+        :type password: bytes
+        :return:
+        :rtype: bool
+        """
+        _username = to_str(username)
+        _password = to_str(password)
+        if _username in self.users and _password == self.users[_username]:
+            return True
+        else:
+            return False
 
 
 class UsernamePasswordAuth:
