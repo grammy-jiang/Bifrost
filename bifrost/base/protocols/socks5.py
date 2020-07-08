@@ -1,6 +1,7 @@
 """
 Socks5 Protocol Mixin
 """
+import pprint
 import socket
 from asyncio.events import get_event_loop
 from struct import pack, unpack
@@ -169,7 +170,7 @@ class Socks5Mixin(LoggerMixin):
         else:
             self.logger.debug(
                 "No acceptable methods found. The following methods are supported:\n%s",
-                self.SUPPORTED_METHODS,
+                pprint.pformat(self.config["AUTH_METHODS"]),
             )
             self.auth_method = 0xFF  # NO ACCEPTABLE METHODS
 
