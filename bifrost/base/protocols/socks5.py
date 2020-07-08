@@ -102,12 +102,26 @@ class NoAuth:
 _username_password_auth = None
 
 
+class UsernamePasswordAuthConfigBackend:
+    def __init__(self, auth):
+        self.auth = auth
+
+    @classmethod
+    def from_auth(cls, auth):
+        obj = cls(auth)
+        return obj
+
+    def authenticate(self, username, password):
+        return True
+
+
 class UsernamePasswordAuth:
     value = 0x02
     transit_to = AUTH
 
     def __init__(self):
         self._protocol = None
+        self._backend = None
 
     @classmethod
     def from_protocol(cls, protocol) -> UsernamePasswordAuth:
@@ -146,6 +160,25 @@ class UsernamePasswordAuth:
         """
         self._protocol = value
 
+    @property
+    def config(self):
+        """
+
+        :return:
+        """
+        return self.protocol.config
+
+    @property
+    def backend(self):
+        """
+
+        :return:
+        """
+        if not self._backend:
+            cls_backend = load_object(self.config["USERNAMEPASSWORD_AUTH_BACKEND"])
+            self._backend = cls_backend.from_auth(self)
+        return self._backend
+
     def auth(self, data: bytes):
         """
 
@@ -154,30 +187,18 @@ class UsernamePasswordAuth:
         :return:
         :rtype: bool
         """
-        VER: int = data[0]
-        ULEN: int = data[1]
-        UNAME: bytes = data[2 : 2 + ULEN]
-        PLEN: int = data[2 + ULEN]
-        PASSWD: bytes = data[2 + ULEN + 1 : 2 + ULEN + 1 + PLEN]
+        ver: int = data[0]
+        ulen: int = data[1]
+        uname: bytes = data[2 : 2 + ulen]
+        plen: int = data[2 + ulen]
+        passwd: bytes = data[2 + ulen + 1 : 2 + ulen + 1 + plen]
 
-        if self._auth(UNAME, PASSWD):
-            self.protocol.transport.write(pack("!BB", VER, 0x00))
+        if self.backend.authenticate(uname, passwd):
+            self.protocol.transport.write(pack("!BB", ver, 0x00))
             self.protocol.state = HOST
         else:
-            self.protocol.transport.write(pack("!BB", VER, 0x01))
+            self.protocol.transport.write(pack("!BB", ver, 0xFF))
             self.protocol.transport.close()
-
-    def _auth(self, username: bytes, password: bytes) -> bool:
-        """
-        TODO: add authentication method
-        :param username:
-        :type username: bytes
-        :param password:
-        :type password: bytes
-        :return:
-        :rtype: bool
-        """
-        return True
 
 
 class Socks5Mixin(LoggerMixin):
