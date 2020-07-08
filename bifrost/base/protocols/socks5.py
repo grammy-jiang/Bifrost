@@ -91,6 +91,11 @@ class RMessage(NamedTuple):
     BND_PORT: int
 
 
+class NoAuth:
+    value = 0x00
+    transit_to = HOST
+
+
 class Socks5Mixin(LoggerMixin):
     """
     Socks5 Protocol Mixin
@@ -173,29 +178,24 @@ class Socks5Mixin(LoggerMixin):
         )
         assert vims_message.VER == VERSION
 
-        available_methods = sorted(
+        available_auth_methods = sorted(
             set(self.config["AUTH_METHODS"]).intersection(set(vims_message.METHODS)),
             key=lambda x: list(self.config["AUTH_METHODS"]).index(x),
         )
 
-        if available_methods:
-            self.auth_method = available_methods[0]
-        else:
+        try:
+            auth_method = available_auth_methods[0]
+        except IndexError:
             self.logger.debug(
                 "No acceptable methods found. The following methods are supported:\n%s",
                 pprint.pformat(self.config["AUTH_METHODS"]),
             )
-            self.auth_method = 0xFF  # NO ACCEPTABLE METHODS
-
-        ms_message = MSMessage(VER=VERSION, METHOD=self.auth_method)
-        self.transport.write(pack("!BB", *ms_message))
-
-        if self.auth_method == 0xFF:  # NO ACCEPTABLE METHODS
+            self.transport.write(pack("!BB", VERSION, 0xFF))  # NO ACCEPTABLE METHODS
             self.transport.close()
-        elif self.auth_method == 0x00:  # NO AUTHENTICATION REQUIRED
-            self.state = HOST
         else:
-            self.state = AUTH
+            self.transport.write(pack("!BB", VERSION, auth_method))
+            self.cls_auth_method = load_object(self.config["AUTH_METHODS"][auth_method])
+            self.state = self.cls_auth_method.transit_to
 
     def _process_request_auth(self, data: bytes) -> None:
         """
