@@ -109,3 +109,9 @@ PROTOCOL_SOCKS5_AUTH_METHODS = {
     # 0x01: "bifrost.base.protocols.socks5.GSSAPI",  # GSSAPI
     0x02: "bifrost.base.protocols.socks5.UsernamePasswordAuth",  # USERNAME/PASSWORD
 }
+
+PROTOCOL_SOCKS5_USERNAMEPASSWORD_AUTH_BACKEND = (
+    "bifrost.base.protocols.socks5.UsernamePasswordAuthConfigBackend"
+)
+
+PROTOCOL_SOCKS5_USERS = {"username": "password"}
