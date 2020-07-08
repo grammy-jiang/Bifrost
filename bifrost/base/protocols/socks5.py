@@ -109,7 +109,7 @@ class UsernamePasswordAuthConfigBackend:
         :param auth:
         """
         self.auth = auth
-        self.users = self.config["USERS"]
+        self.users = self.config["USERNAMEPASSWORD_USERS"]
 
     @classmethod
     def from_auth(cls, auth) -> UsernamePasswordAuthConfigBackend:

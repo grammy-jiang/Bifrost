@@ -114,4 +114,4 @@ PROTOCOL_SOCKS5_USERNAMEPASSWORD_AUTH_BACKEND = (
     "bifrost.base.protocols.socks5.UsernamePasswordAuthConfigBackend"
 )
 
-PROTOCOL_SOCKS5_USERS = {"username": "password"}
+PROTOCOL_SOCKS5_USERNAMEPASSWORD_USERS = {"username": "password"}
