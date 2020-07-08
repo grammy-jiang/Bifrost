@@ -154,7 +154,7 @@ class Socks5Mixin(LoggerMixin):
         host: int = unpack("!I", socket.inet_aton(host_ip))[0]
 
         reply_message = RMessage(
-            VER=0x05, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
+            VER=VERSION, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
         )
         self.transport.write(pack("!BBBBIH", *reply_message))
 
@@ -171,7 +171,7 @@ class Socks5Mixin(LoggerMixin):
         vims_message = VIMSMessage(
             VER=data[0], NMETHODS=data[1], METHODS=list(data[2:])
         )
-        assert vims_message.VER == 0x05
+        assert vims_message.VER == VERSION
 
         available_methods = sorted(
             set(self.config["AUTH_METHODS"]).intersection(set(vims_message.METHODS)),
@@ -187,7 +187,7 @@ class Socks5Mixin(LoggerMixin):
             )
             self.auth_method = 0xFF  # NO ACCEPTABLE METHODS
 
-        ms_message = MSMessage(VER=0x05, METHOD=self.auth_method)
+        ms_message = MSMessage(VER=VERSION, METHOD=self.auth_method)
         self.transport.write(pack("!BB", *ms_message))
 
         if self.auth_method == 0xFF:  # NO ACCEPTABLE METHODS
@@ -231,7 +231,7 @@ class Socks5Mixin(LoggerMixin):
             return SRMessage(*data[:4], DST_ADDR=dst_addr, DST_PORT=dst_port)
 
         socks5_request = _get_socks5_request(data)
-        assert socks5_request.VER == 0x05 and socks5_request.CMD == 0x01
+        assert socks5_request.VER == VERSION and socks5_request.CMD == 0x01
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] sent: %s",
