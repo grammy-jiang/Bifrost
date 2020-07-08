@@ -12,6 +12,8 @@ from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
 
+INIT, AUTH, HOST, DATA = 0, 1, 2, 3
+
 
 class VIMSMessage(NamedTuple):
     """
@@ -94,9 +96,18 @@ class Socks5Mixin(LoggerMixin):
     Socks5 Protocol Mixin
     """
 
-    INIT, AUTH, HOST, DATA = 0, 1, 2, 3
     state = None
     auth_method = None
+
+    def connection_made(self, transport) -> None:
+        """
+
+        :param transport:
+        :type transport:
+        :return:
+        :rtype: None
+        """
+        self.state = INIT
 
     def data_received(self, data: bytes) -> None:
         """
@@ -107,13 +118,13 @@ class Socks5Mixin(LoggerMixin):
         :rtype: None
         """
 
-        if self.state == self.INIT:
+        if self.state == INIT:
             self._process_request_init(data)
-        elif self.state == self.AUTH:
+        elif self.state == AUTH:
             self._process_request_auth(data)
-        elif self.state == self.HOST:
+        elif self.state == HOST:
             self._process_request_host(data)
-        elif self.state == self.DATA:
+        elif self.state == DATA:
             self._process_request_data(data)
 
     async def connect(self, hostname: bytes, port: int) -> None:
@@ -182,9 +193,9 @@ class Socks5Mixin(LoggerMixin):
         if self.auth_method == 0xFF:  # NO ACCEPTABLE METHODS
             self.transport.close()
         elif self.auth_method == 0x00:  # NO AUTHENTICATION REQUIRED
-            self.state = self.HOST
+            self.state = HOST
         else:
-            self.state = self.AUTH
+            self.state = AUTH
 
     def _process_request_auth(self, data: bytes) -> None:
         """
@@ -231,7 +242,7 @@ class Socks5Mixin(LoggerMixin):
         )
         loop = get_event_loop()
         loop.create_task(self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT))
-        self.state = self.DATA
+        self.state = DATA
 
     def _process_request_data(self, data: bytes):
         """
