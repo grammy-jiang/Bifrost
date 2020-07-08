@@ -10,6 +10,8 @@ from typing import List, NamedTuple, Tuple
 from bifrost.base import LoggerMixin
 from bifrost.utils.misc import load_object, to_str
 
+VERSION = 0x05  # Socks version
+
 
 class VIMSMessage(NamedTuple):
     """
