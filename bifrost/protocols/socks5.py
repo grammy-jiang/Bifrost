@@ -54,7 +54,8 @@ class Socks5Protocol(ProtocolMixin, Socks5Mixin, Protocol, LoggerMixin):
         self.stats.increase(f"{self.name}/connect")
 
         self.transport = transport
-        self.state = self.INIT
+
+        super(Socks5Protocol, self).connection_made(transport)
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
