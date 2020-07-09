@@ -8,7 +8,7 @@ import socket
 from asyncio.events import get_event_loop
 from functools import cached_property
 from struct import pack, unpack
-from typing import NamedTuple, Tuple
+from typing import Tuple
 
 from bifrost.base import LoggerMixin
 from bifrost.utils.misc import load_object, to_str
