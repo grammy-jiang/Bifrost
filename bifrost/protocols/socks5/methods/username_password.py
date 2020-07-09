@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from struct import pack
 
-from bifrost.base.protocols.socks5 import AUTH, HOST
 from bifrost.exceptions.protocol import ProtocolNotDefinedException
+from bifrost.protocols.socks5 import AUTH, HOST
 from bifrost.utils.misc import load_object, to_str
 
 _username_password_auth = None

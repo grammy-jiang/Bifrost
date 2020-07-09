@@ -1,4 +1,4 @@
-from bifrost.base.protocols.socks5 import HOST
+from bifrost.protocols.socks5 import HOST
 
 
 class NoAuth:
