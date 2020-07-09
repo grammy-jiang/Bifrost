@@ -99,18 +99,18 @@ class Socks5Mixin(LoggerMixin):
 
         loop = get_event_loop()
 
-        transport, client = await loop.create_connection(
+        client_transport, client_protocol = await loop.create_connection(
             lambda: cls_client.from_channel(self.channel), hostname, port,
         )
 
-        client.server_transport = self.transport
-        self.client_transport = transport
+        client_protocol.server_transport = self.transport
+        self.client_transport = client_transport
 
-        host_ip: str
+        host: str
         port: int
-        host_ip, port = transport.get_extra_info("sockname")
+        host, port = client_transport.get_extra_info("sockname")
 
-        host: int = unpack("!I", socket.inet_aton(host_ip))[0]
+        host: int = unpack("!I", socket.inet_aton(host))[0]
 
         reply_message = RMessage(
             VER=VERSION, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
