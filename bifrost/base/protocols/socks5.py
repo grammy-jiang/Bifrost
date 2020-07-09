@@ -165,7 +165,7 @@ class Socks5Mixin(LoggerMixin):
         :return:
         """
         self.logger.debug(
-            "[AUTH] [%s:%s] sent: %s", *self._get_client_info(), repr(data),
+            "[INIT] [%s:%s] received: %s", *self._get_client_info(), repr(data),
         )
 
         ver = data[0]
@@ -201,6 +201,9 @@ class Socks5Mixin(LoggerMixin):
         :return:
         :rtype: None
         """
+        self.logger.debug(
+            "[AUTH] [%s:%s] received: %s", *self._get_client_info(), repr(data),
+        )
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
@@ -231,7 +234,7 @@ class Socks5Mixin(LoggerMixin):
         assert socks5_request.VER == VERSION and socks5_request.CMD == 0x01
 
         self.logger.debug(
-            "[HOST] [%s:%s] [%s:%s] sent: %s",
+            "[HOST] [%s:%s] [%s:%s] received: %s",
             *self._get_client_info(),
             to_str(socks5_request.DST_ADDR),
             socks5_request.DST_PORT,
@@ -249,7 +252,7 @@ class Socks5Mixin(LoggerMixin):
         :return:
         """
         self.logger.debug(
-            "[DATA] [%s:%s] sent: %s bytes", *self._get_client_info(), len(data),
+            "[DATA] [%s:%s] received: %s bytes", *self._get_client_info(), len(data),
         )
         self.client_transport.write(data)
 
