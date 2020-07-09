@@ -106,14 +106,19 @@ class Socks5Mixin(LoggerMixin):
         client_protocol.server_transport = self.transport
         self.client_transport = client_transport
 
-        host: str
-        port: int
-        host, port = client_transport.get_extra_info("sockname")
+        bnd_addr: str
+        bnd_port: int
+        bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
 
-        host: int = unpack("!I", socket.inet_aton(host))[0]
+        bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
 
         reply_message = RMessage(
-            VER=VERSION, REP=0x00, RSV=0x00, ATYP=0x01, BND_ADDR=host, BND_PORT=port
+            VER=VERSION,
+            REP=0x00,
+            RSV=0x00,
+            ATYP=0x01,
+            BND_ADDR=bnd_addr,
+            BND_PORT=bnd_port,
         )
         self.transport.write(pack("!BBBBIH", *reply_message))
 
