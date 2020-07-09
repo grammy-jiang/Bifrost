@@ -99,13 +99,13 @@ CHANNELS: Dict[str, Dict[str, Optional[Union[str, int]]]] = {
 }
 
 PROTOCOL_SOCKS5_AUTH_METHODS = {
-    # 0x00: "bifrost.base.protocols.socks5.NoAuth",  # NO AUTHENTICATION REQUIRED
-    # 0x01: "bifrost.base.protocols.socks5.GSSAPI",  # GSSAPI
-    0x02: "bifrost.base.protocols.socks5.UsernamePasswordAuth",  # USERNAME/PASSWORD
+    # 0x00: "bifrost.protocols.socks5.methods.NoAuth",  # NO AUTHENTICATION REQUIRED
+    # 0x01: "bifrost.protocols.socks5.methods.GSSAPI",  # GSSAPI
+    0x02: "bifrost.protocols.socks5.methods.UsernamePasswordAuth",  # USERNAME/PASSWORD
 }
 
 PROTOCOL_SOCKS5_USERNAMEPASSWORD_AUTH_BACKEND = (
-    "bifrost.base.protocols.socks5.UsernamePasswordAuthConfigBackend"
+    "bifrost.protocols.socks5.methods.UsernamePasswordAuthConfigBackend"
 )
 
 PROTOCOL_SOCKS5_USERNAMEPASSWORD_USERS = {"username": "password"}
