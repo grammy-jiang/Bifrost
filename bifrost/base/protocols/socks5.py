@@ -7,25 +7,14 @@ import pprint
 import socket
 from asyncio.events import get_event_loop
 from struct import pack, unpack
-from typing import List, NamedTuple, Tuple
+from typing import NamedTuple, Tuple
 
 from bifrost.base import LoggerMixin
-from bifrost.exceptions.protocol import ProtocolNotDefinedException
 from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
 
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
-
-
-class VIMSMessage(NamedTuple):
-    """
-    Version Identifier/Method Selection Message
-    """
-
-    VER: int
-    NMETHODS: int
-    METHODS: List[int]
 
 
 class MSMessage(NamedTuple):
@@ -92,145 +81,6 @@ class RMessage(NamedTuple):
     ATYP: int
     BND_ADDR: int
     BND_PORT: int
-
-
-class NoAuth:
-    value = 0x00
-    transit_to = HOST
-
-
-_username_password_auth = None
-
-
-class UsernamePasswordAuthConfigBackend:
-    def __init__(self, auth):
-        """
-
-        :param auth:
-        """
-        self.auth = auth
-        self.users = self.config["USERNAMEPASSWORD_USERS"]
-
-    @classmethod
-    def from_auth(cls, auth) -> UsernamePasswordAuthConfigBackend:
-        """
-
-        :param auth:
-        :return:
-        """
-        obj = cls(auth)
-        return obj
-
-    @property
-    def config(self):
-        """
-
-        :return:
-        """
-        return self.auth.config
-
-    def authenticate(self, username: bytes, password: bytes) -> bool:
-        """
-
-        :param username:
-        :type username: bytes
-        :param password:
-        :type password: bytes
-        :return:
-        :rtype: bool
-        """
-        _username = to_str(username)
-        _password = to_str(password)
-        if _username in self.users and _password == self.users[_username]:
-            return True
-        else:
-            return False
-
-
-class UsernamePasswordAuth:
-    value = 0x02
-    transit_to = AUTH
-
-    def __init__(self):
-        self._protocol = None
-        self._backend = None
-
-    @classmethod
-    def from_protocol(cls, protocol) -> UsernamePasswordAuth:
-        """
-
-        :param protocol:
-        :type protocol:
-        :return:
-        :rtype: UsernamePassword
-        """
-        global _username_password_auth
-
-        if not _username_password_auth:
-            _username_password_auth = cls()
-        _username_password_auth.protocol = protocol
-
-        return _username_password_auth
-
-    @property
-    def protocol(self):
-        """
-
-        :return:
-        """
-        if not self._protocol:
-            raise ProtocolNotDefinedException()
-        return self._protocol
-
-    @protocol.setter
-    def protocol(self, value) -> None:
-        """
-
-        :param value:
-        :return:
-        :rtype: None
-        """
-        self._protocol = value
-
-    @property
-    def config(self):
-        """
-
-        :return:
-        """
-        return self.protocol.config
-
-    @property
-    def backend(self):
-        """
-
-        :return:
-        """
-        if not self._backend:
-            cls_backend = load_object(self.config["USERNAMEPASSWORD_AUTH_BACKEND"])
-            self._backend = cls_backend.from_auth(self)
-        return self._backend
-
-    def auth(self, data: bytes):
-        """
-
-        :param data:
-        :type data:
-        :return:
-        :rtype: bool
-        """
-        ver: int = data[0]
-        ulen: int = data[1]
-        uname: bytes = data[2 : 2 + ulen]
-        plen: int = data[2 + ulen]
-        passwd: bytes = data[2 + ulen + 1 : 2 + ulen + 1 + plen]
-
-        if self.backend.authenticate(uname, passwd):
-            self.protocol.transport.write(pack("!BB", ver, 0x00))
-            self.protocol.state = HOST
-        else:
-            self.protocol.transport.write(pack("!BB", ver, 0xFF))
-            self.protocol.transport.close()
 
 
 class Socks5Mixin(LoggerMixin):
@@ -302,6 +152,13 @@ class Socks5Mixin(LoggerMixin):
 
     def _process_request_init(self, data: bytes):
         """
+        A version identifier/method selection message:
+
+        +----+----------+----------+
+        |VER | NMETHODS | METHODS  |
+        +----+----------+----------+
+        | 1  |    1     | 1 to 255 |
+        +----+----------+----------+
 
         :param data:
         :type data: bytes
@@ -310,13 +167,15 @@ class Socks5Mixin(LoggerMixin):
         self.logger.debug(
             "[AUTH] [%s:%s] sent: %s", *self._get_client_info(), repr(data),
         )
-        vims_message = VIMSMessage(
-            VER=data[0], NMETHODS=data[1], METHODS=list(data[2:])
-        )
-        assert vims_message.VER == VERSION
+
+        ver = data[0]
+        nmethods = data[1]
+        methods = list(data[2 : 2 + nmethods])
+
+        assert ver == VERSION
 
         available_auth_methods = sorted(
-            set(self.config["AUTH_METHODS"]).intersection(set(vims_message.METHODS)),
+            set(self.config["AUTH_METHODS"]).intersection(set(methods)),
             key=lambda x: list(self.config["AUTH_METHODS"]).index(x),
         )
 
