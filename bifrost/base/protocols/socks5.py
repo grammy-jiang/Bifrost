@@ -18,31 +18,6 @@ VERSION = 0x05  # Socks version
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
 
 
-class SRMessage(NamedTuple):
-    """
-    SOCKS request
-    o  VER  protocol version: X'05'
-    o  CMD
-        o   CONNECT X'01'
-        o   BIND X'02'
-        o   UDP ASSOCIATE X'03'
-    o  RSV  RESERVED
-    o  ATYP address type of following address
-        o   IP V4 address: X'01'
-        o   DOMAINNAME: X'03'
-        o   IP V6 address: X'04'
-    o  DST.ADDR desired destination address
-    o  DST.PORT desired destination port in network octet order
-    """
-
-    VER: int
-    CMD: int
-    RSV: int
-    ATYP: int
-    DST_ADDR: bytes
-    DST_PORT: int
-
-
 class RMessage(NamedTuple):
     """
     Reply message
@@ -201,39 +176,51 @@ class Socks5Mixin(LoggerMixin):
 
     def _process_request_host(self, data: bytes):
         """
+        SOCKS request
+
+        +----+-----+-------+------+----------+----------+
+        |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+        +----+-----+-------+------+----------+----------+
+        | 1  |  1  | X'00' |  1   | Variable |    2     |
+        +----+-----+-------+------+----------+----------+
 
         :param data:
         :type data: bytes
         :return:
         """
 
-        def _get_socks5_request(data: bytes) -> SRMessage:
-            atype: int = data[3]
+        def parse_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
+            ver: int = data[0]
+            cmd: int = data[1]
+            rsv: int = data[2]
+            atyp: int = data[3]
+
             dst_addr: bytes
             nxt: int
-            if atype == 1:  # ipv4
+            if atyp == 1:  # ipv4
                 dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
-            elif atype == 3:  # domain
+            elif atyp == 3:  # domain
                 length = data[4]
                 dst_addr, nxt = data[5 : 5 + length], 5 + length
-            elif atype == 4:  # ipv6
+            elif atyp == 4:  # ipv6
                 dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
+
             dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
 
-            return SRMessage(*data[:4], DST_ADDR=dst_addr, DST_PORT=dst_port)
+            return ver, cmd, rsv, atyp, dst_addr, dst_port
 
-        socks5_request = _get_socks5_request(data)
-        assert socks5_request.VER == VERSION and socks5_request.CMD == 0x01
+        ver, cmd, _, _, dst_addr, dst_port = parse_data(data)
+        assert ver == VERSION and cmd == 0x01
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
             *self.client_info,
-            to_str(socks5_request.DST_ADDR),
-            socks5_request.DST_PORT,
+            to_str(dst_addr),
+            dst_port,
             repr(data),
         )
         loop = get_event_loop()
-        loop.create_task(self.connect(socks5_request.DST_ADDR, socks5_request.DST_PORT))
+        loop.create_task(self.connect(dst_addr, dst_port))
         self.state = DATA
 
     def _process_request_data(self, data: bytes):
