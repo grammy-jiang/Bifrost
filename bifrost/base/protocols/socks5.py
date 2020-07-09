@@ -18,15 +18,6 @@ VERSION = 0x05  # Socks version
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
 
 
-class MSMessage(NamedTuple):
-    """
-    METHOD selection message
-    """
-
-    VER: int
-    METHOD: int
-
-
 class SRMessage(NamedTuple):
     """
     SOCKS request
