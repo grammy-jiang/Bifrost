@@ -18,38 +18,6 @@ VERSION = 0x05  # Socks version
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
 
 
-class RMessage(NamedTuple):
-    """
-    Reply message
-    o  VER    protocol version: X'05'
-    o  REP    Reply field:
-        o  X'00' succeeded
-        o  X'01' general SOCKS server failure
-        o  X'02' connection not allowed by ruleset
-        o  X'03' Network unreachable
-        o  X'04' Host unreachable
-        o  X'05' Connection refused
-        o  X'06' TTL expired
-        o  X'07' Command not supported
-        o  X'08' Address type not supported
-        o  X'09' to X'FF' unassigned
-    o  RSV    RESERVED
-    o  ATYP   address type of following address
-        o  IP V4 address: X'01'
-        o  DOMAINNAME: X'03'
-        o  IP V6 address: X'04'
-    o  BND.ADDR     server bound address
-    o  BND.PORT     server bound port in network octet order
-    """
-
-    VER: int
-    REP: int
-    RSV: int
-    ATYP: int
-    BND_ADDR: int
-    BND_PORT: int
-
-
 class Socks5Mixin(LoggerMixin):
     """
     Socks5 Protocol Mixin
@@ -112,15 +80,9 @@ class Socks5Mixin(LoggerMixin):
 
         bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
 
-        reply_message = RMessage(
-            VER=VERSION,
-            REP=0x00,
-            RSV=0x00,
-            ATYP=0x01,
-            BND_ADDR=bnd_addr,
-            BND_PORT=bnd_port,
+        self.transport.write(
+            pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
         )
-        self.transport.write(pack("!BBBBIH", *reply_message))
 
     def _process_request_init(self, data: bytes):
         """
