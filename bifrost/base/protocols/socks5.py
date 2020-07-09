@@ -190,6 +190,13 @@ class Socks5Mixin(LoggerMixin):
         """
 
         def parse_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
+            """
+
+            :param data:
+            :type data: bytes
+            :return:
+            :rtype: Tuple[int, int, int, int, bytes, int]
+            """
             ver: int = data[0]
             cmd: int = data[1]
             rsv: int = data[2]
