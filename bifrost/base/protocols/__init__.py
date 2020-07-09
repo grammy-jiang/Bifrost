@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.base.protocols.socks5 import Socks5Mixin
 from bifrost.exceptions.protocol import TransportNotDefinedException
 
 if TYPE_CHECKING:
@@ -145,4 +144,4 @@ class ProtocolMixin:
         self._client_transport = value
 
 
-__all__ = ["ProtocolMixin", "Socks5Mixin"]
+__all__ = ["ProtocolMixin"]
