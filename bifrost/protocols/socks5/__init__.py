@@ -7,6 +7,7 @@ https://datatracker.ietf.org/doc/rfc1928/
 RFC 3089 - A SOCKS-based IPv6/IPv4 Gateway Mechanism
 https://datatracker.ietf.org/doc/rfc3089/
 """
+from __future__ import annotations
 
 import pprint
 import socket
