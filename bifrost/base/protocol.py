@@ -110,7 +110,14 @@ class ProtocolMixin:
         return self._transport
 
     @transport.setter
-    def transport(self, value):
+    def transport(self, value) -> None:
+        """
+
+        :param value:
+        :type value:
+        :return:
+        :rtype: None
+        """
         self._transport = value
 
     @property
@@ -125,7 +132,14 @@ class ProtocolMixin:
         return self._server_transport
 
     @server_transport.setter
-    def server_transport(self, value):
+    def server_transport(self, value) -> None:
+        """
+
+        :param value:
+        :type value:
+        :return:
+        :rtype: None
+        """
         self._server_transport = value
 
     @property
@@ -140,7 +154,14 @@ class ProtocolMixin:
         return self._client_transport
 
     @client_transport.setter
-    def client_transport(self, value):
+    def client_transport(self, value) -> None:
+        """
+
+        :param value:
+        :type value:
+        :return:
+        :rtype: None
+        """
         self._client_transport = value
 
 
