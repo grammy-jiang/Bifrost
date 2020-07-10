@@ -24,6 +24,41 @@ VERSION = 0x05  # Socks version
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
 
 
+def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
+    """
+    SOCKS request
+
+    +----+-----+-------+------+----------+----------+
+    |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+    +----+-----+-------+------+----------+----------+
+    | 1  |  1  | X'00' |  1   | Variable |    2     |
+    +----+-----+-------+------+----------+----------+
+
+    :param data:
+    :type data: bytes
+    :return:
+    :rtype: Tuple[int, int, int, int, bytes, int]
+    """
+    ver: int = data[0]
+    cmd: int = data[1]
+    rsv: int = data[2]
+    atyp: int = data[3]
+
+    dst_addr: bytes
+    nxt: int
+    if atyp == 1:  # ipv4
+        dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
+    elif atyp == 3:  # domain
+        length = data[4]
+        dst_addr, nxt = data[5 : 5 + length], 5 + length
+    elif atyp == 4:  # ipv6
+        dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
+
+    dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
+
+    return ver, cmd, rsv, atyp, dst_addr, dst_port
+
+
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
@@ -188,49 +223,16 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
-    def _process_request_host(self, data: bytes):
+    def _process_request_host(self, data: bytes) -> None:
         """
-        SOCKS request
-
-        +----+-----+-------+------+----------+----------+
-        |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
-        +----+-----+-------+------+----------+----------+
-        | 1  |  1  | X'00' |  1   | Variable |    2     |
-        +----+-----+-------+------+----------+----------+
 
         :param data:
         :type data: bytes
         :return:
+        :rtype: None
         """
 
-        def parse_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
-            """
-
-            :param data:
-            :type data: bytes
-            :return:
-            :rtype: Tuple[int, int, int, int, bytes, int]
-            """
-            ver: int = data[0]
-            cmd: int = data[1]
-            rsv: int = data[2]
-            atyp: int = data[3]
-
-            dst_addr: bytes
-            nxt: int
-            if atyp == 1:  # ipv4
-                dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
-            elif atyp == 3:  # domain
-                length = data[4]
-                dst_addr, nxt = data[5 : 5 + length], 5 + length
-            elif atyp == 4:  # ipv6
-                dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
-
-            dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
-
-            return ver, cmd, rsv, atyp, dst_addr, dst_port
-
-        ver, cmd, _, _, dst_addr, dst_port = parse_data(data)
+        ver, cmd, rsv, atyp, dst_addr, dst_port = parse_host_data(data)
         assert ver == VERSION and cmd == 0x01
 
         self.logger.debug(
