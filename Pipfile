@@ -30,13 +30,10 @@ versioneer = "*"
 yapf = "*"
 
 [packages]
-graphene = "<3"
-graphql-core = "<3"
 grpcio = "*"
 grpcio-tools = "*"
 orjson = "*"
 sanic = "*"
-sanic-graphql = "*"
 uvloop = "*"
 websockets = "*"
 
