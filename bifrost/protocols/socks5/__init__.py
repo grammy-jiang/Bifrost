@@ -164,40 +164,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         elif self.state == DATA:
             self._process_request_data(data)
 
-    async def connect(self, hostname: bytes, port: int) -> None:
-        """
-
-        :param hostname:
-        :type hostname: bytes
-        :param port:
-        :type port: int
-        :return:
-        """
-        cls_client = load_object(self.config["CLIENT_PROTOCOL"])
-
-        loop = get_event_loop()
-
-        client_transport, client_protocol = await loop.create_connection(
-            lambda: cls_client.from_channel(self.channel), hostname, port,
-        )
-
-        client_protocol.server_transport = self.transport
-        self.client_transport = client_transport
-
-        bnd_addr: str
-        bnd_port: int
-        bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
-
-        bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
-
-        try:
-            self.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
-            )
-        except Exception as exc:
-            self.logger.error("Bind address: %s:%s", bnd_addr, bnd_port)
-            self.logger.error(exc)
-
     @validate_version
     def _process_request_init(self, data: bytes):
         """
@@ -253,6 +219,41 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
+    async def _connect(self, hostname: bytes, port: int) -> None:
+        """
+
+        :param hostname:
+        :type hostname: bytes
+        :param port:
+        :type port: int
+        :return:
+        :rtype: None
+        """
+        cls_client = load_object(self.config["CLIENT_PROTOCOL"])
+
+        loop = get_event_loop()
+
+        client_transport, client_protocol = await loop.create_connection(
+            lambda: cls_client.from_channel(self.channel), hostname, port,
+        )
+
+        client_protocol.server_transport = self.transport
+        self.client_transport = client_transport
+
+        bnd_addr: str
+        bnd_port: int
+        bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
+
+        bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
+
+        try:
+            self.transport.write(
+                pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
+            )
+        except Exception as exc:
+            self.logger.error("Bind address: %s:%s", bnd_addr, bnd_port)
+            self.logger.error(exc)
+
     @validate_version
     def _process_request_host(self, data: bytes) -> None:
         """
@@ -274,7 +275,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             repr(data),
         )
         loop = get_event_loop()
-        loop.create_task(self.connect(dst_addr, dst_port))
+        loop.create_task(self._connect(dst_addr, dst_port))
         self.state = DATA
 
     def _process_request_data(self, data: bytes):
