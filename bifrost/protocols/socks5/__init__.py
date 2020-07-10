@@ -164,6 +164,15 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         elif self.state == DATA:
             self._process_request_data(data)
 
+    @cached_property
+    def info_peername(self) -> Tuple[str, int]:
+        """
+
+        :return:
+        :rtype: Tuple[str, int]
+        """
+        return self.transport.get_extra_info("peername")[:2]
+
     @validate_version
     def _process_request_init(self, data: bytes):
         """
@@ -289,12 +298,3 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             "[DATA] [%s:%s] received: %s bytes", *self.info_peername, len(data),
         )
         self.client_transport.write(data)
-
-    @cached_property
-    def info_peername(self) -> Tuple[str, int]:
-        """
-
-        :return:
-        :rtype: Tuple[str, int]
-        """
-        return self.transport.get_extra_info("peername")[:2]
