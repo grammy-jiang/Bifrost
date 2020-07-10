@@ -32,6 +32,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     name = "Socks5"
     setting_prefix = "PROTOCOL_SOCKS5_"
 
+    state = INIT
+
     def connection_made(self, transport) -> None:
         """
         Called when a connection is made.
@@ -57,8 +59,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         self.stats.increase(f"{self.name}/connect")
 
         self.transport = transport
-
-        self.state = INIT
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
