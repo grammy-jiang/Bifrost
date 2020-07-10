@@ -174,7 +174,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         return self.transport.get_extra_info("peername")[:2]
 
     @validate_version
-    def _process_request_init(self, data: bytes):
+    def _process_request_init(self, data: bytes) -> None:
         """
         A version identifier/method selection message:
 
@@ -187,6 +187,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :param data:
         :type data: bytes
         :return:
+        :rtype: None
         """
         self.logger.debug(
             "[INIT] [%s:%s] received: %s", *self.info_peername, repr(data),
@@ -287,12 +288,13 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         loop.create_task(self._connect(dst_addr, dst_port))
         self.state = DATA
 
-    def _process_request_data(self, data: bytes):
+    def _process_request_data(self, data: bytes) -> None:
         """
 
         :param data:
         :type data: bytes
         :return:
+        :rtype: None
         """
         self.logger.debug(
             "[DATA] [%s:%s] received: %s bytes", *self.info_peername, len(data),
