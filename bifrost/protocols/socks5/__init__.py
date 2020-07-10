@@ -217,8 +217,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             "[INIT] [%s:%s] received: %s", *self.info_peername, repr(data),
         )
 
-        ver = data[0]
-        nmethods = data[1]
+        ver, nmethods = data[:2]
         methods = list(data[2 : 2 + nmethods])
 
         available_auth_methods = sorted(
