@@ -46,19 +46,18 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
+
+        self.transport = transport
+
         if not self.config["INTERFACE_SSL_CERT_FILE"]:
-            self.logger.debug(
-                "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
-            )
+            self.logger.debug("[CONN] [%s:%s] connected", *self.info_peername)
         else:
             self.logger.debug(
                 "[CONN] [%s:%s] connected with name [%s], version [%s], secret bits [%s]",
-                *transport.get_extra_info("peername")[:2],
+                *self.info_peername,
                 *transport.get_extra_info("cipher"),
             )
         self.stats.increase(f"{self.name}/connect")
-
-        self.transport = transport
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
@@ -147,7 +146,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         """
         self.logger.debug(
-            "[INIT] [%s:%s] received: %s", *self.client_info, repr(data),
+            "[INIT] [%s:%s] received: %s", *self.info_peername, repr(data),
         )
 
         ver = data[0]
@@ -184,7 +183,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
         self.logger.debug(
-            "[AUTH] [%s:%s] received: %s", *self.client_info, repr(data),
+            "[AUTH] [%s:%s] received: %s", *self.info_peername, repr(data),
         )
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
@@ -236,7 +235,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
-            *self.client_info,
+            *self.info_peername,
             to_str(dst_addr),
             dst_port,
             repr(data),
@@ -253,12 +252,12 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         """
         self.logger.debug(
-            "[DATA] [%s:%s] received: %s bytes", *self.client_info, len(data),
+            "[DATA] [%s:%s] received: %s bytes", *self.info_peername, len(data),
         )
         self.client_transport.write(data)
 
     @cached_property
-    def client_info(self) -> Tuple[str, int]:
+    def info_peername(self) -> Tuple[str, int]:
         """
 
         :return:
