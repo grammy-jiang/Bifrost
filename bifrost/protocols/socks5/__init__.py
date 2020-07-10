@@ -14,14 +14,45 @@ from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from functools import cached_property
 from struct import pack, unpack
-from typing import Optional, Tuple
+from typing import Callable, Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.exceptions.protocol import ProtocolVersionNotSupportedException
 from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
 
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
+
+
+def validate_version(func: Callable, version=VERSION) -> Callable:
+    """
+    A decorator to validate socks version
+
+    :param func:
+    :type func: Callable
+    :param version:
+    :type version: int
+    :return:
+    :rtype: Callable
+    """
+
+    def validate(protocol: Socks5Protocol, data: bytes) -> Callable:
+        """
+
+        :param protocol:
+        :type protocol: Socks5Protocol
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: Callable
+        """
+        ver: int = data[0]
+        if ver != version:
+            raise ProtocolVersionNotSupportedException
+        return func(protocol, data)
+
+    return validate
 
 
 def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
@@ -166,6 +197,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             self.logger.error("Bind address: %s:%s", bnd_addr, bnd_port)
             self.logger.error(exc)
 
+    @validate_version
     def _process_request_init(self, data: bytes):
         """
         A version identifier/method selection message:
@@ -187,8 +219,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         ver = data[0]
         nmethods = data[1]
         methods = list(data[2 : 2 + nmethods])
-
-        assert ver == VERSION
 
         available_auth_methods = sorted(
             set(self.config["AUTH_METHODS"]).intersection(set(methods)),
@@ -223,6 +253,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
+    @validate_version
     def _process_request_host(self, data: bytes) -> None:
         """
 
@@ -233,7 +264,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         """
 
         ver, cmd, rsv, atyp, dst_addr, dst_port = parse_host_data(data)
-        assert ver == VERSION and cmd == 0x01
+        assert cmd == 0x01
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
