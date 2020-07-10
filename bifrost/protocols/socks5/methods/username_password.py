@@ -1,3 +1,7 @@
+"""
+RFC 1929 - Username/Password Authentication for SOCKS V5
+https://datatracker.ietf.org/doc/rfc1929/
+"""
 from __future__ import annotations
 
 from struct import pack
@@ -10,6 +14,10 @@ _username_password_auth = None
 
 
 class UsernamePasswordAuthConfigBackend:
+    """
+    A backend for username/password authentication through config
+    """
+
     def __init__(self, auth):
         """
 
@@ -55,10 +63,17 @@ class UsernamePasswordAuthConfigBackend:
 
 
 class UsernamePasswordAuth:
+    """
+    Username/Password Authentication for SOCKS V5
+    """
+
     value = 0x02
     transit_to = AUTH
 
     def __init__(self):
+        """
+
+        """
         self._protocol = None
         self._backend = None
 
