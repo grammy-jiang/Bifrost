@@ -4,12 +4,6 @@ Single socks5 proxy as an example
 RFC 1928 - SOCKS Protocol Version 5
 https://datatracker.ietf.org/doc/rfc1928/
 
-RFC 1929 - Username/Password Authentication for SOCKS V5
-https://datatracker.ietf.org/doc/rfc1929/
-
-RFC 1961 - GSS-API Authentication Method for SOCKS Version 5
-https://datatracker.ietf.org/doc/rfc1961/
-
 RFC 3089 - A SOCKS-based IPv6/IPv4 Gateway Mechanism
 https://datatracker.ietf.org/doc/rfc3089/
 """
