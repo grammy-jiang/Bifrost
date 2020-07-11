@@ -19,40 +19,12 @@ from typing import Callable, Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.exceptions.protocol import ProtocolVersionNotSupportedException
+from bifrost.middlewares import middlewares
 from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
 
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
-
-
-def middlewares(func: Callable) -> Callable:
-    """
-    A decorator for middlewares
-    :param func:
-    :return:
-    """
-
-    def process_middlewares(protocol: Socks5Protocol, *args, **kwargs):
-        """
-
-        :param protocol:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        if func.__name__ == "connection_made":
-            transport = args[0]
-            protocol.transport = transport
-            protocol.stats.increase(f"connections/{protocol.name}")
-        elif func.__name__ == "data_received":
-            data = args[0]
-            protocol.stats.increase("data/sent", len(data))
-            protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
-
-        return func(protocol, *args, **kwargs)
-
-    return process_middlewares
 
 
 def validate_version(func: Callable, version=VERSION) -> Callable:
