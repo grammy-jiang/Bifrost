@@ -42,8 +42,14 @@ def middlewares(func: Callable) -> Callable:
         :return:
         """
         if func.__name__ == "connection_made":
-            protocol.transport = args[0]
+            transport = args[0]
+            protocol.transport = transport
             protocol.stats.increase(f"connections/{protocol.name}")
+        elif func.__name__ == "data_received":
+            data = args[0]
+            protocol.stats.increase("data/sent", len(data))
+            protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+
         return func(protocol, *args, **kwargs)
 
     return process_middlewares
@@ -146,6 +152,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 *transport.get_extra_info("cipher"),
             )
 
+    @middlewares
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
         Called when the connection is lost or closed.
@@ -162,6 +169,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         self.client_transport.close()
         self.transport.close()
 
+    @middlewares
     def data_received(self, data: bytes) -> None:
         """
         Called when some data is received. data is a non-empty bytes object
@@ -172,9 +180,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        self.stats.increase("data/sent", len(data))
-        self.stats.increase(f"data/{self.name}/sent", len(data))
-
         if self.state == INIT:
             self._process_request_init(data)
         elif self.state == AUTH:
