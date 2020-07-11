@@ -26,10 +26,18 @@ def middlewares(func: Callable) -> Callable:
             transport = args[0]
             protocol.transport = transport
             protocol.stats.increase(f"connections/{protocol.name}")
+        elif func.__name__ == "connection_lost":
+            pass
+        elif func.__name__ == "pause_writing":
+            pass
+        elif func.__name__ == "resume_writing":
+            pass
         elif func.__name__ == "data_received":
             data = args[0]
             protocol.stats.increase("data/sent", len(data))
             protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+        elif func.__name__ == "eof_received":
+            pass
 
         return func(protocol, *args, **kwargs)
 
