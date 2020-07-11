@@ -1,9 +1,7 @@
-graphene<3
-graphql-core<3
 grpcio
 grpcio-tools
 orjson
+orm
 sanic
-sanic-graphql
 uvloop
 websockets
