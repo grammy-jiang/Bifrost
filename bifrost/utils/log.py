@@ -6,8 +6,6 @@ import platform
 import pprint
 import ssl
 
-import graphene
-import graphql
 import grpc
 import orjson
 import sanic
@@ -76,8 +74,6 @@ def get_runtime_info() -> None:
             {
                 "Python": platform.python_version(),
                 "Sanic": sanic.__version__,
-                "graphene": graphene.__version__,
-                "graphql-core": graphql.__version__,
                 "grpcio": grpc.__version__,
                 "orjson": orjson.__version__,  # pylint: disable=c-extension-no-member
                 "uvloop": uvloop.__version__,
