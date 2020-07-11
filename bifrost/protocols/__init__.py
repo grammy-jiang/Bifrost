@@ -26,6 +26,7 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
+        self.stats.increase(f"connections/{self.name}")
         if cipher := transport.get_extra_info("cipher"):
             self.logger.debug(
                 "[CONN] [%s:%s] connected with name [%s], version [%s], secret bits [%s]",
