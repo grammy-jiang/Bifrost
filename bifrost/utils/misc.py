@@ -28,6 +28,7 @@ def load_object(path: str) -> Any:
     return getattr(mod, name)
 
 
+@lru_cache
 def to_str(text: Union[bytes, str], encoding="utf-8", errors="strict") -> str:
     """
     Convert text to str.
@@ -51,6 +52,7 @@ def to_str(text: Union[bytes, str], encoding="utf-8", errors="strict") -> str:
     raise TypeError
 
 
+@lru_cache
 def to_bytes(text: Union[bytes, str], encoding="utf-8", errors="strict") -> bytes:
     """
     Convert text to bytes.
