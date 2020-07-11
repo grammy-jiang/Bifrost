@@ -2,9 +2,38 @@
 Middleware Manager
 """
 import pprint
-from typing import Dict
+from typing import Callable, Dict
 
 from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin
+
+
+def middlewares(func: Callable) -> Callable:
+    """
+    A decorator for middlewares
+    :param func:
+    :return:
+    """
+
+    def process_middlewares(protocol, *args, **kwargs):
+        """
+
+        :param protocol:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if func.__name__ == "connection_made":
+            transport = args[0]
+            protocol.transport = transport
+            protocol.stats.increase(f"connections/{protocol.name}")
+        elif func.__name__ == "data_received":
+            data = args[0]
+            protocol.stats.increase("data/sent", len(data))
+            protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+
+        return func(protocol, *args, **kwargs)
+
+    return process_middlewares
 
 
 class MiddlewareManager(LoggerMixin, ManagerMixin, BaseComponent):
