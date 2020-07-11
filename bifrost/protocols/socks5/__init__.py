@@ -124,7 +124,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 *self.info_peername,
                 *transport.get_extra_info("cipher"),
             )
-        self.stats.increase(f"{self.name}/connect")
+        self.stats.increase(f"connections/{self.name}")
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
