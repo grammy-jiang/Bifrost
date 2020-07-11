@@ -26,6 +26,29 @@ VERSION = 0x05  # Socks version
 INIT, AUTH, HOST, DATA = 0, 1, 2, 3
 
 
+def middlewares(func: Callable) -> Callable:
+    """
+    A decorator for middlewares
+    :param func:
+    :return:
+    """
+
+    def process_middlewares(protocol: Socks5Protocol, *args, **kwargs):
+        """
+
+        :param protocol:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if func.__name__ == "connection_made":
+            protocol.transport = args[0]
+            protocol.stats.increase(f"connections/{protocol.name}")
+        return func(protocol, *args, **kwargs)
+
+    return process_middlewares
+
+
 def validate_version(func: Callable, version=VERSION) -> Callable:
     """
     A decorator to validate socks version
@@ -101,6 +124,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
     state = INIT
 
+    @middlewares
     def connection_made(self, transport) -> None:
         """
         Called when a connection is made.
@@ -113,9 +137,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-
-        self.transport = transport
-
         if not self.config["INTERFACE_SSL_CERT_FILE"]:
             self.logger.debug("[CONN] [%s:%s] connected", *self.info_peername)
         else:
@@ -124,7 +145,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 *self.info_peername,
                 *transport.get_extra_info("cipher"),
             )
-        self.stats.increase(f"connections/{self.name}")
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
         """
