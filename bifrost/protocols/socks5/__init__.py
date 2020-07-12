@@ -101,6 +101,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
 
     name = "Socks5"
+    role = "interface"
     setting_prefix = "PROTOCOL_SOCKS5_"
 
     state = INIT
@@ -246,7 +247,9 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         loop = get_event_loop()
 
         client_transport, client_protocol = await loop.create_connection(
-            lambda: cls_client.from_channel(self.channel), hostname, port,
+            lambda: cls_client.from_channel(self.channel, role="client"),
+            hostname,
+            port,
         )
 
         client_protocol.server_transport = self.transport
