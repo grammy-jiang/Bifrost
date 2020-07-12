@@ -4,10 +4,12 @@ Extension Manager
 import pprint
 from typing import Dict
 
-from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin
+from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin, SingletonMeta
 
 
-class ExtensionManager(LoggerMixin, ManagerMixin, BaseComponent):
+class ExtensionManager(
+    LoggerMixin, ManagerMixin, BaseComponent, metaclass=SingletonMeta
+):
     """
     Extension Manager
     """

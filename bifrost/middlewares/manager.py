@@ -4,7 +4,7 @@ Middleware Manager
 import pprint
 from typing import Callable, Dict
 
-from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin
+from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin, SingletonMeta
 
 
 def middlewares(func: Callable) -> Callable:
@@ -48,7 +48,9 @@ def middlewares(func: Callable) -> Callable:
     return process_middlewares
 
 
-class MiddlewareManager(LoggerMixin, ManagerMixin, BaseComponent):
+class MiddlewareManager(
+    LoggerMixin, ManagerMixin, BaseComponent, metaclass=SingletonMeta
+):
     """
     Middleware Manager
     """
