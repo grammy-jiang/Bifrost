@@ -18,7 +18,10 @@ from struct import pack, unpack
 from typing import Callable, Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
-from bifrost.exceptions.protocol import ProtocolVersionNotSupportedException
+from bifrost.exceptions.protocol import (
+    ProtocolNotDefinedException,
+    ProtocolVersionNotSupportedException,
+)
 from bifrost.middlewares import middlewares
 from bifrost.utils.misc import load_object, to_str
 
@@ -138,8 +141,10 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        self.client_transport.close()
-        self.transport.close()
+        try:
+            self.client_transport.close()
+        except ProtocolNotDefinedException:
+            pass
 
     @middlewares
     def data_received(self, data: bytes) -> None:
