@@ -17,6 +17,7 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
     """
 
     name = "Client"
+    role = "client"
     setting_prefix = "PROTOCOL_CLIENT_"
 
     @middlewares
