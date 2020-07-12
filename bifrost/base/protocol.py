@@ -20,17 +20,22 @@ class ProtocolMixin:
     """
 
     name: str = None  # type: ignore
+    role: str = None  # type: ignore
     setting_prefix: str = None  # type: ignore
 
     certificates = set()
 
-    def __init__(self, channel, name: str = None, setting_prefix: str = None):
+    def __init__(
+        self, channel, name: str = None, role: str = None, setting_prefix: str = None
+    ):
         """
 
         :param channel:
         :type channel:
         :param name:
         :type name: str
+        :param role:
+        :type role: str
         :param setting_prefix:
         :type setting_prefix: str
         """
@@ -38,6 +43,8 @@ class ProtocolMixin:
 
         if name:
             self.name: str = name
+        if role:
+            self.role: str = role
         if setting_prefix:
             self.setting_prefix: str = setting_prefix
 
@@ -55,7 +62,7 @@ class ProtocolMixin:
 
     @classmethod
     def from_channel(  # pylint: disable=bad-continuation
-        cls, channel, name: str = None, setting_prefix: str = None
+        cls, channel, name: str = None, role: str = None, setting_prefix: str = None
     ) -> ProtocolMixin:
         """
 
@@ -63,12 +70,14 @@ class ProtocolMixin:
         :type channel:
         :param name:
         :type name: str
+        :param role:
+        :type role: str
         :param setting_prefix:
         :type setting_prefix: str
         :return:
         :rtype: ProtocolMixin
         """
-        obj = cls(channel, name, setting_prefix)
+        obj = cls(channel, name, role, setting_prefix)
         return obj
 
     @property
