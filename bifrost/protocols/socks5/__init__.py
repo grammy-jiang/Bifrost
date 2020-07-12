@@ -19,8 +19,8 @@ from typing import Callable, Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.exceptions.protocol import (
-    ProtocolNotDefinedException,
     ProtocolVersionNotSupportedException,
+    TransportNotDefinedException,
 )
 from bifrost.middlewares import middlewares
 from bifrost.utils.misc import load_object, to_str
@@ -144,7 +144,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         """
         try:
             self.client_transport.close()
-        except ProtocolNotDefinedException:
+        except TransportNotDefinedException:
             pass
 
     @middlewares
