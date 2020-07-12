@@ -70,7 +70,7 @@ class Channel(BaseComponent, LoggerMixin):
             ssl_context = None
 
         self.server = await loop.create_server(
-            protocol_factory=lambda: cls_interface.from_channel(self),
+            protocol_factory=lambda: cls_interface.from_channel(self, role="interface"),
             host=self.config["INTERFACE_ADDRESS"],
             port=self.config["INTERFACE_PORT"],
             ssl=ssl_context,
