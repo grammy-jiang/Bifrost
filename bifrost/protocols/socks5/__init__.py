@@ -253,13 +253,9 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
 
-        try:
-            self.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
-            )
-        except Exception as exc:
-            self.logger.error("Bind address: %s:%s", bnd_addr, bnd_port)
-            self.logger.error(exc)
+        self.transport.write(
+            pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
+        )
 
     @validate_version
     def _process_request_host(self, data: bytes) -> None:
