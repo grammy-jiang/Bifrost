@@ -34,8 +34,12 @@ def middlewares(func: Callable) -> Callable:
             pass
         elif func.__name__ == "data_received":
             data = args[0]
-            protocol.stats.increase("data/sent", len(data))
-            protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+            if protocol.role == "interface":
+                protocol.stats.increase("data/sent", len(data))
+                protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+            elif protocol.role == "client":
+                protocol.stats.increase("data/received", len(data))
+                protocol.stats.increase(f"data/{protocol.name}/received", len(data))
         elif func.__name__ == "eof_received":
             pass
 
