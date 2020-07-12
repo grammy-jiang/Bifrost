@@ -10,7 +10,7 @@ from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.base import LoggerMixin
+from bifrost.base import LoggerMixin, SingletonMeta
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from bifrost.signals import SignalManager
 
 
-class Bifrost(LoggerMixin):
+class Bifrost(LoggerMixin, metaclass=SingletonMeta):
     """
     The abstract class of Service
     """
