@@ -229,6 +229,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         self.logger.debug(
             "[AUTH] [%s:%s] received: %s", *self.info_peername, repr(data),
         )
+        self.stats.increase(f"Authentication/{self.name}")
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
@@ -291,7 +292,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         """
 
         ver, cmd, rsv, atyp, dst_addr, dst_port = parse_host_data(data)
-        assert cmd == 0x01
+        assert cmd == 0x01  # CONNECT
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
