@@ -246,24 +246,37 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
         loop = get_event_loop()
 
-        client_transport, client_protocol = await loop.create_connection(
-            lambda: cls_client.from_channel(self.channel, role="client"),
-            hostname,
-            port,
-        )
+        try:
+            client_transport, client_protocol = await loop.create_connection(
+                lambda: cls_client.from_channel(self.channel, role="client"),
+                hostname,
+                port,
+            )
+        except OSError as exc:
+            if exc.args == (101, "Network is unreachable"):
+                self.logger.error("The target is unreachable: %s:%s", hostname, port)
+                self.stats.increase(f"Error/{self.name}/exc.strerror")
+                self.transport.write(
+                    pack(
+                        "!BBBBIH", VERSION, 0x03, 0x00, 0x01, 0xFF, 0xFF
+                    )  # Network unreachable
+                )
+                self.transport.close()
+            else:
+                self.logger.exception(exc)
+        else:
+            client_protocol.server_transport = self.transport
+            self.client_transport = client_transport
 
-        client_protocol.server_transport = self.transport
-        self.client_transport = client_transport
+            bnd_addr: str
+            bnd_port: int
+            bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
 
-        bnd_addr: str
-        bnd_port: int
-        bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
+            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
 
-        bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
-
-        self.transport.write(
-            pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
-        )
+            self.transport.write(
+                pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
+            )
 
     @validate_version
     def _process_request_host(self, data: bytes) -> None:
