@@ -4,6 +4,7 @@ https://docs.python.org/3/library/asyncio-protocol.html
 """
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING, Any, Dict
 
 from bifrost.exceptions.protocol import TransportNotDefinedException
@@ -48,14 +49,6 @@ class ProtocolMixin:
         if setting_prefix:
             self.setting_prefix: str = setting_prefix
 
-        self.config: Dict[str, Any] = {
-            key.replace(self.setting_prefix, ""): value
-            for key, value in self.settings.items()
-            if key.startswith(self.setting_prefix)
-        }
-
-        self.config.update(channel.config)
-
         self._transport = None
         self._server_transport = None
         self._client_transport = None
@@ -79,6 +72,22 @@ class ProtocolMixin:
         """
         obj = cls(channel, name, role, setting_prefix)
         return obj
+
+    @functools.cached_property
+    def config(self):
+        """
+        The configuration of this protocol
+        :return:
+        """
+        config: Dict[str, Any] = {
+            key.replace(self.setting_prefix, ""): value
+            for key, value in self.settings.items()
+            if key.startswith(self.setting_prefix)
+        }
+
+        config.update(self.channel.config)
+
+        return config
 
     @property
     def settings(self) -> Settings:
