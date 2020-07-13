@@ -30,6 +30,7 @@ versioneer = "*"
 yapf = "*"
 
 [packages]
+cachetools = "*"
 grpcio = "*"
 grpcio-tools = "*"
 orjson = "*"
