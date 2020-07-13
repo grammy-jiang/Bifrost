@@ -106,6 +106,13 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
     state = INIT
 
+    def __init__(  # pylint: disable=bad-continuation
+        self, channel, name: str = None, role: str = None, setting_prefix: str = None
+    ):
+        super(Socks5Protocol, self).__init__(channel, name, role, setting_prefix)
+
+        self.cls_auth_method = None
+
     @middlewares
     def connection_made(self, transport) -> None:
         """
