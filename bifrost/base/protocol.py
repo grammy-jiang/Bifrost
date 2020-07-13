@@ -25,7 +25,7 @@ class ProtocolMixin:
 
     certificates = set()
 
-    def __init__(
+    def __init__(  # pylint: disable=bad-continuation
         self, channel, name: str = None, role: str = None, setting_prefix: str = None
     ):
         """
