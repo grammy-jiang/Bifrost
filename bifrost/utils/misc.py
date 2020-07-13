@@ -1,10 +1,11 @@
 """
 Miscellaneous
 """
-from functools import lru_cache
 from importlib import import_module
 from types import ModuleType
 from typing import Any, Union
+
+from cachetools.func import lru_cache
 
 
 @lru_cache
