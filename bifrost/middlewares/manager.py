@@ -64,7 +64,7 @@ def middlewares(func: Callable) -> Callable:
     return process_middlewares
 
 
-class MiddlewareManager(
+class MiddlewareManager(  # pylint: disable=bad-continuation
     LoggerMixin, ManagerMixin, BaseComponent, metaclass=SingletonMeta
 ):
     """
