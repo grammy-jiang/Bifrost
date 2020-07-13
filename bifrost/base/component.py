@@ -67,7 +67,7 @@ class BaseComponent:
 
         return obj
 
-    async def service_started(  # pylint: disable=bad-continuation,unused-argument
+    async def service_started(  # pylint: disable=unused-argument
         self, sender: Any
     ) -> None:
         """
@@ -79,7 +79,7 @@ class BaseComponent:
         """
         await self.start()
 
-    async def service_stopped(  # pylint: disable=bad-continuation,unused-argument
+    async def service_stopped(  # pylint: disable=unused-argument
         self, sender: Any
     ) -> None:
         """

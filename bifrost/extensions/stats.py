@@ -50,7 +50,7 @@ class Stats(BaseComponent, UserDict, LoggerMixin):  # pylint: disable=too-many-a
             "Stats is dumped:\n%s", pprint.pformat(self),
         )
 
-    def increase(  # pylint: disable=bad-continuation,unused-argument
+    def increase(  # pylint: disable=unused-argument
         self, key: str, count: int = 1, start: int = 0, sender: Any = None
     ) -> None:
         """

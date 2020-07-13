@@ -81,7 +81,7 @@ class Web(BaseComponent, LoggerMixin):
             self.server.close()
             self.logger.info("Extension [%s] is stopped.", self.name)
 
-    async def home(  # pylint: disable=bad-continuation,unused-argument
+    async def home(  # pylint: disable=unused-argument
         self, request: Request
     ) -> HTTPResponse:
         """

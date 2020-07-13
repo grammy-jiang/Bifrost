@@ -74,9 +74,7 @@ class BaseSettings(MutableMapping):
         return self._frozen
 
     @contextmanager
-    def unfreeze(  # pylint: disable = bad-continuation
-        self, priority: str = "project"
-    ) -> Generator:
+    def unfreeze(self, priority: str = "project") -> Generator:
         """
         A context manager to unfreeze this instance and keep the previous frozen
         status

@@ -45,7 +45,7 @@ class SignalManager(UserDict, LoggerMixin):  # pylint: disable=too-many-ancestor
         return self[key]
 
     @classmethod
-    def from_settings(  # pylint: disable=bad-continuation
+    def from_settings(
         cls, settings, name: str = None, setting_prefix: str = None
     ) -> SignalManager:
         """
