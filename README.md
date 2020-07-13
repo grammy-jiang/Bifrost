@@ -36,3 +36,5 @@ An Asynchronous Proxy to Bypass GFW
 ## OTHER TOOLS
 
 * [Dante - A free SOCKS server](https://www.inet.no/dante/index.html)
+* [Privoxy - Home Page](https://www.privoxy.org/)
+* [Tor Project | Anonymity Online](https://www.torproject.org/)
