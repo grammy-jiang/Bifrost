@@ -90,7 +90,7 @@ class Bifrost(LoggerMixin, metaclass=SingletonMeta):
 
         cls_channel: Channel = load_object(self.settings["CLS_CHANNEL"])
 
-        for name, channel in self.settings["CHANNELS"].items():
+        for name in self.settings["CHANNELS"]:
             channels[name] = cls_channel.from_service(
                 self, name=name, setting_prefix=f"CHANNEL_{name.upper()}_"
             )
