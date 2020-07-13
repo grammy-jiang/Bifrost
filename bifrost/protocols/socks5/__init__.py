@@ -232,13 +232,15 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         auth_method = self.cls_auth_method.from_protocol(self)
         auth_method.auth(data)
 
-    async def _connect(self, hostname: bytes, port: int) -> None:
+    async def _connect(self, hostname: bytes, port: int, atyp: int) -> None:
         """
 
         :param hostname:
         :type hostname: bytes
         :param port:
         :type port: int
+        :param atyp:
+        :type atyp: int
         :return:
         :rtype: None
         """
@@ -258,7 +260,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
                 self.stats.increase(f"Error/{self.name}/exc.strerror")
                 self.transport.write(
                     pack(
-                        "!BBBBIH", VERSION, 0x03, 0x00, 0x01, 0xFF, 0xFF
+                        "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
                     )  # Network unreachable
                 )
                 self.transport.close()
@@ -275,7 +277,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
 
             self.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, 0x01, bnd_addr, bnd_port)
+                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
             )
 
     @validate_version
@@ -299,7 +301,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             repr(data),
         )
         loop = get_event_loop()
-        loop.create_task(self._connect(dst_addr, dst_port))
+        loop.create_task(self._connect(dst_addr, dst_port, atyp))
         self.state = DATA
 
     def _process_request_data(self, data: bytes) -> None:
