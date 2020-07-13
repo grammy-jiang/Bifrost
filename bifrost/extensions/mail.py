@@ -62,7 +62,7 @@ class Mail(BaseComponent, LoggerMixin):
 
         return message
 
-    def send_email(  # pylint: disable=bad-continuation,unused-argument
+    def send_email(  # pylint: disable=unused-argument
         self, sender: Any = None, **kwargs
     ) -> None:
         """

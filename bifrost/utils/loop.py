@@ -11,7 +11,7 @@ from bifrost.utils.misc import load_object
 _LOOP: Optional[AbstractEventLoop] = None
 
 
-def get_event_loop(  # pylint: disable=bad-continuation
+def get_event_loop(
     settings: Settings, func: str = "new_event_loop", **kwargs
 ) -> AbstractEventLoop:
     """

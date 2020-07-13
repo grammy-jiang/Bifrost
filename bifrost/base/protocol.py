@@ -54,7 +54,7 @@ class ProtocolMixin:
         self._client_transport = None
 
     @classmethod
-    def from_channel(  # pylint: disable=bad-continuation
+    def from_channel(
         cls, channel, name: str = None, role: str = None, setting_prefix: str = None
     ) -> ProtocolMixin:
         """

@@ -90,7 +90,7 @@ class BaseSettings(MutableMapping):
             self._frozen = status
 
     def update(  # pylint: disable = arguments-differ
-        self, m: Mapping = None, **kwargs  # pylint: disable = bad-continuation
+        self, m: Mapping = None, **kwargs
     ) -> None:
         """
         Update this instance with the given values
