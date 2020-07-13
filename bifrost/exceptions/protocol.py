@@ -1,3 +1,6 @@
+"""
+Exceptions used in Protocols
+"""
 from bifrost.exceptions import BifrostException
 
 
