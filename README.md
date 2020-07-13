@@ -32,3 +32,7 @@ An Asynchronous Proxy to Bypass GFW
 #### SOCKS6
 
 * [draft-olteanu-intarea-socks-6-09 - SOCKS Protocol Version 6](https://datatracker.ietf.org/doc/draft-olteanu-intarea-socks-6/)
+
+## OTHER TOOLS
+
+* [Dante - A free SOCKS server](https://www.inet.no/dante/index.html)
