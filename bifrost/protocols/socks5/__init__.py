@@ -196,7 +196,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             "[INIT] [%s:%s] received: %s", *self.info_peername, repr(data),
         )
 
-        ver, nmethods = data[:2]
+        ver, nmethods = data[:2]  # pylint: disable=unused-variable
         methods = list(data[2 : 2 + nmethods])
 
         available_auth_methods = sorted(
@@ -291,7 +291,14 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: None
         """
 
-        ver, cmd, rsv, atyp, dst_addr, dst_port = parse_host_data(data)
+        (
+            ver,  # pylint: disable=unused-variable
+            cmd,
+            rsv,  # pylint: disable=unused-variable
+            atyp,
+            dst_addr,
+            dst_port,
+        ) = parse_host_data(data)
         assert cmd == 0x01  # CONNECT
 
         self.logger.debug(
