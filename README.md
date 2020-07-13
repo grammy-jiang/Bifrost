@@ -7,14 +7,14 @@ An Asynchronous Proxy to Bypass GFW
 * Fulfill GraphQL in Web extension
 * Fulfill gRPC in RPC extension
 
-## Thanks
+## THANKS
 
 * [A working SOCKS5 server based on asyncio (TCP Connect only)](https://gist.github.com/tcalmant/770511b420c1139fe1cc88c2685f2903)
 * [lenzenmi/asyncio_dispatch: Event signalling for python and asyncio](https://github.com/lenzenmi/asyncio_dispatch)
 * [Opportunistic TLS with python asyncio | Povilas Blog](http://blog.povilasb.com/posts/opportunistic-tls-with-python-asyncio/)
 * [Mailtrap.io — Fake smtp testing server. Dummy smtp email testing](https://mailtrap.io/)
 
-## Reference
+## REFERENCE
 
 ### SOCKS
 
@@ -38,3 +38,7 @@ An Asynchronous Proxy to Bypass GFW
 * [Dante - A free SOCKS server](https://www.inet.no/dante/index.html)
 * [Privoxy - Home Page](https://www.privoxy.org/)
 * [Tor Project | Anonymity Online](https://www.torproject.org/)
+
+## ARTICLES
+
+* [Use DNS over TLS - Fedora Magazine](https://fedoramagazine.org/use-dns-over-tls/)
