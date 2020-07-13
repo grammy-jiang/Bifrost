@@ -106,7 +106,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
 
     state = INIT
 
-    def __init__(  # pylint: disable=bad-continuation
+    def __init__(
         self, channel, name: str = None, role: str = None, setting_prefix: str = None
     ):
         super(Socks5Protocol, self).__init__(channel, name, role, setting_prefix)
