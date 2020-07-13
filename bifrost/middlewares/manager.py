@@ -35,7 +35,9 @@ def middlewares(func: Callable) -> Callable:
             protocol.signal_manager.send(connection_made)
             transport = args[0]
             protocol.transport = transport
-            protocol.stats.increase(f"connections/{protocol.name}")
+            protocol.stats.increase(
+                f"connections/{protocol.channel.name}/{protocol.name}"
+            )
         elif func.__name__ == "connection_lost":
             protocol.signal_manager.send(connection_lost)
         elif func.__name__ == "pause_writing":
@@ -47,11 +49,13 @@ def middlewares(func: Callable) -> Callable:
             if protocol.role == "interface":
                 protocol.signal_manager.send(data_sent)
                 protocol.stats.increase("data/sent", len(data))
-                protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
+                protocol.stats.increase(f"data/{protocol.channel.name}/sent", len(data))
             elif protocol.role == "client":
                 protocol.signal_manager.send(data_received)
                 protocol.stats.increase("data/received", len(data))
-                protocol.stats.increase(f"data/{protocol.name}/received", len(data))
+                protocol.stats.increase(
+                    f"data/{protocol.channel.name}/received", len(data)
+                )
         elif func.__name__ == "eof_received":
             protocol.signal_manager.send(eof_received)
 
