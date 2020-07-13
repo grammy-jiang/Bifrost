@@ -5,6 +5,15 @@ import pprint
 from typing import Callable, Dict
 
 from bifrost.base import BaseComponent, LoggerMixin, ManagerMixin, SingletonMeta
+from bifrost.signals import (
+    connection_lost,
+    connection_made,
+    data_received,
+    data_sent,
+    eof_received,
+    pause_writing,
+    resume_writing,
+)
 
 
 def middlewares(func: Callable) -> Callable:
@@ -23,25 +32,28 @@ def middlewares(func: Callable) -> Callable:
         :return:
         """
         if func.__name__ == "connection_made":
+            protocol.signal_manager.send(connection_made)
             transport = args[0]
             protocol.transport = transport
             protocol.stats.increase(f"connections/{protocol.name}")
         elif func.__name__ == "connection_lost":
-            pass
+            protocol.signal_manager.send(connection_lost)
         elif func.__name__ == "pause_writing":
-            pass
+            protocol.signal_manager.send(pause_writing)
         elif func.__name__ == "resume_writing":
-            pass
+            protocol.signal_manager.send(resume_writing)
         elif func.__name__ == "data_received":
             data = args[0]
             if protocol.role == "interface":
+                protocol.signal_manager.send(data_sent)
                 protocol.stats.increase("data/sent", len(data))
                 protocol.stats.increase(f"data/{protocol.name}/sent", len(data))
             elif protocol.role == "client":
+                protocol.signal_manager.send(data_received)
                 protocol.stats.increase("data/received", len(data))
                 protocol.stats.increase(f"data/{protocol.name}/received", len(data))
         elif func.__name__ == "eof_received":
-            pass
+            protocol.signal_manager.send(eof_received)
 
         return func(protocol, *args, **kwargs)
 
