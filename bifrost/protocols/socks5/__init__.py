@@ -258,7 +258,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         except OSError as exc:
             if exc.args == (101, "Network is unreachable"):
                 self.logger.error("The target is unreachable: %s:%s", hostname, port)
-                self.stats.increase(f"Error/{self.name}/exc.strerror")
+                self.stats.increase(f"Error/{self.name}/{exc.strerror}")
                 self.transport.write(
                     pack(
                         "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
