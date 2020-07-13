@@ -12,11 +12,11 @@ class ProtocolVersionNotSupportedException(BifrostException):
 
 class ProtocolNotDefinedException(BifrostException):
     """
-
+    protocol not defined in transport or interface protocol
     """
 
 
 class TransportNotDefinedException(BifrostException):
     """
-
+    transport not defined for protocols
     """
