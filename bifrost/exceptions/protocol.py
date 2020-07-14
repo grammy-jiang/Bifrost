@@ -26,3 +26,12 @@ class Socks5Exception(BifrostException):
     """
     base exception for Socks5 protocol
     """
+
+
+class Socks5CMDNotSupportedException(Socks5Exception):
+    """
+    CMD is not supported other than:
+    * CONNECT X'01'
+    * BIND X'02'
+    * UDP ASSOCIATE X'03'
+    """
