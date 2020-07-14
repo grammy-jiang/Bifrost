@@ -307,6 +307,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             dst_port,
         ) = parse_host_data(data)
         assert cmd == 0x01  # CONNECT
+        # TODO: 0x02 BIND
+        # TODO: 0x03 UDP ASSOCIATE
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
