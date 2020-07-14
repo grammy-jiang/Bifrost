@@ -278,11 +278,11 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             client_protocol.server_transport = self.transport
             self.client_transport = client_transport
 
-            bnd_addr: str
+            bnd_addr_: str
             bnd_port: int
-            bnd_addr, bnd_port = client_transport.get_extra_info("sockname")
+            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
 
-            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr))[0]
+            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
 
             self.transport.write(
                 pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
