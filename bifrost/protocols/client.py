@@ -1,6 +1,5 @@
 """
-Transports and Protocols
-https://docs.python.org/3/library/asyncio-protocol.html
+Simple Client protocol
 """
 from asyncio.protocols import Protocol
 from typing import Optional
