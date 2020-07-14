@@ -20,6 +20,7 @@ from typing import Callable, Optional, Tuple
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.exceptions.protocol import (
     ProtocolVersionNotSupportedException,
+    Socks5CMDNotSupportedException,
     TransportNotDefinedException,
 )
 from bifrost.middlewares import middlewares
@@ -103,6 +104,12 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     name = "Socks5"
     role = "interface"
     setting_prefix = "PROTOCOL_SOCKS5_"
+
+    supported_cmd = (
+        0x01,  # connect
+        # 0x02,  # TODO: bind
+        # 0x03,  # TODO: udp associate
+    )
 
     state = INIT
 
@@ -306,9 +313,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
             dst_addr,
             dst_port,
         ) = parse_host_data(data)
-        assert cmd == 0x01  # CONNECT
-        # TODO: 0x02 BIND
-        # TODO: 0x03 UDP ASSOCIATE
+        if cmd not in self.supported_cmd:
+            raise Socks5CMDNotSupportedException
 
         self.logger.debug(
             "[HOST] [%s:%s] [%s:%s] received: %s",
