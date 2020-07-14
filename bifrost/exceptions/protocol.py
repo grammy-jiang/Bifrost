@@ -20,3 +20,9 @@ class TransportNotDefinedException(BifrostException):
     """
     transport not defined for protocols
     """
+
+
+class Socks5Exception(BifrostException):
+    """
+    base exception for Socks5 protocol
+    """
