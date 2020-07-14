@@ -5,7 +5,7 @@ https://docs.python.org/3/library/asyncio-protocol.html
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Set
 
 from bifrost.exceptions.protocol import TransportNotDefinedException
 
@@ -24,7 +24,7 @@ class ProtocolMixin:
     role: str = None  # type: ignore
     setting_prefix: str = None  # type: ignore
 
-    certificates = set()
+    certificates: Set[str] = set()
 
     def __init__(
         self, channel, name: str = None, role: str = None, setting_prefix: str = None
