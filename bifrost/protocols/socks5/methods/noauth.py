@@ -1,7 +1,6 @@
 """
 No Authentication for Socks5
 """
-from bifrost.protocols.socks5 import HOST
 
 
 class NoAuth:  # pylint: disable=too-few-public-methods
@@ -10,4 +9,3 @@ class NoAuth:  # pylint: disable=too-few-public-methods
     """
 
     value = 0x00
-    transit_to = HOST
