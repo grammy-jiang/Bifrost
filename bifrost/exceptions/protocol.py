@@ -35,3 +35,15 @@ class Socks5CMDNotSupportedException(Socks5Exception):
     * BIND X'02'
     * UDP ASSOCIATE X'03'
     """
+
+
+class Socks5NoAcceptableMethodsException(Socks5Exception):
+    """
+    No acceptable methods found for authentication
+    """
+
+
+class Socks5NetworkUnreachableException(Socks5Exception):
+    """
+    The target can't be reached
+    """
