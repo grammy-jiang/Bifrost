@@ -28,8 +28,6 @@ from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
 
-INIT, AUTH, HOST, DATA = 0, 1, 2, 3
-
 
 def validate_version(func: Callable, version=VERSION) -> Callable:
     """
@@ -43,11 +41,11 @@ def validate_version(func: Callable, version=VERSION) -> Callable:
     :rtype: Callable
     """
 
-    def validate(protocol: Socks5Protocol, data: bytes) -> Callable:
+    def validate(state, data: bytes) -> Callable:
         """
 
-        :param protocol:
-        :type protocol: Socks5Protocol
+        :param state:
+        :type state:
         :param data:
         :type data: bytes
         :return:
@@ -56,7 +54,7 @@ def validate_version(func: Callable, version=VERSION) -> Callable:
         ver: int = data[0]
         if ver != version:
             raise ProtocolVersionNotSupportedException
-        return func(protocol, data)
+        return func(state, data)
 
     return validate
 
@@ -96,6 +94,219 @@ def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
     return ver, cmd, rsv, atyp, dst_addr, dst_port
 
 
+class Socks5State(LoggerMixin):
+    """
+    Base state for Socks5 protocol
+    """
+
+    def __init__(self, protocol: Socks5Protocol):
+        """
+
+        :param protocol:
+        :type protocol: Socks5Protocol
+        """
+        self.protocol = protocol
+
+    def _switch(self, state: str) -> None:
+        """
+
+        :param state:
+        :type state: str
+        :return:
+        :rtype: None
+        """
+        self.protocol.state = self.protocol.states[state]
+
+    def data_received(self, data: bytes) -> None:
+        """
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
+        raise NotImplementedError
+
+
+class Socks5StateInit(Socks5State):
+    def switch(self):
+        super(Socks5StateInit, self)._switch("AUTH")
+
+    @validate_version
+    def data_received(self, data: bytes):
+        """
+        A version identifier/method selection message:
+
+        +----+----------+----------+
+        |VER | NMETHODS | METHODS  |
+        +----+----------+----------+
+        | 1  |    1     | 1 to 255 |
+        +----+----------+----------+
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
+        self.logger.debug(
+            "[INIT] [%s:%s] received: %s", *self.protocol.info_peername, repr(data),
+        )
+
+        ver, nmethods = data[:2]  # pylint: disable=unused-variable
+        methods = list(data[2 : 2 + nmethods])
+
+        available_auth_methods = sorted(
+            set(self.protocol.config["AUTH_METHODS"]).intersection(set(methods)),
+            key=lambda x: list(self.protocol.config["AUTH_METHODS"]).index(x),
+        )
+
+        try:
+            auth_method = available_auth_methods[0]
+        except IndexError:
+            self.logger.debug(
+                "No acceptable methods found. The following methods are supported:\n%s",
+                pprint.pformat(self.protocol.config["AUTH_METHODS"]),
+            )
+            self.protocol.transport.write(
+                pack("!BB", VERSION, 0xFF)
+            )  # NO ACCEPTABLE METHODS
+            self.protocol.transport.close()
+        else:
+            self.protocol.transport.write(pack("!BB", VERSION, auth_method))
+            self.protocol.cls_auth_method = load_object(
+                self.protocol.config["AUTH_METHODS"][auth_method]
+            )
+
+
+class Socks5StateAuth(Socks5State):
+    def switch(self):
+        super(Socks5StateAuth, self)._switch("HOST")
+
+    def data_received(self, data: bytes):
+        """
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
+        self.logger.debug(
+            "[AUTH] [%s:%s] received: %s", *self.protocol.info_peername, repr(data),
+        )
+        # self.stats.increase(f"Authentication/{self.name}")
+        auth_method = self.protocol.cls_auth_method.from_protocol(self.protocol)
+        auth_method.auth(data)
+
+
+class Socks5StateHost(Socks5State):
+    supported_cmd = (
+        0x01,  # connect
+        # 0x02,  # TODO: bind
+        # 0x03,  # TODO: udp associate
+    )
+
+    def switch(self):
+        super(Socks5StateHost, self)._switch("DATA")
+
+    async def _connect(self, hostname: bytes, port: int, atyp: int) -> None:
+        """
+
+        :param hostname:
+        :type hostname: bytes
+        :param port:
+        :type port: int
+        :param atyp:
+        :type atyp: int
+        :return:
+        :rtype: None
+        """
+        cls_client = load_object(self.protocol.config["CLIENT_PROTOCOL"])
+
+        loop = get_event_loop()
+
+        try:
+            client_transport, client_protocol = await loop.create_connection(
+                lambda: cls_client.from_channel(self.protocol.channel, role="client"),
+                hostname,
+                port,
+            )
+        except OSError as exc:
+            if exc.args == (101, "Network is unreachable"):
+                self.logger.error("The target is unreachable: %s:%s", hostname, port)
+                # self.stats.increase(f"Error/{self.name}/{exc.strerror}")
+                self.protocol.transport.write(
+                    pack(
+                        "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
+                    )  # Network unreachable
+                )
+                self.protocol.transport.close()
+            else:
+                self.logger.exception(exc)
+        else:
+            client_protocol.server_transport = self.protocol.transport
+            self.protocol.client_transport = client_transport
+
+            bnd_addr_: str
+            bnd_port: int
+            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
+
+            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
+
+            self.protocol.transport.write(
+                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
+            )
+
+    @validate_version
+    def data_received(self, data: bytes):
+        """
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
+        (
+            ver,  # pylint: disable=unused-variable
+            cmd,
+            rsv,  # pylint: disable=unused-variable
+            atyp,
+            dst_addr,
+            dst_port,
+        ) = parse_host_data(data)
+        if cmd not in self.supported_cmd:
+            raise Socks5CMDNotSupportedException
+
+        self.logger.debug(
+            "[HOST] [%s:%s] [%s:%s] received: %s",
+            *self.protocol.info_peername,
+            to_str(dst_addr),
+            dst_port,
+            repr(data),
+        )
+        loop = get_event_loop()
+        loop.create_task(self._connect(dst_addr, dst_port, atyp))
+
+
+class Socks5StateData(Socks5State):
+    def switch(self):
+        super(Socks5StateData, self)._switch("DATA")
+
+    def data_received(self, data: bytes):
+        """
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: None
+        """
+        self.logger.debug(
+            "[DATA] [%s:%s] received: %s bytes",
+            *self.protocol.info_peername,
+            len(data),
+        )
+        self.protocol.client_transport.write(data)
+
+
 class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     """
     A socks5 proxy server side
@@ -105,18 +316,24 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
     role = "interface"
     setting_prefix = "PROTOCOL_SOCKS5_"
 
-    supported_cmd = (
-        0x01,  # connect
-        # 0x02,  # TODO: bind
-        # 0x03,  # TODO: udp associate
-    )
-
-    state = INIT
-
     def __init__(
         self, channel, name: str = None, role: str = None, setting_prefix: str = None
     ):
         super(Socks5Protocol, self).__init__(channel, name, role, setting_prefix)
+
+        self.init = Socks5StateInit(self)
+        self.auth = Socks5StateAuth(self)
+        self.host = Socks5StateHost(self)
+        self.data = Socks5StateData(self)
+
+        self.states = {
+            "INIT": self.init,
+            "AUTH": self.auth,
+            "HOST": self.host,
+            "DATA": self.data,
+        }
+
+        self.state = self.init
 
         self.cls_auth_method = None
 
@@ -133,14 +350,6 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        if not self.config["INTERFACE_SSL_CERT_FILE"]:
-            self.logger.debug("[CONN] [%s:%s] connected", *self.info_peername)
-        else:
-            self.logger.debug(
-                "[CONN] [%s:%s] connected with name [%s], version [%s], secret bits [%s]",
-                *self.info_peername,
-                *transport.get_extra_info("cipher"),
-            )
 
     @middlewares
     def connection_lost(self, exc: Optional[Exception]) -> None:
@@ -172,14 +381,12 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        if self.state == INIT:
-            self._process_request_init(data)
-        elif self.state == AUTH:
-            self._process_request_auth(data)
-        elif self.state == HOST:
-            self._process_request_host(data)
-        elif self.state == DATA:
-            self._process_request_data(data)
+        try:
+            self.state.data_received(data)
+        except Exception as exc:
+            self.logger.exception(exc)
+        else:
+            self.state.switch()
 
     @cached_property
     def info_peername(self) -> Tuple[str, int]:
@@ -189,153 +396,3 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :rtype: Tuple[str, int]
         """
         return self.transport.get_extra_info("peername")[:2]
-
-    @validate_version
-    def _process_request_init(self, data: bytes) -> None:
-        """
-        A version identifier/method selection message:
-
-        +----+----------+----------+
-        |VER | NMETHODS | METHODS  |
-        +----+----------+----------+
-        | 1  |    1     | 1 to 255 |
-        +----+----------+----------+
-
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.logger.debug(
-            "[INIT] [%s:%s] received: %s", *self.info_peername, repr(data),
-        )
-
-        ver, nmethods = data[:2]  # pylint: disable=unused-variable
-        methods = list(data[2 : 2 + nmethods])
-
-        available_auth_methods = sorted(
-            set(self.config["AUTH_METHODS"]).intersection(set(methods)),
-            key=lambda x: list(self.config["AUTH_METHODS"]).index(x),
-        )
-
-        try:
-            auth_method = available_auth_methods[0]
-        except IndexError:
-            self.logger.debug(
-                "No acceptable methods found. The following methods are supported:\n%s",
-                pprint.pformat(self.config["AUTH_METHODS"]),
-            )
-            self.transport.write(pack("!BB", VERSION, 0xFF))  # NO ACCEPTABLE METHODS
-            self.transport.close()
-        else:
-            self.transport.write(pack("!BB", VERSION, auth_method))
-            self.cls_auth_method = load_object(self.config["AUTH_METHODS"][auth_method])
-            self.state = self.cls_auth_method.transit_to
-
-    def _process_request_auth(self, data: bytes) -> None:
-        """
-
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.logger.debug(
-            "[AUTH] [%s:%s] received: %s", *self.info_peername, repr(data),
-        )
-        self.stats.increase(f"Authentication/{self.name}")
-        auth_method = self.cls_auth_method.from_protocol(self)
-        auth_method.auth(data)
-
-    async def _connect(self, hostname: bytes, port: int, atyp: int) -> None:
-        """
-
-        :param hostname:
-        :type hostname: bytes
-        :param port:
-        :type port: int
-        :param atyp:
-        :type atyp: int
-        :return:
-        :rtype: None
-        """
-        cls_client = load_object(self.config["CLIENT_PROTOCOL"])
-
-        loop = get_event_loop()
-
-        try:
-            client_transport, client_protocol = await loop.create_connection(
-                lambda: cls_client.from_channel(self.channel, role="client"),
-                hostname,
-                port,
-            )
-        except OSError as exc:
-            if exc.args == (101, "Network is unreachable"):
-                self.logger.error("The target is unreachable: %s:%s", hostname, port)
-                self.stats.increase(f"Error/{self.name}/{exc.strerror}")
-                self.transport.write(
-                    pack(
-                        "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
-                    )  # Network unreachable
-                )
-                self.transport.close()
-            else:
-                self.logger.exception(exc)
-        else:
-            client_protocol.server_transport = self.transport
-            self.client_transport = client_transport
-
-            bnd_addr_: str
-            bnd_port: int
-            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
-
-            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
-
-            self.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
-            )
-
-    @validate_version
-    def _process_request_host(self, data: bytes) -> None:
-        """
-
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-
-        (
-            ver,  # pylint: disable=unused-variable
-            cmd,
-            rsv,  # pylint: disable=unused-variable
-            atyp,
-            dst_addr,
-            dst_port,
-        ) = parse_host_data(data)
-        if cmd not in self.supported_cmd:
-            raise Socks5CMDNotSupportedException
-
-        self.logger.debug(
-            "[HOST] [%s:%s] [%s:%s] received: %s",
-            *self.info_peername,
-            to_str(dst_addr),
-            dst_port,
-            repr(data),
-        )
-        loop = get_event_loop()
-        loop.create_task(self._connect(dst_addr, dst_port, atyp))
-        self.state = DATA
-
-    def _process_request_data(self, data: bytes) -> None:
-        """
-
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: None
-        """
-        self.logger.debug(
-            "[DATA] [%s:%s] received: %s bytes", *self.info_peername, len(data),
-        )
-        self.client_transport.write(data)
