@@ -38,6 +38,33 @@ def middlewares(func: Callable) -> Callable:
             protocol.stats.increase(
                 f"connections/{protocol.channel.name}/{protocol.name}"
             )
+            if protocol.role == "interface":
+                if protocol.config["INTERFACE_SSL_CERT_FILE"]:
+                    protocol.logger.debug(
+                        "[CONN] [%s:%s] connected with name [%s], "
+                        "version [%s], "
+                        "secret bits [%s]",
+                        *protocol.info_peername,
+                        *transport.get_extra_info("cipher"),
+                    )
+                else:
+                    protocol.logger.debug(
+                        "[CONN] [%s:%s] connected", *protocol.info_peername
+                    )
+            elif protocol.role == "client":
+                if cipher := transport.get_extra_info("cipher"):
+                    protocol.logger.debug(
+                        "[CONN] [%s:%s] connected with name [%s], "
+                        "version [%s], "
+                        "secret bits [%s]",
+                        *transport.get_extra_info("peername")[:2],
+                        *cipher,
+                    )
+                else:
+                    protocol.logger.debug(
+                        "[CONN] [%s:%s] connected",
+                        *transport.get_extra_info("peername")[:2],
+                    )
         elif func.__name__ == "connection_lost":
             protocol.signal_manager.send(connection_lost)
         elif func.__name__ == "pause_writing":
