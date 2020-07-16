@@ -21,6 +21,8 @@ from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.exceptions.protocol import (
     ProtocolVersionNotSupportedException,
     Socks5CMDNotSupportedException,
+    Socks5NetworkUnreachableException,
+    Socks5NoAcceptableMethodsException,
     TransportNotDefinedException,
 )
 from bifrost.middlewares import middlewares
@@ -170,7 +172,7 @@ class Socks5StateInit(Socks5State):
             self.protocol.transport.write(
                 pack("!BB", VERSION, 0xFF)
             )  # NO ACCEPTABLE METHODS
-            self.protocol.transport.close()
+            raise Socks5NoAcceptableMethodsException
         else:
             self.protocol.transport.write(pack("!BB", VERSION, auth_method))
             self.protocol.cls_auth_method = load_object(
@@ -239,7 +241,7 @@ class Socks5StateHost(Socks5State):
                         "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
                     )  # Network unreachable
                 )
-                self.protocol.transport.close()
+                raise Socks5NetworkUnreachableException
             else:
                 self.logger.exception(exc)
         else:
@@ -383,8 +385,12 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         """
         try:
             self.state.data_received(data)
-        except Exception as exc:
-            self.logger.exception(exc)
+        except (
+            ProtocolVersionNotSupportedException,
+            Socks5NoAcceptableMethodsException,
+            Socks5NetworkUnreachableException,
+        ):
+            self.transport.close()
         else:
             self.state.switch()
 
