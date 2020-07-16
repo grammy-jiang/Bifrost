@@ -26,16 +26,6 @@ class Client(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
-        if cipher := transport.get_extra_info("cipher"):
-            self.logger.debug(
-                "[CONN] [%s:%s] connected with name [%s], version [%s], secret bits [%s]",
-                *transport.get_extra_info("peername")[:2],
-                *cipher,
-            )
-        else:
-            self.logger.debug(
-                "[CONN] [%s:%s] connected", *transport.get_extra_info("peername")[:2]
-            )
 
     @middlewares
     def data_received(self, data: bytes) -> None:
