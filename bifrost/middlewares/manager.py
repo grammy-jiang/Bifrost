@@ -23,6 +23,77 @@ def middlewares(func: Callable) -> Callable:
     :return:
     """
 
+    def _connection_made(protocol, *args, **kwargs):
+        protocol.signal_manager.send(connection_made)
+        transport = args[0]
+        protocol.transport = transport
+        protocol.stats.increase(f"connections/{protocol.channel.name}/{protocol.name}")
+        if protocol.role == "interface":
+            if protocol.config["INTERFACE_SSL_CERT_FILE"]:
+                protocol.logger.debug(
+                    "[CONN] [%s:%s] connected with name [%s], "
+                    "version [%s], "
+                    "secret bits [%s]",
+                    *protocol.info_peername,
+                    *transport.get_extra_info("cipher"),
+                )
+            else:
+                protocol.logger.debug(
+                    "[CONN] [%s:%s] connected", *protocol.info_peername
+                )
+        elif protocol.role == "client":
+            if cipher := transport.get_extra_info("cipher"):
+                protocol.logger.debug(
+                    "[CONN] [%s:%s] connected with name [%s], "
+                    "version [%s], "
+                    "secret bits [%s]",
+                    *transport.get_extra_info("peername")[:2],
+                    *cipher,
+                )
+            else:
+                protocol.logger.debug(
+                    "[CONN] [%s:%s] connected",
+                    *transport.get_extra_info("peername")[:2],
+                )
+        return protocol, args, kwargs
+
+    def _connection_lost(protocol, *args, **kwargs):
+        protocol.signal_manager.send(connection_lost)
+        return protocol, args, kwargs
+
+    def _pause_writing(protocol, *args, **kwargs):
+        protocol.signal_manager.send(pause_writing)
+        return protocol, args, kwargs
+
+    def _resume_writing(protocol, *args, **kwargs):
+        protocol.signal_manager.send(resume_writing)
+        return protocol, args, kwargs
+
+    def _data_received(protocol, *args, **kwargs):
+        data = args[0]
+        if protocol.role == "interface":
+            protocol.signal_manager.send(data_sent)
+            protocol.stats.increase("data/sent", len(data))
+            protocol.stats.increase(f"data/{protocol.channel.name}/sent", len(data))
+        elif protocol.role == "client":
+            protocol.signal_manager.send(data_received)
+            protocol.stats.increase("data/received", len(data))
+            protocol.stats.increase(f"data/{protocol.channel.name}/received", len(data))
+        return protocol, args, kwargs
+
+    def _eof_received(protocol, *args, **kwargs):
+        protocol.signal_manager.send(eof_received)
+        return protocol, args, kwargs
+
+    process = {
+        "connection_made": _connection_made,
+        "connection_lost": _connection_lost,
+        "pause_writing": _pause_writing,
+        "resume_writing": _resume_writing,
+        "data_received": _data_received,
+        "eof_received": _eof_received,
+    }
+
     def process_middlewares(protocol, *args, **kwargs):
         """
 
@@ -31,61 +102,7 @@ def middlewares(func: Callable) -> Callable:
         :param kwargs:
         :return:
         """
-        if func.__name__ == "connection_made":
-            protocol.signal_manager.send(connection_made)
-            transport = args[0]
-            protocol.transport = transport
-            protocol.stats.increase(
-                f"connections/{protocol.channel.name}/{protocol.name}"
-            )
-            if protocol.role == "interface":
-                if protocol.config["INTERFACE_SSL_CERT_FILE"]:
-                    protocol.logger.debug(
-                        "[CONN] [%s:%s] connected with name [%s], "
-                        "version [%s], "
-                        "secret bits [%s]",
-                        *protocol.info_peername,
-                        *transport.get_extra_info("cipher"),
-                    )
-                else:
-                    protocol.logger.debug(
-                        "[CONN] [%s:%s] connected", *protocol.info_peername
-                    )
-            elif protocol.role == "client":
-                if cipher := transport.get_extra_info("cipher"):
-                    protocol.logger.debug(
-                        "[CONN] [%s:%s] connected with name [%s], "
-                        "version [%s], "
-                        "secret bits [%s]",
-                        *transport.get_extra_info("peername")[:2],
-                        *cipher,
-                    )
-                else:
-                    protocol.logger.debug(
-                        "[CONN] [%s:%s] connected",
-                        *transport.get_extra_info("peername")[:2],
-                    )
-        elif func.__name__ == "connection_lost":
-            protocol.signal_manager.send(connection_lost)
-        elif func.__name__ == "pause_writing":
-            protocol.signal_manager.send(pause_writing)
-        elif func.__name__ == "resume_writing":
-            protocol.signal_manager.send(resume_writing)
-        elif func.__name__ == "data_received":
-            data = args[0]
-            if protocol.role == "interface":
-                protocol.signal_manager.send(data_sent)
-                protocol.stats.increase("data/sent", len(data))
-                protocol.stats.increase(f"data/{protocol.channel.name}/sent", len(data))
-            elif protocol.role == "client":
-                protocol.signal_manager.send(data_received)
-                protocol.stats.increase("data/received", len(data))
-                protocol.stats.increase(
-                    f"data/{protocol.channel.name}/received", len(data)
-                )
-        elif func.__name__ == "eof_received":
-            protocol.signal_manager.send(eof_received)
-
+        protocol, args, kwargs = process[func.__name__](protocol, *args, **kwargs)
         return func(protocol, *args, **kwargs)
 
     return process_middlewares
