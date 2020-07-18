@@ -199,53 +199,6 @@ class Socks5StateHost(Socks5State):
         """
         super(Socks5StateHost, self)._switch("DATA")
 
-    async def _connect(self, hostname: bytes, port: int, atyp: int) -> None:
-        """
-
-        :param hostname:
-        :type hostname: bytes
-        :param port:
-        :type port: int
-        :param atyp:
-        :type atyp: int
-        :return:
-        :rtype: None
-        """
-        cls_client = load_object(self.protocol.config["CLIENT_PROTOCOL"])
-
-        loop = get_event_loop()
-
-        try:
-            client_transport, client_protocol = await loop.create_connection(
-                lambda: cls_client.from_channel(self.protocol.channel, role="client"),
-                hostname,
-                port,
-            )
-        except OSError as exc:
-            if exc.args == (101, "Network is unreachable"):
-                self.logger.error("The target is unreachable: %s:%s", hostname, port)
-                # self.stats.increase(f"Error/{self.name}/{exc.strerror}")
-                self.protocol.transport.write(
-                    pack(
-                        "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
-                    )  # Network unreachable
-                )
-                raise Socks5NetworkUnreachableException
-            self.logger.exception(exc)
-        else:
-            client_protocol.server_transport = self.protocol.transport
-            self.protocol.client_transport = client_transport
-
-            bnd_addr_: str
-            bnd_port: int
-            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
-
-            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
-
-            self.protocol.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
-            )
-
     @staticmethod
     def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
         """
@@ -308,8 +261,44 @@ class Socks5StateHost(Socks5State):
             dst_port,
             repr(data),
         )
-        loop = get_event_loop()
-        loop.create_task(self._connect(dst_addr, dst_port, atyp))
+
+        cls_client = load_object(self.protocol.config["CLIENT_PROTOCOL"])
+
+        try:
+            (
+                client_transport,
+                client_protocol,
+            ) = await self.protocol.loop.create_connection(
+                lambda: cls_client.from_channel(self.protocol.channel, role="client"),
+                dst_addr,
+                dst_port,
+            )
+        except OSError as exc:
+            if exc.args == (101, "Network is unreachable"):
+                self.logger.error(
+                    "The target is unreachable: %s:%s", dst_addr, dst_port,
+                )
+                # self.stats.increase(f"Error/{self.name}/{exc.strerror}")
+                self.protocol.transport.write(
+                    pack(
+                        "!BBBBIH", VERSION, 0x03, 0x00, atyp, 0xFF, 0xFF
+                    )  # Network unreachable
+                )
+                raise Socks5NetworkUnreachableException
+            self.logger.exception(exc)
+        else:
+            client_protocol.server_transport = self.protocol.transport
+            self.protocol.client_transport = client_transport
+
+            bnd_addr_: str
+            bnd_port: int
+            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
+
+            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
+
+            self.protocol.transport.write(
+                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
+            )
 
 
 class Socks5StateData(Socks5State):
