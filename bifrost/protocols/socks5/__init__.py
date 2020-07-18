@@ -96,7 +96,15 @@ class Socks5State(LoggerMixin):
 
 
 class Socks5StateInit(Socks5State):
+    """
+    INIT state
+    """
+
     def switch(self):
+        """
+        Switch to Auth state
+        :return:
+        """
         super(Socks5StateInit, self)._switch("AUTH")
 
     @validate_version
@@ -146,7 +154,15 @@ class Socks5StateInit(Socks5State):
 
 
 class Socks5StateAuth(Socks5State):
+    """
+    AUTH state
+    """
+
     def switch(self):
+        """
+        Switch to HOST state
+        :return:
+        """
         super(Socks5StateAuth, self)._switch("HOST")
 
     def data_received(self, data: bytes):
@@ -166,6 +182,10 @@ class Socks5StateAuth(Socks5State):
 
 
 class Socks5StateHost(Socks5State):
+    """
+    HOST State
+    """
+
     supported_cmd = (
         0x01,  # connect
         # 0x02,  # TODO: bind
@@ -173,6 +193,10 @@ class Socks5StateHost(Socks5State):
     )
 
     def switch(self):
+        """
+        Switch to DATA state
+        :return:
+        """
         super(Socks5StateHost, self)._switch("DATA")
 
     async def _connect(self, hostname: bytes, port: int, atyp: int) -> None:
@@ -290,7 +314,15 @@ class Socks5StateHost(Socks5State):
 
 
 class Socks5StateData(Socks5State):
+    """
+    DATA state
+    """
+
     def switch(self):
+        """
+        Switch to DATA state
+        :return:
+        """
         super(Socks5StateData, self)._switch("DATA")
 
     def data_received(self, data: bytes):
