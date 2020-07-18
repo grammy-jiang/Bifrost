@@ -231,8 +231,7 @@ class Socks5StateHost(Socks5State):
                     )  # Network unreachable
                 )
                 raise Socks5NetworkUnreachableException
-            else:
-                self.logger.exception(exc)
+            self.logger.exception(exc)
         else:
             client_protocol.server_transport = self.protocol.transport
             self.protocol.client_transport = client_transport
