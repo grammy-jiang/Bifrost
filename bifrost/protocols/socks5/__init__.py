@@ -61,41 +61,6 @@ def validate_version(func: Callable, version=VERSION) -> Callable:
     return validate
 
 
-def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
-    """
-    SOCKS request
-
-    +----+-----+-------+------+----------+----------+
-    |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
-    +----+-----+-------+------+----------+----------+
-    | 1  |  1  | X'00' |  1   | Variable |    2     |
-    +----+-----+-------+------+----------+----------+
-
-    :param data:
-    :type data: bytes
-    :return:
-    :rtype: Tuple[int, int, int, int, bytes, int]
-    """
-    ver: int = data[0]
-    cmd: int = data[1]
-    rsv: int = data[2]
-    atyp: int = data[3]
-
-    dst_addr: bytes
-    nxt: int
-    if atyp == 1:  # ipv4
-        dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
-    elif atyp == 3:  # domain
-        length = data[4]
-        dst_addr, nxt = data[5 : 5 + length], 5 + length
-    elif atyp == 4:  # ipv6
-        dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
-
-    dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
-
-    return ver, cmd, rsv, atyp, dst_addr, dst_port
-
-
 class Socks5State(LoggerMixin):
     """
     Base state for Socks5 protocol
@@ -258,6 +223,41 @@ class Socks5StateHost(Socks5State):
                 pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
             )
 
+    @staticmethod
+    def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
+        """
+        SOCKS request
+
+        +----+-----+-------+------+----------+----------+
+        |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+        +----+-----+-------+------+----------+----------+
+        | 1  |  1  | X'00' |  1   | Variable |    2     |
+        +----+-----+-------+------+----------+----------+
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: Tuple[int, int, int, int, bytes, int]
+        """
+        ver: int = data[0]
+        cmd: int = data[1]
+        rsv: int = data[2]
+        atyp: int = data[3]
+
+        dst_addr: bytes
+        nxt: int
+        if atyp == 1:  # ipv4
+            dst_addr, nxt = socket.inet_ntop(socket.AF_INET, data[4:8]), 8
+        elif atyp == 3:  # domain
+            length = data[4]
+            dst_addr, nxt = data[5 : 5 + length], 5 + length
+        elif atyp == 4:  # ipv6
+            dst_addr, nxt = socket.inet_ntop(socket.AF_INET6, data[4:20]), 20
+
+        dst_port: int = unpack("!H", data[nxt : nxt + 2])[0]
+
+        return ver, cmd, rsv, atyp, dst_addr, dst_port
+
     @validate_version
     def data_received(self, data: bytes):
         """
@@ -274,7 +274,7 @@ class Socks5StateHost(Socks5State):
             atyp,
             dst_addr,
             dst_port,
-        ) = parse_host_data(data)
+        ) = self.parse_host_data(data)
         if cmd not in self.supported_cmd:
             raise Socks5CMDNotSupportedException
 
