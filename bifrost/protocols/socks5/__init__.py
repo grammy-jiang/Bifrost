@@ -84,7 +84,7 @@ class Socks5State(LoggerMixin):
         """
         self.protocol.state = self.protocol.states[state]
 
-    def data_received(self, data: bytes) -> None:
+    async def data_received(self, data: bytes) -> None:
         """
 
         :param data:
@@ -108,7 +108,7 @@ class Socks5StateInit(Socks5State):
         super(Socks5StateInit, self)._switch("AUTH")
 
     @validate_version
-    def data_received(self, data: bytes):
+    async def data_received(self, data: bytes):
         """
         A version identifier/method selection message:
 
@@ -165,7 +165,7 @@ class Socks5StateAuth(Socks5State):
         """
         super(Socks5StateAuth, self)._switch("HOST")
 
-    def data_received(self, data: bytes):
+    async def data_received(self, data: bytes):
         """
 
         :param data:
@@ -282,7 +282,7 @@ class Socks5StateHost(Socks5State):
         return ver, cmd, rsv, atyp, dst_addr, dst_port
 
     @validate_version
-    def data_received(self, data: bytes):
+    async def data_received(self, data: bytes):
         """
 
         :param data:
@@ -324,7 +324,7 @@ class Socks5StateData(Socks5State):
         """
         super(Socks5StateData, self)._switch("DATA")
 
-    def data_received(self, data: bytes):
+    async def data_received(self, data: bytes):
         """
 
         :param data:
@@ -353,6 +353,8 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         self, channel, name: str = None, role: str = None, setting_prefix: str = None
     ):
         super(Socks5Protocol, self).__init__(channel, name, role, setting_prefix)
+
+        self.loop = get_event_loop()
 
         self.init = Socks5StateInit(self)
         self.auth = Socks5StateAuth(self)
@@ -414,8 +416,11 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
         :return:
         :rtype: None
         """
+        self.loop.create_task(self._data_received(data))
+
+    async def _data_received(self, data: bytes) -> None:
         try:
-            self.state.data_received(data)
+            await self.state.data_received(data)
         except (
             ProtocolVersionNotSupportedException,
             Socks5NoAcceptableMethodsException,
