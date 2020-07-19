@@ -108,15 +108,6 @@ class ProtocolMixin:
         return self.channel.signal_manager
 
     @property
-    def stats(self):
-        """
-
-        :return:
-        :rtype:
-        """
-        return self.channel.stats
-
-    @property
     def transport(self) -> Transport:
         """
 
