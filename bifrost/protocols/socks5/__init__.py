@@ -9,13 +9,14 @@ https://datatracker.ietf.org/doc/rfc3089/
 """
 from __future__ import annotations
 
+import asyncio
 import pprint
 import socket
 from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from functools import cached_property
 from struct import pack, unpack
-from typing import Callable, Optional, Tuple
+from typing import Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin
 from bifrost.exceptions.protocol import (
@@ -29,36 +30,6 @@ from bifrost.middlewares import middlewares
 from bifrost.utils.misc import load_object, to_str
 
 VERSION = 0x05  # Socks version
-
-
-def validate_version(func: Callable, version=VERSION) -> Callable:
-    """
-    A decorator to validate socks version
-
-    :param func:
-    :type func: Callable
-    :param version:
-    :type version: int
-    :return:
-    :rtype: Callable
-    """
-
-    def validate(state, data: bytes) -> Callable:
-        """
-
-        :param state:
-        :type state:
-        :param data:
-        :type data: bytes
-        :return:
-        :rtype: Callable
-        """
-        ver: int = data[0]
-        if ver != version:
-            raise ProtocolVersionNotSupportedException
-        return func(state, data)
-
-    return validate
 
 
 class Socks5State(LoggerMixin):
@@ -94,6 +65,18 @@ class Socks5State(LoggerMixin):
         """
         raise NotImplementedError
 
+    @staticmethod
+    def validate(data: bytes) -> bool:
+        """
+
+        :param data:
+        :type data: bytes
+        :return:
+        :rtype: bool
+        """
+        ver: int = data[0]
+        return ver == VERSION
+
 
 class Socks5StateInit(Socks5State):
     """
@@ -107,7 +90,6 @@ class Socks5StateInit(Socks5State):
         """
         super(Socks5StateInit, self)._switch("AUTH")
 
-    @validate_version
     async def data_received(self, data: bytes):
         """
         A version identifier/method selection message:
@@ -123,6 +105,9 @@ class Socks5StateInit(Socks5State):
         :return:
         :rtype: None
         """
+        if not self.validate(data):
+            raise ProtocolVersionNotSupportedException
+
         self.logger.debug(
             "[INIT] [%s:%s] received: %s", *self.protocol.info_peername, repr(data),
         )
@@ -234,7 +219,6 @@ class Socks5StateHost(Socks5State):
 
         return ver, cmd, rsv, atyp, dst_addr, dst_port
 
-    @validate_version
     async def data_received(self, data: bytes):
         """
 
@@ -243,6 +227,9 @@ class Socks5StateHost(Socks5State):
         :return:
         :rtype: None
         """
+        if not self.validate(data):
+            raise ProtocolVersionNotSupportedException
+
         (
             ver,  # pylint: disable=unused-variable
             cmd,
