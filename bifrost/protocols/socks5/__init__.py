@@ -395,16 +395,19 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
         self.loop.create_task(self._data_received(data))
 
     async def _data_received(self, data: bytes) -> None:
-        try:
-            await self.state.data_received(data)
-        except (
-            ProtocolVersionNotSupportedException,
-            Socks5NoAcceptableMethodsException,
-            Socks5NetworkUnreachableException,
+        (result,) = await asyncio.gather(
+            self.state.data_received(data), return_exceptions=True
+        )
+        if result is None:
+            self.state.switch()
+        elif isinstance(
+            result,
+            (Socks5NetworkUnreachableException, ProtocolVersionNotSupportedException),
         ):
             self.transport.close()
-        else:
-            self.state.switch()
+        elif isinstance(result, Exception):
+            self.logger.exception(result)
+            self.transport.close()
 
     @cached_property
     def info_peername(self) -> Tuple[str, int]:
