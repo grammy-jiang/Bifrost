@@ -4,11 +4,11 @@ Simple Client protocol
 from asyncio.protocols import Protocol
 from typing import Optional
 
-from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
 from bifrost.middlewares import middlewares
 
 
-class Client(ProtocolMixin, Protocol, LoggerMixin):
+class Client(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
     """
     The simple client of proxy
     """
