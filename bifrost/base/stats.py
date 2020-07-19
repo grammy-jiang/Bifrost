@@ -1,6 +1,7 @@
 """
 Stats Mixin
 """
+from functools import cached_property
 
 
 class StatsMixin:  # pylint: disable=too-few-public-methods
@@ -8,11 +9,12 @@ class StatsMixin:  # pylint: disable=too-few-public-methods
     Stats Mixin
     """
 
-    @property
+    @cached_property
     def stats(self):
         """
 
         :return:
         :rtype:
         """
-        return self.service.stats
+        if service := getattr(self, "service"):
+            return service.stats
