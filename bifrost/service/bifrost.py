@@ -10,7 +10,7 @@ from datetime import datetime
 from signal import SIGHUP, SIGINT, SIGQUIT, SIGTERM
 from typing import TYPE_CHECKING, Any, Dict
 
-from bifrost.base import LoggerMixin, SingletonMeta
+from bifrost.base import LoggerMixin, SingletonMeta, StatsMixin
 from bifrost.signals import service_started, service_stopped
 from bifrost.utils.log import get_runtime_info
 from bifrost.utils.loop import get_event_loop
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from bifrost.signals import SignalManager
 
 
-class Bifrost(LoggerMixin, metaclass=SingletonMeta):
+class Bifrost(LoggerMixin, StatsMixin, metaclass=SingletonMeta):
     """
     The abstract class of Service
     """
@@ -59,8 +59,6 @@ class Bifrost(LoggerMixin, metaclass=SingletonMeta):
         self.extension_manager: ExtensionManager = load_object(
             settings["CLS_EXTENSION_MANAGER"]
         ).from_service(self)
-
-        self.stats = self.extension_manager.get_extension(name="Stats")
 
         self.middleware_manager: MiddlewareManager = load_object(
             settings["CLS_MIDDLEWARE_MANAGER"]
