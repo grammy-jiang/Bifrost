@@ -16,5 +16,7 @@ class StatsMixin:  # pylint: disable=too-few-public-methods
         :return:
         :rtype:
         """
-        if service := getattr(self, "service"):
-            return service.stats
+        if hasattr(self, "service"):
+            return self.service.stats
+        elif hasattr(self, "extension_manager"):
+            return self.extension_manager.get_extension(name="Stats")
