@@ -2,17 +2,37 @@
 
 An Asynchronous Proxy to Bypass GFW
 
-## TODO:
-
-* Fulfill GraphQL in Web extension
-* Fulfill gRPC in RPC extension
+## TODO
 
 ## THANKS
 
+### ARTICLES
 * [A working SOCKS5 server based on asyncio (TCP Connect only)](https://gist.github.com/tcalmant/770511b420c1139fe1cc88c2685f2903)
-* [lenzenmi/asyncio_dispatch: Event signalling for python and asyncio](https://github.com/lenzenmi/asyncio_dispatch)
 * [Opportunistic TLS with python asyncio | Povilas Blog](http://blog.povilasb.com/posts/opportunistic-tls-with-python-asyncio/)
+* [asyncio: We Did It Wrong – roguelynn](https://www.roguelynn.com/words/asyncio-we-did-it-wrong/)
+  * [Initial Setup with asyncio – roguelynn](https://www.roguelynn.com/words/asyncio-initial-setup/)
+  * [True Concurrency with asyncio – roguelynn](https://www.roguelynn.com/words/asyncio-true-concurrency/)
+  * [Graceful Shutdowns with asyncio – roguelynn](https://www.roguelynn.com/words/asyncio-graceful-shutdowns/)
+  * [Exception Handling in asyncio – roguelynn](https://www.roguelynn.com/words/asyncio-exception-handling/)
+  * [Synchronous & threaded code in asyncio – roguelynn](https://www.roguelynn.com/words/asyncio-sync-and-threaded/)
+  * [Testing asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-testing/)
+  * [Debugging asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-debugging/)
+  * [Profiling asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-profiling/)
+
+### TOOLS
+
+* [lenzenmi/asyncio_dispatch: Event signalling for python and asyncio](https://github.com/lenzenmi/asyncio_dispatch)
 * [Mailtrap.io — Fake smtp testing server. Dummy smtp email testing](https://mailtrap.io/)
+
+## OTHER TOOLS
+
+* [Dante - A free SOCKS server](https://www.inet.no/dante/index.html)
+* [Privoxy - Home Page](https://www.privoxy.org/)
+* [Tor Project | Anonymity Online](https://www.torproject.org/)
+
+## ARTICLES
+
+* [Use DNS over TLS - Fedora Magazine](https://fedoramagazine.org/use-dns-over-tls/)
 
 ## REFERENCE
 
@@ -32,13 +52,3 @@ An Asynchronous Proxy to Bypass GFW
 #### SOCKS6
 
 * [draft-olteanu-intarea-socks-6-09 - SOCKS Protocol Version 6](https://datatracker.ietf.org/doc/draft-olteanu-intarea-socks-6/)
-
-## OTHER TOOLS
-
-* [Dante - A free SOCKS server](https://www.inet.no/dante/index.html)
-* [Privoxy - Home Page](https://www.privoxy.org/)
-* [Tor Project | Anonymity Online](https://www.torproject.org/)
-
-## ARTICLES
-
-* [Use DNS over TLS - Fedora Magazine](https://fedoramagazine.org/use-dns-over-tls/)
