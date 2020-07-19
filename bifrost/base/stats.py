@@ -18,5 +18,7 @@ class StatsMixin:  # pylint: disable=too-few-public-methods
         """
         if hasattr(self, "service"):
             return self.service.stats
+        elif hasattr(self, "channel"):
+            return self.channel.stats
         elif hasattr(self, "extension_manager"):
             return self.extension_manager.get_extension(name="Stats")
