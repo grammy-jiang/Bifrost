@@ -11,11 +11,11 @@ from asyncio.protocols import Protocol
 from asyncio.transports import Transport
 from typing import Dict, Optional, Tuple, Union
 
-from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
 from bifrost.utils.misc import load_object
 
 
-class Interface(ProtocolMixin, Protocol, LoggerMixin):
+class Interface(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
     """
     A socks5 proxy server side
     """
