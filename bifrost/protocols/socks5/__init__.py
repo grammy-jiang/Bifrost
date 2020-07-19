@@ -18,7 +18,7 @@ from functools import cached_property
 from struct import pack, unpack
 from typing import Optional, Tuple
 
-from bifrost.base import LoggerMixin, ProtocolMixin
+from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
 from bifrost.exceptions.protocol import (
     ProtocolVersionNotSupportedException,
     Socks5CMDNotSupportedException,
@@ -316,7 +316,7 @@ class Socks5StateData(Socks5State):
         self.protocol.client_transport.write(data)
 
 
-class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin):
+class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
     """
     A socks5 proxy server side
     """
