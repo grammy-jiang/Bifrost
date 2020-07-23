@@ -109,7 +109,10 @@ class Socks5StateInit(Socks5State):
             raise ProtocolVersionNotSupportedException
 
         self.logger.debug(
-            "[INIT] [%s:%s] received: %s", *self.protocol.info_peername, repr(data),
+            "[%s] [INIT] [%s:%s] received: %s",
+            hex(id(self.protocol)),
+            *self.protocol.info_peername,
+            repr(data),
         )
 
         ver, nmethods = data[:2]  # pylint: disable=unused-variable
@@ -159,7 +162,10 @@ class Socks5StateAuth(Socks5State):
         :rtype: None
         """
         self.logger.debug(
-            "[AUTH] [%s:%s] received: %s", *self.protocol.info_peername, repr(data),
+            "[%s] [AUTH] [%s:%s] received: %s",
+            hex(id(self)),
+            *self.protocol.info_peername,
+            repr(data),
         )
         # self.stats.increase(f"Authentication/{self.name}")
         auth_method = self.protocol.cls_auth_method.from_protocol(self.protocol)
@@ -242,7 +248,8 @@ class Socks5StateHost(Socks5State):
             raise Socks5CMDNotSupportedException
 
         self.logger.debug(
-            "[HOST] [%s:%s] [%s:%s] received: %s",
+            "[%s] [HOST] [%s:%s] [%s:%s] received: %s",
+            hex(id(self)),
             *self.protocol.info_peername,
             to_str(dst_addr),
             dst_port,
@@ -309,7 +316,8 @@ class Socks5StateData(Socks5State):
         :rtype: None
         """
         self.logger.debug(
-            "[DATA] [%s:%s] received: %s bytes",
+            "[%s] [DATA] [%s:%s] received: %s bytes",
+            hex(id(self)),
             *self.protocol.info_peername,
             len(data),
         )
@@ -402,7 +410,10 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
             previous_state = self._get_state()
             self.state.switch()
             self.logger.debug(
-                "[%s] State switched to [%s]", previous_state, self._get_state()
+                "[%s] [%s] State switched to [%s]",
+                hex(id(self)),
+                previous_state,
+                self._get_state(),
             )
         elif isinstance(
             result,

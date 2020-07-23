@@ -31,15 +31,18 @@ def middlewares(func: Callable) -> Callable:
         if protocol.role == "interface":
             if protocol.config["INTERFACE_SSL_CERT_FILE"]:
                 protocol.logger.debug(
-                    "[CONN] [%s:%s] connected with name [%s], "
+                    "[%s] [CONN] [%s:%s] connected with name [%s], "
                     "version [%s], "
                     "secret bits [%s]",
+                    hex(id(protocol)),
                     *protocol.info_peername,
                     *transport.get_extra_info("cipher"),
                 )
             else:
                 protocol.logger.debug(
-                    "[CONN] [%s:%s] connected", *protocol.info_peername
+                    "[%s] [CONN] [%s:%s] connected",
+                    hex(id(protocol)),
+                    *protocol.info_peername,
                 )
         elif protocol.role == "client":
             if cipher := transport.get_extra_info("cipher"):
