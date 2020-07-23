@@ -88,7 +88,7 @@ class Socks5StateInit(Socks5State):
         Switch to Auth state
         :return:
         """
-        super(Socks5StateInit, self)._switch("AUTH")
+        super(Socks5StateInit, self)._switch(self.protocol.cls_auth_method.next_state)
 
     async def data_received(self, data: bytes):
         """

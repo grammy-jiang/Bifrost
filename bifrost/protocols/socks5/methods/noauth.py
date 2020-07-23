@@ -9,3 +9,4 @@ class NoAuth:  # pylint: disable=too-few-public-methods
     """
 
     value = 0x00
+    next_state = "HOST"
