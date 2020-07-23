@@ -110,7 +110,7 @@ class Socks5StateInit(Socks5State):
 
         self.logger.debug(
             "[%s] [INIT] [%s:%s] received: %s",
-            hex(id(self.protocol)),
+            hex(id(self.protocol))[-4:],
             *self.protocol.info_peername,
             repr(data),
         )
@@ -163,7 +163,7 @@ class Socks5StateAuth(Socks5State):
         """
         self.logger.debug(
             "[%s] [AUTH] [%s:%s] received: %s",
-            hex(id(self.protocol)),
+            hex(id(self.protocol))[-4:],
             *self.protocol.info_peername,
             repr(data),
         )
@@ -249,7 +249,7 @@ class Socks5StateHost(Socks5State):
 
         self.logger.debug(
             "[%s] [HOST] [%s:%s] [%s:%s] received: %s",
-            hex(id(self.protocol)),
+            hex(id(self.protocol))[-4:],
             *self.protocol.info_peername,
             to_str(dst_addr),
             dst_port,
@@ -317,7 +317,7 @@ class Socks5StateData(Socks5State):
         """
         self.logger.debug(
             "[%s] [DATA] [%s:%s] received: %s bytes",
-            hex(id(self.protocol)),
+            hex(id(self.protocol))[-4:],
             *self.protocol.info_peername,
             len(data),
         )
@@ -411,7 +411,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
             self.state.switch()
             self.logger.debug(
                 "[%s] [%s] State switched to [%s]",
-                hex(id(self)),
+                hex(id(self))[-4:],
                 previous_state,
                 self._get_state(),
             )

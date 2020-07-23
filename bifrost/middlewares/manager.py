@@ -34,14 +34,14 @@ def middlewares(func: Callable) -> Callable:
                     "[%s] [CONN] [%s:%s] connected with name [%s], "
                     "version [%s], "
                     "secret bits [%s]",
-                    hex(id(protocol)),
+                    hex(id(protocol))[-4:],
                     *protocol.info_peername,
                     *transport.get_extra_info("cipher"),
                 )
             else:
                 protocol.logger.debug(
                     "[%s] [CONN] [%s:%s] connected",
-                    hex(id(protocol)),
+                    hex(id(protocol))[-4:],
                     *protocol.info_peername,
                 )
         elif protocol.role == "client":
