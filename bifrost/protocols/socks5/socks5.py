@@ -326,7 +326,7 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
     setting_prefix = "PROTOCOL_SOCKS5_"
 
     def __init__(
-            self, channel, name: str = None, role: str = None, setting_prefix: str = None
+        self, channel, name: str = None, role: str = None, setting_prefix: str = None
     ):
         super(Socks5Protocol, self).__init__(channel, name, role, setting_prefix)
 
@@ -399,10 +399,14 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
             self.state.data_received(data), return_exceptions=True
         )
         if result is None:
+            previous_state = self._get_state()
             self.state.switch()
+            self.logger.debug(
+                "[%s] State switched to [%s]", previous_state, self._get_state()
+            )
         elif isinstance(
-                result,
-                (Socks5NetworkUnreachableException, ProtocolVersionNotSupportedException),
+            result,
+            (Socks5NetworkUnreachableException, ProtocolVersionNotSupportedException),
         ):
             self.transport.close()
         elif isinstance(result, Exception):
@@ -417,3 +421,13 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
         :rtype: Tuple[str, int]
         """
         return self.transport.get_extra_info("peername")[:2]
+
+    def _get_state(self, state=None) -> str:
+        """
+
+        :return:
+        :rtype: str
+        """
+        keys = list(self.states.keys())
+        index = list(self.states.values()).index(state if state else self.state)
+        return keys[index]
