@@ -288,10 +288,23 @@ class Socks5StateHost(Socks5State):
             bnd_port: int
             bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
 
-            bnd_addr: int = unpack("!I", socket.inet_aton(bnd_addr_))[0]
+            bnd_addr: bytes = socket.inet_pton(self.protocol.socket.family, bnd_addr_)
+
+            if self.protocol.socket.family == socket.AF_INET:
+                address_type = 0x01
+            elif self.protocol.socket.family == socket.AF_INET6:
+                address_type = 0x03
 
             self.protocol.transport.write(
-                pack("!BBBBIH", VERSION, 0x00, 0x00, atyp, bnd_addr, bnd_port)
+                pack(
+                    f"!BBBB{len(bnd_addr)}sH",
+                    VERSION,
+                    0x00,
+                    0x00,
+                    address_type,
+                    bnd_addr,
+                    bnd_port,
+                )
             )
 
 
