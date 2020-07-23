@@ -191,7 +191,7 @@ class Socks5StateHost(Socks5State):
         super(Socks5StateHost, self)._switch("DATA")
 
     @staticmethod
-    def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
+    async def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
         """
         SOCKS request
 
@@ -243,7 +243,7 @@ class Socks5StateHost(Socks5State):
             atyp,
             dst_addr,
             dst_port,
-        ) = self.parse_host_data(data)
+        ) = await self.parse_host_data(data)
         if cmd not in self.supported_cmd:
             raise Socks5CMDNotSupportedException
 
