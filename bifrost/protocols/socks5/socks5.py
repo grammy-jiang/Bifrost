@@ -163,7 +163,7 @@ class Socks5StateAuth(Socks5State):
         """
         self.logger.debug(
             "[%s] [AUTH] [%s:%s] received: %s",
-            hex(id(self)),
+            hex(id(self.protocol)),
             *self.protocol.info_peername,
             repr(data),
         )
@@ -249,7 +249,7 @@ class Socks5StateHost(Socks5State):
 
         self.logger.debug(
             "[%s] [HOST] [%s:%s] [%s:%s] received: %s",
-            hex(id(self)),
+            hex(id(self.protocol)),
             *self.protocol.info_peername,
             to_str(dst_addr),
             dst_port,
@@ -317,7 +317,7 @@ class Socks5StateData(Socks5State):
         """
         self.logger.debug(
             "[%s] [DATA] [%s:%s] received: %s bytes",
-            hex(id(self)),
+            hex(id(self.protocol)),
             *self.protocol.info_peername,
             len(data),
         )
