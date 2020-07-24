@@ -79,6 +79,7 @@ def to_bytes(text: Union[bytes, str], encoding="utf-8", errors="strict") -> byte
     raise TypeError
 
 
+@lru_cache
 def to_sync(func: Callable) -> Callable:
     """
     A decorator to convert function to sync
@@ -98,6 +99,7 @@ def to_sync(func: Callable) -> Callable:
     return convert_to_sync
 
 
+@lru_cache
 def to_async(func: Callable, executor=None) -> Callable:
     """
 
