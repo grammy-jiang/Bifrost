@@ -18,6 +18,7 @@ An Asynchronous Proxy to Bypass GFW
   * [Testing asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-testing/)
   * [Debugging asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-debugging/)
   * [Profiling asyncio code – roguelynn](https://www.roguelynn.com/words/asyncio-profiling/)
+* [Python & Async Simplified - Aeracode](https://www.aeracode.org/2018/02/19/python-async-simplified/)
 
 ### TOOLS
 
