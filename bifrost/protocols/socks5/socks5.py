@@ -150,14 +150,15 @@ class Socks5StateAuth(Socks5State):
     AUTH state
     """
 
-    def switch(self):
+    def switch(self) -> None:
         """
         Switch to HOST state
         :return:
+        :rtype: None
         """
-        super(Socks5StateAuth, self)._switch("HOST")
+        return super(Socks5StateAuth, self)._switch("HOST")
 
-    async def data_received(self, data: bytes):
+    async def data_received(self, data: bytes) -> None:
         """
 
         :param data:
@@ -187,12 +188,13 @@ class Socks5StateHost(Socks5State):
         # 0x03,  # TODO: udp associate
     )
 
-    def switch(self):
+    def switch(self) -> None:
         """
         Switch to DATA state
         :return:
+        :rtype: None
         """
-        super(Socks5StateHost, self)._switch("DATA")
+        return super(Socks5StateHost, self)._switch("DATA")
 
     @staticmethod
     async def parse_host_data(data: bytes) -> Tuple[int, int, int, int, bytes, int]:
