@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from bifrost.utils.misc import load_object, to_bytes, to_str
+from bifrost.utils.misc import load_object, to_bytes, to_str, to_sync
 
 
 class MiscTestCase(TestCase):
@@ -19,3 +19,16 @@ class MiscTestCase(TestCase):
         self.assertEqual(to_str("a"), "a")
         with self.assertRaises(TypeError):
             to_str(0)
+
+    def test_to_sync(self):
+        @to_sync
+        def sync_func(a, b, c=None):
+            return a, b, c
+
+        self.assertSequenceEqual(sync_func("a", "b", "c"), ("a", "b", "c"))
+
+        @to_sync
+        async def async_func(a, b, c=None):
+            return a, b, c
+
+        self.assertSequenceEqual(async_func("a", "b", "c"), ("a", "b", "c"))

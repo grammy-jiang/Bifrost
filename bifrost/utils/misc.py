@@ -1,9 +1,10 @@
 """
 Miscellaneous
 """
+import asyncio
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Union
+from typing import Any, Callable, Union
 
 from cachetools.func import lru_cache
 
@@ -75,3 +76,22 @@ def to_bytes(text: Union[bytes, str], encoding="utf-8", errors="strict") -> byte
     if isinstance(text, bytes):
         return text
     raise TypeError
+
+
+def to_sync(func: Callable) -> Callable:
+    """
+    A decorator to convert function to sync
+    :param func:
+    :type func: Callable
+    :return:
+    :rtype: Callable
+    """
+    loop = asyncio.get_event_loop()
+
+    def convert_to_sync(*args, **kwargs):
+        if asyncio.iscoroutinefunction(func):
+            return loop.run_until_complete(func(*args, **kwargs))
+        else:
+            return func(*args, **kwargs)
+
+    return convert_to_sync
