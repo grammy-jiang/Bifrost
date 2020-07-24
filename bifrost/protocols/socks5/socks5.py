@@ -321,14 +321,15 @@ class Socks5StateData(Socks5State):
     DATA state
     """
 
-    def switch(self):
+    def switch(self) -> None:
         """
         Switch to DATA state
         :return:
+        :rtype: None
         """
-        super(Socks5StateData, self)._switch("DATA")
+        return super(Socks5StateData, self)._switch("DATA")
 
-    async def data_received(self, data: bytes):
+    async def data_received(self, data: bytes) -> None:
         """
 
         :param data:
