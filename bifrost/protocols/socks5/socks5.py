@@ -16,7 +16,7 @@ from asyncio.events import get_event_loop
 from asyncio.protocols import Protocol
 from functools import cached_property
 from struct import pack, unpack
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
 from bifrost.exceptions.protocol import (
@@ -83,14 +83,17 @@ class Socks5StateInit(Socks5State):
     INIT state
     """
 
-    def switch(self):
+    def switch(self) -> None:
         """
         Switch to Auth state
         :return:
+        :rtype: None
         """
-        super(Socks5StateInit, self)._switch(self.protocol.cls_auth_method.next_state)
+        return super(Socks5StateInit, self)._switch(
+            self.protocol.cls_auth_method.next_state
+        )
 
-    async def data_received(self, data: bytes):
+    async def data_received(self, data: bytes) -> None:
         """
         A version identifier/method selection message:
 
@@ -115,8 +118,8 @@ class Socks5StateInit(Socks5State):
             repr(data),
         )
 
-        ver, nmethods = data[:2]  # pylint: disable=unused-variable
-        methods = list(data[2 : 2 + nmethods])
+        nmethods: int = data[1]
+        methods: List[int] = list(data[2 : 2 + nmethods])
 
         available_auth_methods = sorted(
             set(self.protocol.config["AUTH_METHODS"]).intersection(set(methods)),
@@ -127,7 +130,8 @@ class Socks5StateInit(Socks5State):
             auth_method = available_auth_methods[0]
         except IndexError:
             self.logger.debug(
-                "No acceptable methods found. The following methods are supported:\n%s",
+                "No acceptable methods found. "
+                "The following methods are supported:\n%s",
                 pprint.pformat(self.protocol.config["AUTH_METHODS"]),
             )
             self.protocol.transport.write(
