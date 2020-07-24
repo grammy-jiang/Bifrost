@@ -173,5 +173,17 @@ class ProtocolMixin:
         """
         self._client_transport = value
 
+    @property
+    def socket(self):
+        return self.transport.get_extra_info("socket")
+
+    @property
+    def server_socket(self):
+        return self.server_transport.get_extra_info("socket")
+
+    @property
+    def client_socket(self):
+        return self.client_transport.get_extra_info("socket")
+
 
 __all__ = ["ProtocolMixin"]
