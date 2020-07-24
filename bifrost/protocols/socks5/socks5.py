@@ -231,7 +231,7 @@ class Socks5StateHost(Socks5State):
 
         return ver, cmd, rsv, atyp, dst_addr, dst_port
 
-    async def data_received(self, data: bytes):
+    async def data_received(self, data: bytes) -> None:
         """
 
         :param data:
@@ -250,6 +250,7 @@ class Socks5StateHost(Socks5State):
             dst_addr,
             dst_port,
         ) = await self.parse_host_data(data)
+
         if cmd not in self.supported_cmd:
             raise Socks5CMDNotSupportedException
 
@@ -285,33 +286,34 @@ class Socks5StateHost(Socks5State):
                     )  # Network unreachable
                 )
                 raise Socks5NetworkUnreachableException
-            self.logger.exception(exc)
-        else:
-            client_protocol.server_transport = self.protocol.transport
-            self.protocol.client_transport = client_transport
+            raise exc
 
-            bnd_addr_: str
-            bnd_port: int
-            bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
+        client_protocol.server_transport = self.protocol.transport
+        self.protocol.client_transport = client_transport
 
-            bnd_addr: bytes = socket.inet_pton(self.protocol.socket.family, bnd_addr_)
+        bnd_addr_: str
+        bnd_port: int
+        bnd_addr_, bnd_port = client_transport.get_extra_info("sockname")
 
-            if self.protocol.socket.family == socket.AF_INET:
-                address_type = 0x01
-            elif self.protocol.socket.family == socket.AF_INET6:
-                address_type = 0x03
+        bnd_addr: bytes = socket.inet_pton(self.protocol.socket.family, bnd_addr_)
 
-            self.protocol.transport.write(
-                pack(
-                    f"!BBBB{len(bnd_addr)}sH",
-                    VERSION,
-                    0x00,
-                    0x00,
-                    address_type,
-                    bnd_addr,
-                    bnd_port,
-                )
+        atyp_: int
+        if self.protocol.socket.family == socket.AF_INET:
+            atyp_ = 0x01
+        elif self.protocol.socket.family == socket.AF_INET6:
+            atyp_ = 0x03
+
+        self.protocol.transport.write(
+            pack(
+                f"!BBBB{len(bnd_addr)}sH",
+                VERSION,
+                0x00,
+                0x00,
+                atyp_,
+                bnd_addr,
+                bnd_port,
             )
+        )
 
 
 class Socks5StateData(Socks5State):
