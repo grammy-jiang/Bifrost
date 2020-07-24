@@ -1,6 +1,7 @@
+import asyncio
 from unittest.case import TestCase
 
-from bifrost.utils.misc import load_object, to_bytes, to_str, to_sync
+from bifrost.utils.misc import load_object, to_async, to_bytes, to_str, to_sync
 
 
 class MiscTestCase(TestCase):
@@ -32,3 +33,22 @@ class MiscTestCase(TestCase):
             return a, b, c
 
         self.assertSequenceEqual(async_func("a", "b", "c"), ("a", "b", "c"))
+
+    def test_to_async(self):
+        loop = asyncio.get_event_loop()
+
+        @to_async
+        def sync_func(a, b, c=None):
+            return a, b, c
+
+        self.assertSequenceEqual(
+            loop.run_until_complete(sync_func("a", "b", "c")), ("a", "b", "c")
+        )
+
+        @to_async
+        async def async_func(a, b, c=None):
+            return a, b, c
+
+        self.assertSequenceEqual(
+            loop.run_until_complete(async_func("a", "b", "c")), ("a", "b", "c")
+        )

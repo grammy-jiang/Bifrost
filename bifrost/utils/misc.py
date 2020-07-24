@@ -2,6 +2,7 @@
 Miscellaneous
 """
 import asyncio
+import functools
 from importlib import import_module
 from types import ModuleType
 from typing import Any, Callable, Union
@@ -95,3 +96,28 @@ def to_sync(func: Callable) -> Callable:
             return func(*args, **kwargs)
 
     return convert_to_sync
+
+
+def to_async(func: Callable, executor=None) -> Callable:
+    """
+
+    :param func:
+    :type func: Callable
+    :param executor:
+    :type executor:
+    :return:
+    :rtype: Callable
+    """
+    loop = asyncio.get_event_loop()
+    if asyncio.iscoroutinefunction(func):
+
+        async def convert_to_async(*args, **kwargs):
+            return await func(*args, **kwargs)
+
+    else:
+
+        async def convert_to_async(*args, **kwargs):
+            _ = functools.partial(func, *args, **kwargs)
+            return await loop.run_in_executor(executor, _)
+
+    return convert_to_async
