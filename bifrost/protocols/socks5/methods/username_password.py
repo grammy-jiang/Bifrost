@@ -11,8 +11,6 @@ from bifrost.base import SingletonMeta
 from bifrost.exceptions.protocol import ProtocolNotDefinedException
 from bifrost.utils.misc import load_object, to_str
 
-_username_password_auth = None
-
 
 class UsernamePasswordAuthConfigBackend:
     """
@@ -62,8 +60,7 @@ class UsernamePasswordAuthConfigBackend:
         _password = to_str(password)
         if _username in self.users and _password == self.users[_username]:
             return True
-        else:
-            return False
+        return False
 
 
 class UsernamePasswordAuthRDBackend:
