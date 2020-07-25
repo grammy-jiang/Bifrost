@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from struct import pack
 
+from bifrost.base import SingletonMeta
 from bifrost.exceptions.protocol import ProtocolNotDefinedException
-from bifrost.protocols.socks5 import AUTH, HOST
 from bifrost.utils.misc import load_object, to_str
 
 _username_password_auth = None
@@ -18,20 +18,23 @@ class UsernamePasswordAuthConfigBackend:
     A backend for username/password authentication through config
     """
 
-    def __init__(self, auth):
+    def __init__(self, auth: UsernamePasswordAuth):
         """
 
         :param auth:
+        :type auth: UsernamePasswordAuth
         """
         self.auth = auth
         self.users = self.config["USERNAMEPASSWORD_USERS"]
 
     @classmethod
-    def from_auth(cls, auth) -> UsernamePasswordAuthConfigBackend:
+    def from_auth(cls, auth: UsernamePasswordAuth) -> UsernamePasswordAuthConfigBackend:
         """
 
         :param auth:
+        :type auth: UsernamePasswordAuth
         :return:
+        :rtype: UsernamePasswordAuthConfigBackend
         """
         obj = cls(auth)
         return obj
@@ -62,13 +65,13 @@ class UsernamePasswordAuthConfigBackend:
             return False
 
 
-class UsernamePasswordAuth:
+class UsernamePasswordAuth(metaclass=SingletonMeta):
     """
     Username/Password Authentication for SOCKS V5
     """
 
     value = 0x02
-    transit_to = AUTH
+    next_state = "AUTH"
 
     def __init__(self):
         """
@@ -86,13 +89,10 @@ class UsernamePasswordAuth:
         :return:
         :rtype: UsernamePassword
         """
-        global _username_password_auth
+        obj = cls()
+        obj.protocol = protocol
 
-        if not _username_password_auth:
-            _username_password_auth = cls()
-        _username_password_auth.protocol = protocol
-
-        return _username_password_auth
+        return obj
 
     @property
     def protocol(self):
@@ -133,13 +133,13 @@ class UsernamePasswordAuth:
             self._backend = cls_backend.from_auth(self)
         return self._backend
 
-    def auth(self, data: bytes):
+    def auth(self, data: bytes) -> None:
         """
 
         :param data:
         :type data:
         :return:
-        :rtype: bool
+        :rtype: None
         """
         ver: int = data[0]
         ulen: int = data[1]
@@ -149,7 +149,6 @@ class UsernamePasswordAuth:
 
         if self.backend.authenticate(uname, passwd):
             self.protocol.transport.write(pack("!BB", ver, 0x00))
-            self.protocol.state = HOST
         else:
             self.protocol.transport.write(pack("!BB", ver, 0xFF))
             self.protocol.transport.close()
