@@ -4,6 +4,7 @@ https://datatracker.ietf.org/doc/rfc1929/
 """
 from __future__ import annotations
 
+from functools import cached_property
 from struct import pack
 
 from bifrost.base import SingletonMeta
@@ -39,7 +40,7 @@ class UsernamePasswordAuthConfigBackend:
         obj = cls(auth)
         return obj
 
-    @property
+    @cached_property
     def config(self):
         """
 
@@ -63,6 +64,55 @@ class UsernamePasswordAuthConfigBackend:
             return True
         else:
             return False
+
+
+class UsernamePasswordAuthRDBackend:
+    """
+    A backend for username/password authentication through relational database
+    """
+
+    def __init__(self, auth: UsernamePasswordAuth):
+        """
+
+        :param auth:
+        :type auth: UsernamePasswordAuth
+        """
+        self.auth = auth
+
+    @classmethod
+    def from_auth(cls, auth: UsernamePasswordAuth) -> UsernamePasswordAuthRDBackend:
+        """
+
+        :param auth:
+        :type auth: UsernamePasswordAuth
+        :return:
+        :rtype: UsernamePasswordAuthRDBackend
+        """
+        obj = cls(auth)
+        return obj
+
+    @cached_property
+    def config(self):
+        """
+
+        :return:
+        """
+        return self.auth.config
+
+    def authenticate(self, username: bytes, password: bytes) -> bool:
+        """
+
+        :param username:
+        :type username: bytes
+        :param password:
+        :type password: bytes
+        :return:
+        :rtype: bool
+        """
+        _username = to_str(username)
+        _password = to_str(password)
+
+        # TODO: verify the username
 
 
 class UsernamePasswordAuth(metaclass=SingletonMeta):
