@@ -32,10 +32,6 @@ An Asynchronous Proxy to Bypass GFW
 * [Privoxy - Home Page](https://www.privoxy.org/)
 * [Tor Project | Anonymity Online](https://www.torproject.org/)
 
-## ARTICLES
-
-* [Use DNS over TLS - Fedora Magazine](https://fedoramagazine.org/use-dns-over-tls/)
-
 ## REFERENCE
 
 ### SOCKS
@@ -54,3 +50,10 @@ An Asynchronous Proxy to Bypass GFW
 #### SOCKS6
 
 * [draft-olteanu-intarea-socks-6-09 - SOCKS Protocol Version 6](https://datatracker.ietf.org/doc/draft-olteanu-intarea-socks-6/)
+
+### DNS
+
+* [Use DNS over TLS - Fedora Magazine](https://fedoramagazine.org/use-dns-over-tls/)
+* [DNS Privacy Project Homepage - DNS Privacy Project - Global Site](https://dnsprivacy.org/wiki/)
+* [Manual:IP/DNS - MikroTik Wiki](https://wiki.mikrotik.com/wiki/Manual:IP/DNS)
+* [Announcing 1.1.1.1: the fastest, privacy-first consumer DNS service](https://blog.cloudflare.com/announcing-1111/)
