@@ -43,6 +43,12 @@ class Socks5NoAcceptableMethodsException(Socks5Exception):
     """
 
 
+class Socks5AuthenticationFailed(Socks5Exception):
+    """
+    Authentication failed
+    """
+
+
 class Socks5NetworkUnreachableException(Socks5Exception):
     """
     The target can't be reached
