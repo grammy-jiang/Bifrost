@@ -175,7 +175,7 @@ class Socks5StateAuth(Socks5State):
         )
         # self.stats.increase(f"Authentication/{self.name}")
         auth_method = self.protocol.cls_auth_method.from_protocol(self.protocol)
-        auth_method.auth(data)
+        await auth_method.auth(data)
 
 
 class Socks5StateHost(Socks5State):

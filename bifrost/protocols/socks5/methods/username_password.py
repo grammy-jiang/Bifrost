@@ -49,7 +49,7 @@ class UsernamePasswordAuthConfigBackend:
         """
         return self.auth.config
 
-    def authenticate(self, username: bytes, password: bytes) -> bool:
+    async def authenticate(self, username: bytes, password: bytes) -> bool:
         """
 
         :param username:
@@ -183,7 +183,7 @@ class UsernamePasswordAuth(LoggerMixin, metaclass=SingletonMeta):
             self._backend = cls_backend.from_auth(self)
         return self._backend
 
-    def auth(self, data: bytes) -> None:
+    async def auth(self, data: bytes) -> None:
         """
 
         :param data:
@@ -197,7 +197,7 @@ class UsernamePasswordAuth(LoggerMixin, metaclass=SingletonMeta):
         plen: int = data[2 + ulen]
         passwd: bytes = data[2 + ulen + 1 : 2 + ulen + 1 + plen]
 
-        if self.backend.authenticate(uname, passwd):
+        if await self.backend.authenticate(uname, passwd):
             self.protocol.transport.write(pack("!BB", ver, 0x00))
         else:
             self.protocol.transport.write(pack("!BB", ver, 0xFF))
