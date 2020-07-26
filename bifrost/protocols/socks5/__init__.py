@@ -18,7 +18,7 @@ from functools import cached_property
 from struct import pack, unpack
 from typing import List, Optional, Tuple
 
-from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
+from bifrost.base import LoggerMixin, ProtocolMixin, SignalManagerMixin, StatsMixin
 from bifrost.exceptions.protocol import (
     ProtocolVersionNotSupportedException,
     Socks5AuthenticationFailed,
@@ -33,7 +33,7 @@ from bifrost.utils.misc import load_object, to_str
 VERSION = 0x05  # Socks version
 
 
-class Socks5State(LoggerMixin, StatsMixin):
+class Socks5State(LoggerMixin, SignalManagerMixin, StatsMixin):
     """
     Base state for Socks5 protocol
     """
@@ -347,7 +347,9 @@ class Socks5StateData(Socks5State):
         self.protocol.client_transport.write(data)
 
 
-class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
+class Socks5Protocol(
+    ProtocolMixin, Protocol, LoggerMixin, SignalManagerMixin, StatsMixin
+):
     """
     A socks5 proxy server side
     """
