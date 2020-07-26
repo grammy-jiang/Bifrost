@@ -7,8 +7,11 @@ from __future__ import annotations
 from functools import cached_property
 from struct import pack
 
-from bifrost.base import SingletonMeta
-from bifrost.exceptions.protocol import ProtocolNotDefinedException
+from bifrost.base import LoggerMixin, SingletonMeta
+from bifrost.exceptions.protocol import (
+    ProtocolNotDefinedException,
+    Socks5AuthenticationFailed,
+)
 from bifrost.utils.misc import load_object, to_str
 
 
@@ -112,7 +115,7 @@ class UsernamePasswordAuthRDBackend:
         # TODO: verify the username
 
 
-class UsernamePasswordAuth(metaclass=SingletonMeta):
+class UsernamePasswordAuth(LoggerMixin, metaclass=SingletonMeta):
     """
     Username/Password Authentication for SOCKS V5
     """
@@ -198,4 +201,5 @@ class UsernamePasswordAuth(metaclass=SingletonMeta):
             self.protocol.transport.write(pack("!BB", ver, 0x00))
         else:
             self.protocol.transport.write(pack("!BB", ver, 0xFF))
-            self.protocol.transport.close()
+            self.logger.info("Authentication failed: [%s]", to_str(uname))
+            raise Socks5AuthenticationFailed

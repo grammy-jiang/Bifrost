@@ -21,6 +21,7 @@ from typing import List, Optional, Tuple
 from bifrost.base import LoggerMixin, ProtocolMixin, StatsMixin
 from bifrost.exceptions.protocol import (
     ProtocolVersionNotSupportedException,
+    Socks5AuthenticationFailed,
     Socks5CMDNotSupportedException,
     Socks5NetworkUnreachableException,
     Socks5NoAcceptableMethodsException,
@@ -439,7 +440,11 @@ class Socks5Protocol(ProtocolMixin, Protocol, LoggerMixin, StatsMixin):
             )
         elif isinstance(
             result,
-            (Socks5NetworkUnreachableException, ProtocolVersionNotSupportedException),
+            (
+                Socks5AuthenticationFailed,
+                Socks5NetworkUnreachableException,
+                ProtocolVersionNotSupportedException,
+            ),
         ):
             self.transport.close()
         elif isinstance(result, Exception):
