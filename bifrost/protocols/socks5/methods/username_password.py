@@ -4,6 +4,7 @@ https://datatracker.ietf.org/doc/rfc1929/
 """
 from __future__ import annotations
 
+import sqlite3
 from functools import cached_property
 from struct import pack
 
@@ -78,6 +79,26 @@ class UsernamePasswordAuthSQLiteBackend:
         :type auth: UsernamePasswordAuth
         """
         self.auth = auth
+        self.connection = sqlite3.connect(
+            self.auth.config["USERNAMEPASSWORD_SQLITE_URI"]
+        )
+        try:
+            self.connection.execute(
+                """
+                CREATE TABLE users
+                (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username    TEXT UNIQUE,
+                    password    TEXT,
+                    quota       INTEGER,
+                    download    INTEGER,
+                    upload      INTEGER,
+                    last_update TEXT
+                );
+                """
+            )
+        except sqlite3.OperationalError:
+            pass
 
     @classmethod
     def from_auth(cls, auth: UsernamePasswordAuth) -> UsernamePasswordAuthSQLiteBackend:
@@ -112,7 +133,16 @@ class UsernamePasswordAuthSQLiteBackend:
         _username = to_str(username)
         _password = to_str(password)
 
-        # TODO: verify the username
+        result = self.connection.execute(
+            f"""
+            SELECT EXISTS(SELECT 1
+                          FROM users
+                          WHERE username = {_username}
+                            AND password = {_password}
+            );
+            """
+        ).fetchone()
+        return bool(result)
 
 
 class UsernamePasswordAuth(LoggerMixin, SignalManagerMixin, metaclass=SingletonMeta):
