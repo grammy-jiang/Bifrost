@@ -66,9 +66,9 @@ class UsernamePasswordAuthConfigBackend:
         return False
 
 
-class UsernamePasswordAuthRDBackend:
+class UsernamePasswordAuthSQLiteBackend:
     """
-    A backend for username/password authentication through relational database
+    A backend for username/password authentication through SQLite
     """
 
     def __init__(self, auth: UsernamePasswordAuth):
@@ -80,13 +80,13 @@ class UsernamePasswordAuthRDBackend:
         self.auth = auth
 
     @classmethod
-    def from_auth(cls, auth: UsernamePasswordAuth) -> UsernamePasswordAuthRDBackend:
+    def from_auth(cls, auth: UsernamePasswordAuth) -> UsernamePasswordAuthSQLiteBackend:
         """
 
         :param auth:
         :type auth: UsernamePasswordAuth
         :return:
-        :rtype: UsernamePasswordAuthRDBackend
+        :rtype: UsernamePasswordAuthSQLiteBackend
         """
         obj = cls(auth)
         return obj
@@ -99,7 +99,7 @@ class UsernamePasswordAuthRDBackend:
         """
         return self.auth.config
 
-    def authenticate(self, username: bytes, password: bytes) -> bool:
+    async def authenticate(self, username: bytes, password: bytes) -> bool:
         """
 
         :param username:
