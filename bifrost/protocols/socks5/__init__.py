@@ -33,7 +33,7 @@ from bifrost.utils.misc import load_object, to_str
 VERSION = 0x05  # Socks version
 
 
-class Socks5State(LoggerMixin):
+class Socks5State(LoggerMixin, StatsMixin):
     """
     Base state for Socks5 protocol
     """
