@@ -5,11 +5,11 @@ import ssl
 from asyncio.events import get_event_loop
 from typing import Optional
 
-from bifrost.base import BaseComponent, LoggerMixin, StatsMixin
+from bifrost.base import BaseComponent, LoggerMixin, SignalManagerMixin, StatsMixin
 from bifrost.utils.misc import load_object
 
 
-class Channel(BaseComponent, LoggerMixin, StatsMixin):
+class Channel(BaseComponent, LoggerMixin, SignalManagerMixin, StatsMixin):
     """
     Channel
     """
@@ -29,15 +29,6 @@ class Channel(BaseComponent, LoggerMixin, StatsMixin):
         self.config.update(self.settings["CHANNELS"][self.name])
 
         self.server = None
-
-    @property
-    def signal_manager(self):
-        """
-
-        :return:
-        :rtype:
-        """
-        return self.service.signal_manager
 
     async def start(self) -> None:
         """
