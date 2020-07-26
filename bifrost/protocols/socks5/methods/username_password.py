@@ -201,5 +201,5 @@ class UsernamePasswordAuth(LoggerMixin, metaclass=SingletonMeta):
             self.protocol.transport.write(pack("!BB", ver, 0x00))
         else:
             self.protocol.transport.write(pack("!BB", ver, 0xFF))
-            self.logger.info("Authentication failed: [%s]", to_str(uname))
+            self.logger.debug("Authentication failed: [%s]", to_str(uname))
             raise Socks5AuthenticationFailed
