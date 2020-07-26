@@ -7,7 +7,7 @@ from __future__ import annotations
 from functools import cached_property
 from struct import pack
 
-from bifrost.base import LoggerMixin, SingletonMeta
+from bifrost.base import LoggerMixin, SignalManagerMixin, SingletonMeta
 from bifrost.exceptions.protocol import (
     ProtocolNotDefinedException,
     Socks5AuthenticationFailed,
@@ -115,7 +115,7 @@ class UsernamePasswordAuthSQLiteBackend:
         # TODO: verify the username
 
 
-class UsernamePasswordAuth(LoggerMixin, metaclass=SingletonMeta):
+class UsernamePasswordAuth(LoggerMixin, SignalManagerMixin, metaclass=SingletonMeta):
     """
     Username/Password Authentication for SOCKS V5
     """
