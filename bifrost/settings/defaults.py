@@ -99,13 +99,23 @@ CHANNELS: Dict[str, Dict[str, Optional[Union[str, int]]]] = {
 }
 
 PROTOCOL_SOCKS5_AUTH_METHODS = {
-    # 0x00: "bifrost.protocols.socks5.methods.NoAuth",  # NO AUTHENTICATION REQUIRED
+    0x00: "bifrost.protocols.socks5.methods.NoAuth",  # NO AUTHENTICATION REQUIRED
     # 0x01: "bifrost.protocols.socks5.methods.GSSAPI",  # GSSAPI
     0x02: "bifrost.protocols.socks5.methods.UsernamePasswordAuth",  # USERNAME/PASSWORD
 }
 
 PROTOCOL_SOCKS5_USERNAMEPASSWORD_AUTH_BACKEND = (
     "bifrost.protocols.socks5.methods.UsernamePasswordAuthConfigBackend"
+    # "bifrost.protocols.socks5.methods.UsernamePasswordAuthSQLiteBackend"
 )
 
-PROTOCOL_SOCKS5_USERNAMEPASSWORD_USERS = {"username": "password"}
+PROTOCOL_SOCKS5_USERNAMEPASSWORD_USERS = {
+    "username": "password",
+    "alice": "alice's password",
+    "white rabbit": "white rabbit's password",
+    "mouse": "mouse's password",
+    "dodo": "dodo's password",
+}
+
+# PROTOCOL_SOCKS5_USERNAMEPASSWORD_SQLITE_URI = ":memory:"
+PROTOCOL_SOCKS5_USERNAMEPASSWORD_SQLITE_URI = "db.sqlite3"
