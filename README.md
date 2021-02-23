@@ -1,6 +1,6 @@
 # Bifröst
 
-An Asynchronous Proxy to Bypass GFW
+An Asynchronous Proxy
 
 ## TODO
 
